@@ -1,30 +1,68 @@
-// src/App.js
+// src/App.jsx
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import CreateA3 from "./pages/CreateA3";
 import MyA3s from "./pages/MyA3s";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Inicio from "./pages/Inicio";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+  const location = useLocation();
+  const hideLayout =
+    location.pathname === "/" ||
+    location.pathname === "/login" ||
+    location.pathname === "/register";
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      {!hideLayout && <Navbar />}
+
       <div className="flex-grow p-6">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/create-a3" element={<CreateA3 />} />
-          <Route path="/my-a3s" element={<MyA3s />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+
+          {/* 🔒 Rutas protegidas */}
+          <Route
+            path="/inicio"
+            element={
+              <ProtectedRoute>
+                <Inicio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/create-a3"
+            element={
+              <ProtectedRoute>
+                <CreateA3 />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-a3s"
+            element={
+              <ProtectedRoute>
+                <MyA3s />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
-      <Footer />
+
+      {!hideLayout && <Footer />}
     </div>
   );
 }
 
 export default App;
+
+
 
 
