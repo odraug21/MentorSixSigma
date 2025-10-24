@@ -1,11 +1,20 @@
 // src/components/A3Header.jsx
 import React from "react";
 import { update } from "../utils/a3Helpers";
+import { defaultA3 } from "../constants/a3Defaults"; // 👈 importar estructura vacía
 
 export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, generatePDF }) {
+    
     const clearDraft = () => {
         if (!window.confirm("¿Borrar borrador actual?")) return;
-        setA3((prev) => JSON.parse(JSON.stringify(prev)));
+        
+        // ✅ Restaurar al estado inicial vacío
+        setA3(JSON.parse(JSON.stringify(defaultA3)));
+        
+        // ✅ Eliminar el borrador guardado localmente (si existe)
+        localStorage.removeItem("a3-draft");
+        
+        // ✅ Mostrar mensaje de confirmación
         setMessage("Borrador limpiado");
         setTimeout(() => setMessage(""), 2000);
     };
@@ -14,7 +23,6 @@ export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, gene
 
     return (
         <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-6">
-            {/* 🔹 Contenedor principal */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
                 {/* 🔹 Izquierda: campos de texto */}
@@ -92,10 +100,8 @@ export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, gene
                         Generar PDF
                     </button>
 
-
-
                     <button
-                        onClick={() => goTo("/")}
+                        onClick={() => goTo("/inicio")}
                         className="bg-gray-600 px-3 py-2 rounded hover:bg-gray-700"
                     >
                         Salir
@@ -105,4 +111,3 @@ export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, gene
         </div>
     );
 }
-
