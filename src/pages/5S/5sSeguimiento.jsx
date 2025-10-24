@@ -97,10 +97,10 @@ export default function FiveSSeguimiento() {
         <h1 className="text-3xl font-bold text-indigo-400">Seguimiento 5S</h1>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate("/5s/intro")}
+            onClick={() => navigate("/5s/proyectos")}
             className="bg-indigo-700 px-3 py-2 rounded-lg font-semibold shadow-lg transition"
           >
-            Menú 5S
+            Proyectos
           </button>
           <button
             onClick={guardar}

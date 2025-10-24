@@ -1,10 +1,12 @@
-// src/pages/5S/5sAuditoria.jsx
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function FiveSAuditoria() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const usuario = JSON.parse(localStorage.getItem("user"))?.email || "anonimo";
 
+  const [proyecto, setProyecto] = useState(null);
   const [evaluacion, setEvaluacion] = useState([
     { nombre: "Seiri - Clasificar", puntuacion: 0, observaciones: "" },
     { nombre: "Seiton - Ordenar", puntuacion: 0, observaciones: "" },
@@ -13,16 +15,35 @@ export default function FiveSAuditoria() {
     { nombre: "Shitsuke - Disciplina", puntuacion: 0, observaciones: "" },
   ]);
 
-  const handleChange = (index, field, value) => {
-    const updated = [...evaluacion];
-    updated[index][field] = value;
-    setEvaluacion(updated);
+  // 📦 Cargar proyecto y auditoría guardada
+  useEffect(() => {
+    const proyectos = JSON.parse(localStorage.getItem(`proyectos5s-${usuario}`)) || [];
+    const encontrado = proyectos.find((p) => p.id.toString() === id);
+    setProyecto(encontrado || null);
+
+    const guardada = JSON.parse(localStorage.getItem(`auditoria5s-${usuario}-${id}`));
+    if (guardada) setEvaluacion(guardada);
+  }, [id, usuario]);
+
+  // 💾 Guardar auditoría
+  const guardar = () => {
+    localStorage.setItem(`auditoria5s-${usuario}-${id}`, JSON.stringify(evaluacion));
+    alert("Auditoría guardada correctamente ✅");
   };
 
-  const promedio =
-    evaluacion.reduce((acc, e) => acc + Number(e.puntuacion), 0) /
-    evaluacion.length;
+  // 🧹 Limpiar
+  const limpiar = () => {
+    if (window.confirm("¿Deseas limpiar la auditoría?")) {
+      const reinicio = evaluacion.map((e) => ({ ...e, puntuacion: 0, observaciones: "" }));
+      setEvaluacion(reinicio);
+      localStorage.removeItem(`auditoria5s-${usuario}-${id}`);
+    }
+  };
 
+  const generarPDF = () => alert("Función de exportación a PDF en desarrollo 📄");
+
+  // 📊 Cálculos
+  const promedio = evaluacion.reduce((acc, e) => acc + Number(e.puntuacion), 0) / evaluacion.length;
   const nivel =
     promedio < 2
       ? "Inicial"
@@ -32,32 +53,37 @@ export default function FiveSAuditoria() {
       ? "Avanzado"
       : "Excelente";
 
-  // 🔹 Acciones
-  const guardar = () => {
-    alert("Auditoría guardada correctamente ✅");
+  const handleChange = (index, field, value) => {
+    const updated = [...evaluacion];
+    updated[index][field] = value;
+    setEvaluacion(updated);
   };
 
-  const limpiar = () => {
-    if (window.confirm("¿Deseas limpiar la auditoría?")) {
-      setEvaluacion(
-        evaluacion.map((e) => ({ ...e, puntuacion: 0, observaciones: "" }))
-      );
-    }
-  };
+  if (!proyecto) {
+    return (
+      <div className="text-center text-red-400 mt-10">
+        <p>No se encontró el proyecto seleccionado.</p>
+        <button
+          onClick={() => navigate("/5s/proyectos")}
+          className="bg-indigo-600 px-4 py-2 rounded mt-4"
+        >
+          Volver a proyectos
+        </button>
+      </div>
+    );
+  }
 
-  const generarPDF = () => {
-    alert("Función de exportación a PDF en desarrollo 📄");
-  };
-
+  // 🎨 Interfaz original (mantiene el diseño)
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
-
       {/* 🔹 Barra superior */}
       <div className="flex justify-between mb-6">
-        <h1 className="text-3xl font-bold text-indigo-400">Auditoría 5S</h1>
+        <h1 className="text-3xl font-bold text-indigo-400">
+          Auditoría 5S - {proyecto.nombre}
+        </h1>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate("/5s/intro")}
+            onClick={() => navigate("/5s/proyectos")}
             className="bg-indigo-700 px-3 py-2 rounded-lg font-semibold shadow-lg transition"
           >
             Menú 5S
@@ -110,9 +136,7 @@ export default function FiveSAuditoria() {
                 <td className="p-2 border border-gray-700 text-center">
                   <select
                     value={e.puntuacion}
-                    onChange={(ev) =>
-                      handleChange(i, "puntuacion", ev.target.value)
-                    }
+                    onChange={(ev) => handleChange(i, "puntuacion", ev.target.value)}
                     className="bg-gray-700 p-1 rounded"
                   >
                     <option value="0">--</option>
@@ -126,9 +150,7 @@ export default function FiveSAuditoria() {
                 <td className="p-2 border border-gray-700">
                   <textarea
                     value={e.observaciones}
-                    onChange={(ev) =>
-                      handleChange(i, "observaciones", ev.target.value)
-                    }
+                    onChange={(ev) => handleChange(i, "observaciones", ev.target.value)}
                     className="w-full bg-gray-700 p-2 rounded"
                     rows={2}
                     placeholder="Escribe observaciones..."
@@ -145,9 +167,7 @@ export default function FiveSAuditoria() {
         <h2 className="text-xl font-bold text-green-400 mb-2">Resultado de Auditoría</h2>
         <p className="text-gray-300 text-lg">
           Promedio:{" "}
-          <span className="text-white font-semibold">
-            {promedio.toFixed(1)} / 5
-          </span>
+          <span className="text-white font-semibold">{promedio.toFixed(1)} / 5</span>
         </p>
         <p className="text-lg font-semibold mt-1">
           Nivel alcanzado:{" "}
@@ -169,4 +189,5 @@ export default function FiveSAuditoria() {
     </div>
   );
 }
+
 

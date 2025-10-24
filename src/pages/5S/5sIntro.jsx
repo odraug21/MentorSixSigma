@@ -6,10 +6,12 @@ import logo5s from "../../img/logo5s.png";
 export default function FiveSIntro() {
   const navigate = useNavigate();
 
-  const etapas = [
-    { titulo: "Implementación", path: "/5s/implementacion", color: "bg-green-600" },
-    { titulo: "Auditoría", path: "/5s/auditoria", color: "bg-yellow-500" },
-    { titulo: "Seguimiento", path: "/5s/seguimiento", color: "bg-blue-600" },
+  const cincoS = [
+    { s: "Seiri", nombre: "Clasificar", descripcion: "Eliminar lo innecesario del área de trabajo." },
+    { s: "Seiton", nombre: "Ordenar", descripcion: "Organizar los elementos necesarios de forma visible y accesible." },
+    { s: "Seiso", nombre: "Limpiar", descripcion: "Mantener el entorno limpio para detectar anormalidades." },
+    { s: "Seiketsu", nombre: "Estandarizar", descripcion: "Definir reglas visuales que mantengan el orden y limpieza." },
+    { s: "Shitsuke", nombre: "Disciplina", descripcion: "Fomentar el hábito y compromiso con los estándares establecidos." },
   ];
 
   return (
@@ -45,28 +47,20 @@ export default function FiveSIntro() {
         ))}
       </div>
 
-      <h2 className="text-2xl font-semibold text-indigo-400 mb-4">Selecciona una etapa</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl">
-        {etapas.map((etapa, i) => (
-          <button
-            key={i}
-            onClick={() => navigate(etapa.path)}
-            className={`${etapa.color} px-6 py-4 rounded-lg font-semibold hover:opacity-90 shadow-lg transform hover:scale-105 transition`}
-          >
-            {etapa.titulo}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-10 max-w-3xl text-gray-300 text-center">
-        <h3 className="text-xl font-semibold text-green-400 mb-2">Ejemplo práctico</h3>
-        <p>
-          Imagina una planta de producción donde cada herramienta tiene su lugar designado.
-          Con la metodología 5S, los equipos eliminan elementos innecesarios, marcan las zonas
-          de trabajo, limpian diariamente, documentan estándares visuales y fomentan la disciplina
-          para mantener el orden.
-        </p>
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={() => navigate("/5s/proyectos")}
+          className="bg-green-600 px-4 py-3 rounded-lg hover:bg-green-700 font-semibold"
+        >
+          Ir a mis proyectos 5S
+        </button>
+        <button
+          onClick={() => navigate("/inicio")}
+          className="bg-gray-700 px-4 py-3 rounded-lg hover:bg-gray-600 font-semibold"
+        >
+          Volver al menú principal
+        </button>
       </div>
     </div>
   );

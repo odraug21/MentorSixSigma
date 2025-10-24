@@ -16,6 +16,7 @@ import FiveSIntro from "./pages/5S/5sIntro";
 import FiveSImplementacion from "./pages/5S/5sImplementacion";
 import FiveSAuditoria from "./pages/5S/5sAuditoria";
 import FiveSSeguimiento from "./pages/5S/5sSeguimiento";
+import FiveSProyectos from "./pages/5S/5sProyectos";
 
 
 function App() {
@@ -79,38 +80,53 @@ function App() {
             }
           />
 
-          <Route path="/5s/intro"
-            element={
-              <ProtectedRoute>
-                <FiveSIntro />
-              </ProtectedRoute>
-            }
-          />
+{/* Menú principal de 5S */}
+<Route
+  path="/5s/intro"
+  element={
+    <ProtectedRoute>
+      <FiveSIntro />
+    </ProtectedRoute>
+  }
+/>
 
-          <Route path="/5s/implementacion"
-            element={
-              <ProtectedRoute>
-                <FiveSImplementacion />
-              </ProtectedRoute>
-            }
-          />
+{/* Listado de proyectos */}
+<Route
+  path="/5s/proyectos"
+  element={
+    <ProtectedRoute>
+      <FiveSProyectos />
+    </ProtectedRoute>
+  }
+/>
 
-          <Route path="/5s/auditoria"
-            element={
-              <ProtectedRoute>
-                <FiveSAuditoria />
-              </ProtectedRoute>
-            }
-          />
+{/* Fases del proyecto 5S */}
+<Route
+  path="/5s/:id/implementacion"
+  element={
+    <ProtectedRoute>
+      <FiveSImplementacion />
+    </ProtectedRoute>
+  }
+/>
 
+<Route
+  path="/5s/:id/auditoria"
+  element={
+    <ProtectedRoute>
+      <FiveSAuditoria />
+    </ProtectedRoute>
+  }
+/>
 
-          <Route path="/5s/seguimiento"
-            element={
-              <ProtectedRoute>
-                <FiveSSeguimiento />
-              </ProtectedRoute>
-            }
-          />
+<Route
+  path="/5s/:id/seguimiento"
+  element={
+    <ProtectedRoute>
+      <FiveSSeguimiento />
+    </ProtectedRoute>
+  }
+/>
 
 
 
