@@ -61,6 +61,24 @@ function App() {
             }
           />
 
+          <Route
+            path="/vsm"
+            element={
+              <ProtectedRoute>
+                <Vsm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/sipoc"
+            element={
+              <ProtectedRoute>
+                <Sipoc />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/5s/intro"
             element={
               <ProtectedRoute>
@@ -94,7 +112,7 @@ function App() {
             }
           />
 
-          
+
 
 
 

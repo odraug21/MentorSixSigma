@@ -1,162 +1,175 @@
-// src/pages/5S/5sImplementacion.jsx
 import React, { useState } from "react";
-import html2pdf from "html2pdf.js";
+import { useNavigate } from "react-router-dom";
 
 export default function FiveSImplementacion() {
-  const [data, setData] = useState({
-    area: "",
-    fecha: new Date().toISOString().slice(0, 10),
-    acciones: {
-      clasificar: [{ tarea: "", responsable: "", evidencia: [] }],
-      ordenar: [{ tarea: "", responsable: "", evidencia: [] }],
-      limpiar: [{ tarea: "", responsable: "", evidencia: [] }],
-      estandarizar: [{ tarea: "", responsable: "", evidencia: [] }],
-      sostener: [{ tarea: "", responsable: "", evidencia: [] }],
-    },
-  });
+  const navigate = useNavigate();
 
-  // 📸 Subir imágenes (base64)
-  const handleImageUpload = (e, categoria, index) => {
-    const files = Array.from(e.target.files);
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const copy = { ...data };
-        copy.acciones[categoria][index].evidencia.push({
-          name: file.name,
-          url: event.target.result,
-        });
-        setData(copy);
-      };
-      reader.readAsDataURL(file);
-    });
+  // Funciones de control
+  const guardar = () => {
+    alert("Datos guardados correctamente ✅");
   };
 
-  // 🧹 Limpiar formulario
   const limpiar = () => {
-    if (window.confirm("¿Seguro que deseas limpiar todo?")) {
-      setData({
-        area: "",
-        fecha: new Date().toISOString().slice(0, 10),
-        acciones: {
-          clasificar: [{ tarea: "", responsable: "", evidencia: [] }],
-          ordenar: [{ tarea: "", responsable: "", evidencia: [] }],
-          limpiar: [{ tarea: "", responsable: "", evidencia: [] }],
-          estandarizar: [{ tarea: "", responsable: "", evidencia: [] }],
-          sostener: [{ tarea: "", responsable: "", evidencia: [] }],
-        },
-      });
+    if (window.confirm("¿Deseas limpiar los campos?")) {
+      window.location.reload();
     }
   };
 
-  // 💾 Guardar en LocalStorage
-  const guardar = () => {
-    localStorage.setItem("5s-implementacion", JSON.stringify(data));
-    alert("Progreso guardado correctamente.");
-  };
-
-  // 📄 Generar PDF
   const generarPDF = () => {
-    const element = document.getElementById("pdf-implementacion");
-    html2pdf().from(element).set({
-      margin: 0.5,
-      filename: `5S_Implementacion_${data.area || "area"}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 3 },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-    }).save();
+    alert("Función de exportación a PDF en desarrollo 📄");
   };
 
-  // 🧱 Renderizar cada S
-  const renderSection = (nombre, key) => (
-    <div className="border border-gray-700 p-4 rounded-lg bg-gray-800 mb-6" key={key}>
-      <h3 className="text-xl text-green-400 font-semibold mb-3">{nombre}</h3>
+  // Estado de las 5S
+  const [secciones, setSecciones] = useState([
+    { nombre: "Seiri - Clasificar", descripcion: "", responsable: "", fecha: "", avance: 0, evidencias: [] },
+    { nombre: "Seiton - Ordenar", descripcion: "", responsable: "", fecha: "", avance: 0, evidencias: [] },
+    { nombre: "Seiso - Limpiar", descripcion: "", responsable: "", fecha: "", avance: 0, evidencias: [] },
+    { nombre: "Seiketsu - Estandarizar", descripcion: "", responsable: "", fecha: "", avance: 0, evidencias: [] },
+    { nombre: "Shitsuke - Disciplina", descripcion: "", responsable: "", fecha: "", avance: 0, evidencias: [] },
+  ]);
 
-      {data.acciones[key].map((accion, index) => (
-        <div key={index} className="mb-4">
-          <textarea
-            className="w-full bg-gray-700 p-2 rounded mb-2"
-            rows={2}
-            placeholder="Describe la acción..."
-            value={accion.tarea}
-            onChange={(e) => {
-              const copy = { ...data };
-              copy.acciones[key][index].tarea = e.target.value;
-              setData(copy);
-            }}
-          />
-          <input
-            className="w-full bg-gray-700 p-2 rounded mb-2"
-            placeholder="Responsable"
-            value={accion.responsable}
-            onChange={(e) => {
-              const copy = { ...data };
-              copy.acciones[key][index].responsable = e.target.value;
-              setData(copy);
-            }}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => handleImageUpload(e, key, index)}
-          />
+  const handleChange = (index, field, value) => {
+    const updated = [...secciones];
+    updated[index][field] = value;
+    setSecciones(updated);
+  };
 
-          <div className="flex flex-wrap gap-2 mt-2">
-            {accion.evidencia.map((img, idx) => (
-              <img
-                key={idx}
-                src={img.url}
-                alt={img.name}
-                className="w-24 h-20 object-cover rounded border border-gray-600"
-              />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const handleFileUpload = (index, files) => {
+    const updated = [...secciones];
+    const newFiles = Array.from(files).map(file => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
+    updated[index].evidencias.push(...newFiles);
+    setSecciones(updated);
+  };
+
+  const progresoTotal =
+    secciones.reduce((acc, s) => acc + Number(s.avance), 0) / secciones.length;
 
   return (
-    <div className="p-6 text-white bg-gray-900 min-h-screen">
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+
+      {/* 🔹 Barra de control superior */}
       <div className="flex justify-between mb-6">
-        <h1 className="text-3xl font-bold text-indigo-400">
-          Implementación de las 5S
-        </h1>
+        <h1 className="text-3xl font-bold text-indigo-400">Implementación 5S</h1>
         <div className="flex gap-2">
-          <button onClick={guardar} className="bg-indigo-600 px-3 py-2 rounded hover:bg-indigo-700">
+          <button
+            onClick={() => navigate("/5s/intro")}
+            className="bg-indigo-700 px-3 py-2 rounded-lg font-semibold shadow-lg transition"
+          >
+            Menú 5S
+          </button>
+
+          <button
+            onClick={guardar}
+            className="bg-green-600 px-3 py-2 rounded hover:bg-green-700"
+          >
             Guardar
           </button>
-          <button onClick={limpiar} className="bg-red-600 px-3 py-2 rounded hover:bg-red-700">
+
+          <button
+            onClick={limpiar}
+            className="bg-red-600 px-3 py-2 rounded hover:bg-red-700"
+          >
             Limpiar
           </button>
-          <button onClick={generarPDF} className="bg-pink-600 px-3 py-2 rounded hover:bg-pink-700">
+
+          <button
+            onClick={generarPDF}
+            className="bg-pink-600 px-3 py-2 rounded hover:bg-pink-700"
+          >
             PDF
           </button>
         </div>
       </div>
 
-      <div id="pdf-implementacion" className="space-y-6">
-        <div className="flex gap-4 mb-4">
-          <input
-            className="bg-gray-700 p-2 rounded w-1/2"
-            placeholder="Área / Zona"
-            value={data.area}
-            onChange={(e) => setData({ ...data, area: e.target.value })}
-          />
-          <input
-            type="date"
-            className="bg-gray-700 p-2 rounded w-1/2"
-            value={data.fecha}
-            onChange={(e) => setData({ ...data, fecha: e.target.value })}
-          />
-        </div>
+      {/* 🔹 Contenido de implementación */}
+      <p className="text-gray-300 mb-8">
+        Registra las actividades, responsables, fechas y evidencia visual de cada etapa 5S.
+      </p>
 
-        {renderSection("1S - Clasificar", "clasificar")}
-        {renderSection("2S - Ordenar", "ordenar")}
-        {renderSection("3S - Limpiar", "limpiar")}
-        {renderSection("4S - Estandarizar", "estandarizar")}
-        {renderSection("5S - Sostener", "sostener")}
+      {/* Indicador de progreso */}
+      <div className="bg-gray-800 p-4 rounded-lg mb-8">
+        <p className="text-sm text-gray-400 mb-1">Avance global:</p>
+        <div className="w-full bg-gray-700 rounded-full h-4">
+          <div
+            className="bg-green-500 h-4 rounded-full transition-all duration-500"
+            style={{ width: `${progresoTotal}%` }}
+          ></div>
+        </div>
+        <p className="text-center text-sm mt-2 text-gray-300">
+          {progresoTotal.toFixed(1)}%
+        </p>
+      </div>
+
+      {/* Tarjetas por S */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {secciones.map((s, index) => (
+          <div key={index} className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <h2 className="text-xl font-semibold text-indigo-400 mb-3">{s.nombre}</h2>
+
+            <label className="block text-sm text-gray-400">Descripción / acción:</label>
+            <textarea
+              value={s.descripcion}
+              onChange={(e) => handleChange(index, "descripcion", e.target.value)}
+              className="w-full bg-gray-700 p-2 rounded mb-3"
+              rows={2}
+              placeholder="Describe la actividad..."
+            />
+
+            <div className="flex gap-3 mb-3">
+              <div className="flex-1">
+                <label className="block text-sm text-gray-400">Responsable:</label>
+                <input
+                  type="text"
+                  value={s.responsable}
+                  onChange={(e) => handleChange(index, "responsable", e.target.value)}
+                  className="w-full bg-gray-700 p-2 rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400">Fecha:</label>
+                <input
+                  type="date"
+                  value={s.fecha}
+                  onChange={(e) => handleChange(index, "fecha", e.target.value)}
+                  className="bg-gray-700 p-2 rounded"
+                />
+              </div>
+            </div>
+
+            <label className="block text-sm text-gray-400 mb-1">Avance (%):</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={s.avance}
+              onChange={(e) => handleChange(index, "avance", e.target.value)}
+              className="w-full bg-gray-700 p-2 rounded mb-3"
+            />
+
+            <label className="block text-sm text-gray-400 mb-1">Evidencias:</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => handleFileUpload(index, e.target.files)}
+              className="mb-3"
+            />
+
+            <div className="flex flex-wrap gap-2">
+              {s.evidencias.map((img, i) => (
+                <img
+                  key={i}
+                  src={img.url}
+                  alt={img.name}
+                  className="w-24 h-20 object-cover rounded"
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

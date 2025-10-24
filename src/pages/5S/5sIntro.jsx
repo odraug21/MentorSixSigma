@@ -7,9 +7,9 @@ export default function FiveSIntro() {
   const navigate = useNavigate();
 
   const etapas = [
-    { titulo: "1️⃣ Implementación", path: "/5s/implementacion", color: "bg-green-600" },
-    { titulo: "2️⃣ Auditoría", path: "/5s/auditoria", color: "bg-yellow-500" },
-    { titulo: "3️⃣ Seguimiento", path: "/5s/seguimiento", color: "bg-blue-600" },
+    { titulo: "Implementación", path: "/5s/implementacion", color: "bg-green-600" },
+    { titulo: "Auditoría", path: "/5s/auditoria", color: "bg-yellow-500" },
+    { titulo: "Seguimiento", path: "/5s/seguimiento", color: "bg-blue-600" },
   ];
 
   return (
@@ -20,7 +20,7 @@ export default function FiveSIntro() {
         className="h-24 w-auto mb-4 drop-shadow-lg"
       />
 
-      <h1 className="text-4xl font-bold text-green-400 mb-4">Programa 5S</h1>
+      
       <p className="text-gray-300 max-w-3xl text-center mb-10">
         Las <strong>5S</strong> son una metodología japonesa que busca mejorar la
         organización, la limpieza y la disciplina en el lugar de trabajo.
@@ -60,7 +60,7 @@ export default function FiveSIntro() {
       </div>
 
       <div className="mt-10 max-w-3xl text-gray-300 text-center">
-        <h3 className="text-xl font-semibold text-green-400 mb-2">📚 Ejemplo práctico</h3>
+        <h3 className="text-xl font-semibold text-green-400 mb-2">Ejemplo práctico</h3>
         <p>
           Imagina una planta de producción donde cada herramienta tiene su lugar designado.
           Con la metodología 5S, los equipos eliminan elementos innecesarios, marcan las zonas
