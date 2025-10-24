@@ -10,6 +10,9 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Sipoc from "./pages/Sipoc";
+import Vsm from "./pages/Vsm";
+
 
 function App() {
   const location = useLocation();
@@ -53,6 +56,26 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/sipoc"
+            element={
+              <ProtectedRoute>
+                <Sipoc />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/vsm"
+            element={
+              <ProtectedRoute>
+                <Vsm />
+              </ProtectedRoute>
+            }
+          />
+
+
         </Routes>
       </div>
 
