@@ -12,6 +12,10 @@ import Inicio from "./pages/Inicio";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sipoc from "./pages/Sipoc";
 import Vsm from "./pages/Vsm";
+import FiveSIntro from "./pages/5S/5sIntro";
+import FiveSImplementacion from "./pages/5S/5sImplementacion";
+import FiveSAuditoria from "./pages/5S/5sAuditoria";
+import FiveSSeguimiento from "./pages/5S/5sSeguimiento";
 
 
 function App() {
@@ -57,23 +61,42 @@ function App() {
             }
           />
 
-          <Route
-            path="/sipoc"
+          <Route path="/5s/intro"
             element={
               <ProtectedRoute>
-                <Sipoc />
+                <FiveSIntro />
               </ProtectedRoute>
             }
           />
 
-          <Route
-            path="/vsm"
+          <Route path="/5s/implementacion"
             element={
               <ProtectedRoute>
-                <Vsm />
+                <FiveSImplementacion />
               </ProtectedRoute>
             }
           />
+
+          <Route path="/5s/auditoria"
+            element={
+              <ProtectedRoute>
+                <FiveSAuditoria />
+              </ProtectedRoute>
+            }
+          />
+
+
+          <Route path="/5s/seguimiento"
+            element={
+              <ProtectedRoute>
+                <FiveSSeguimiento />
+              </ProtectedRoute>
+            }
+          />
+
+          
+
+
 
 
         </Routes>
