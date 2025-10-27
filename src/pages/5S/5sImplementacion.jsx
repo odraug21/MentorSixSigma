@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 import {
   contarDiasHabiles,
   SECCIONES_5S_DEFAULT,
-  crearSubtareaBase,
+
 } from "../../constants/a3Defaults";
 import { exportarImplementacionPDF } from "../../reports/5SImplementacionPDF";
-
+import { crearSubtareaBase } from "../../utils/a3Helpers";
 export default function FiveSImplementacion() {
   const navigate = useNavigate();
   const [secciones, setSecciones] = useState(SECCIONES_5S_DEFAULT);
+
+  
 
   // === Cargar y guardar localStorage ===
   useEffect(() => {

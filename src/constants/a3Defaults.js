@@ -1,3 +1,8 @@
+import { crearSubtareaBase } from "../utils/a3Helpers";
+
+
+
+
 export const defaultA3 = {
   meta: { titulo: "", autor: "", fecha: new Date().toISOString().slice(0, 10) },
   problema: { descripcion: "", condicionActual: "", accionesContencion: "", imagenes: [] },
@@ -132,14 +137,4 @@ export const clearImplementacion5S = () => {
   localStorage.removeItem(STORAGE_KEYS.IMPLEMENTACION_5S);
 };
 
-// 🔹 Crear una subtarea base (misma estructura que una tarea, pero anidada)
-export const crearSubtareaBase = () => ({
-  id: crypto.randomUUID(),
-  lugar: "",
-  descripcion: "",
-  responsable: "",
-  inicio: "",
-  fin: "",
-  completada: false,
-  evidencias: [],
-});
+
