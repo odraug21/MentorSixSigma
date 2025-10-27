@@ -376,14 +376,29 @@ export default function FiveSImplementacion() {
               className="text-xs"
             />
           </td>
-          <td className="p-2 border border-gray-700">
-            <button
-              onClick={() => addSubtarea(sIdx, t.id)}
-              className="bg-indigo-600 hover:bg-indigo-700 text-xs px-2 py-1 rounded"
-            >
-              + Subtarea
-            </button>
-          </td>
+         
+<td className="p-2 border border-gray-700">
+  <div className="flex flex-col gap-1">
+    <button
+      onClick={() => addSubtarea(sIdx, t.id)}
+      className="bg-indigo-600 hover:bg-indigo-700 text-xs px-2 py-1 rounded"
+    >
+      Subtarea
+    </button>
+    <button
+      onClick={() => {
+        if (window.confirm("¿Eliminar esta tarea principal y todas sus subtareas?")) {
+          removeTarea(sIdx, t.id);
+        }
+      }}
+      className="bg-red-600 hover:bg-red-700 text-xs px-2 py-1 rounded"
+    >
+      Eliminar
+    </button>
+  </div>
+</td>
+
+
         </tr>
 
         {/* 🔹 Subtareas horizontales */}
