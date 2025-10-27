@@ -1,5 +1,27 @@
+// src/pages/5S/5sAuditoria.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Radar } from "react-chartjs-2";
+import { exportarAuditoriaPDF } from "../../reports/5SAudit";
+
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
 
 export default function FiveSAuditoria() {
   const navigate = useNavigate();
@@ -8,11 +30,11 @@ export default function FiveSAuditoria() {
 
   const [proyecto, setProyecto] = useState(null);
   const [evaluacion, setEvaluacion] = useState([
-    { nombre: "Seiri - Clasificar", puntuacion: 0, observaciones: "" },
-    { nombre: "Seiton - Ordenar", puntuacion: 0, observaciones: "" },
-    { nombre: "Seiso - Limpiar", puntuacion: 0, observaciones: "" },
-    { nombre: "Seiketsu - Estandarizar", puntuacion: 0, observaciones: "" },
-    { nombre: "Shitsuke - Disciplina", puntuacion: 0, observaciones: "" },
+    { nombre: "1S · Seiri (Clasificar)", puntuacion: 0, observaciones: "", evidencias: [] },
+    { nombre: "2S · Seiton (Ordenar)", puntuacion: 0, observaciones: "", evidencias: [] },
+    { nombre: "3S · Seiso (Limpiar)", puntuacion: 0, observaciones: "", evidencias: [] },
+    { nombre: "4S · Seiketsu (Estandarizar)", puntuacion: 0, observaciones: "", evidencias: [] },
+    { nombre: "5S · Shitsuke (Disciplina)", puntuacion: 0, observaciones: "", evidencias: [] },
   ]);
 
   // 📦 Cargar proyecto y auditoría guardada
@@ -34,15 +56,29 @@ export default function FiveSAuditoria() {
   // 🧹 Limpiar
   const limpiar = () => {
     if (window.confirm("¿Deseas limpiar la auditoría?")) {
-      const reinicio = evaluacion.map((e) => ({ ...e, puntuacion: 0, observaciones: "" }));
+      const reinicio = evaluacion.map((e) => ({
+        ...e,
+        puntuacion: 0,
+        observaciones: "",
+        evidencias: [],
+      }));
       setEvaluacion(reinicio);
       localStorage.removeItem(`auditoria5s-${usuario}-${id}`);
     }
   };
 
-  const generarPDF = () => alert("Función de exportación a PDF en desarrollo 📄");
+  // 📸 Evidencias
+  const handleFileUpload = (index, files) => {
+    const updated = [...evaluacion];
+    const newFiles = Array.from(files).map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
+    updated[index].evidencias = [...updated[index].evidencias, ...newFiles];
+    setEvaluacion(updated);
+  };
 
-  // 📊 Cálculos
+  // 📊 Promedio y nivel
   const promedio = evaluacion.reduce((acc, e) => acc + Number(e.puntuacion), 0) / evaluacion.length;
   const nivel =
     promedio < 2
@@ -53,6 +89,7 @@ export default function FiveSAuditoria() {
       ? "Avanzado"
       : "Excelente";
 
+  // 🧠 Actualizar
   const handleChange = (index, field, value) => {
     const updated = [...evaluacion];
     updated[index][field] = value;
@@ -73,13 +110,40 @@ export default function FiveSAuditoria() {
     );
   }
 
-  // 🎨 Interfaz original (mantiene el diseño)
+  // 🎯 Gráfico radar
+  const radarData = {
+    labels: evaluacion.map((e) => e.nombre),
+    datasets: [
+      {
+        label: "Puntuación Actual",
+        data: evaluacion.map((e) => e.puntuacion),
+        backgroundColor: "rgba(79, 70, 229, 0.4)",
+        borderColor: "#818cf8",
+        borderWidth: 2,
+        pointBackgroundColor: "#22c55e",
+      },
+    ],
+  };
+
+  const radarOptions = {
+    scales: {
+      r: {
+        min: 0,
+        max: 5,
+        ticks: { stepSize: 1, color: "#ddd" },
+        grid: { color: "#555" },
+        pointLabels: { color: "#fff", font: { size: 12 } },
+      },
+    },
+    plugins: { legend: { labels: { color: "#fff" } } },
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       {/* 🔹 Barra superior */}
       <div className="flex justify-between mb-6">
         <h1 className="text-3xl font-bold text-indigo-400">
-          Auditoría 5S - {proyecto.nombre}
+          Auditoría 5S – {proyecto.nombre}
         </h1>
         <div className="flex gap-2">
           <button
@@ -88,23 +152,20 @@ export default function FiveSAuditoria() {
           >
             Menú 5S
           </button>
-
           <button
             onClick={guardar}
             className="bg-green-600 px-3 py-2 rounded hover:bg-green-700"
           >
             Guardar
           </button>
-
           <button
             onClick={limpiar}
             className="bg-red-600 px-3 py-2 rounded hover:bg-red-700"
           >
             Limpiar
           </button>
-
           <button
-            onClick={generarPDF}
+            onClick={() => exportarAuditoriaPDF(proyecto, evaluacion, usuario)}
             className="bg-pink-600 px-3 py-2 rounded hover:bg-pink-700"
           >
             PDF
@@ -113,23 +174,23 @@ export default function FiveSAuditoria() {
       </div>
 
       <p className="text-gray-300 mb-6">
-        Evalúa el cumplimiento de las 5S en tu área. Selecciona una puntuación del 1 al 5
-        según el nivel de aplicación de cada “S”.
+        Evalúa el cumplimiento de las 5S, registra observaciones y carga evidencias visuales.
       </p>
 
-      {/* Tabla de evaluación */}
-      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+      {/* Tabla */}
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-8">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-gray-700 text-gray-300 text-sm">
               <th className="p-2 border border-gray-600">S</th>
-              <th className="p-2 border border-gray-600">Puntuación (1-5)</th>
+              <th className="p-2 border border-gray-600 text-center">Puntuación</th>
               <th className="p-2 border border-gray-600">Observaciones</th>
+              <th className="p-2 border border-gray-600 text-center">Evidencias</th>
             </tr>
           </thead>
           <tbody>
             {evaluacion.map((e, i) => (
-              <tr key={i} className="text-sm">
+              <tr key={i}>
                 <td className="p-2 border border-gray-700 font-semibold text-indigo-300">
                   {e.nombre}
                 </td>
@@ -153,8 +214,26 @@ export default function FiveSAuditoria() {
                     onChange={(ev) => handleChange(i, "observaciones", ev.target.value)}
                     className="w-full bg-gray-700 p-2 rounded"
                     rows={2}
-                    placeholder="Escribe observaciones..."
                   />
+                </td>
+                <td className="p-2 border border-gray-700 text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => handleFileUpload(i, e.target.files)}
+                    className="text-xs"
+                  />
+                  <div className="flex flex-wrap gap-2 justify-center mt-2">
+                    {e.evidencias.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img.url}
+                        alt={img.name}
+                        className="w-14 h-14 object-cover rounded border border-gray-600"
+                      />
+                    ))}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -162,32 +241,11 @@ export default function FiveSAuditoria() {
         </table>
       </div>
 
-      {/* Resultado final */}
-      <div className="mt-8 bg-gray-800 p-4 rounded-lg border border-gray-700 text-center">
-        <h2 className="text-xl font-bold text-green-400 mb-2">Resultado de Auditoría</h2>
-        <p className="text-gray-300 text-lg">
-          Promedio:{" "}
-          <span className="text-white font-semibold">{promedio.toFixed(1)} / 5</span>
-        </p>
-        <p className="text-lg font-semibold mt-1">
-          Nivel alcanzado:{" "}
-          <span
-            className={
-              nivel === "Excelente"
-                ? "text-green-400"
-                : nivel === "Avanzado"
-                ? "text-blue-400"
-                : nivel === "En Progreso"
-                ? "text-yellow-400"
-                : "text-red-400"
-            }
-          >
-            {nivel}
-          </span>
-        </p>
+      {/* Gráfico radar */}
+      <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+        <Radar data={radarData} options={radarOptions} />
       </div>
     </div>
   );
 }
-
 
