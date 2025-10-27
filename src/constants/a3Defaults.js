@@ -33,8 +33,17 @@ export const defaultA3 = {
   
 };
 
-// 📅 Función para contar días hábiles (lunes a viernes)
-export function contarDiasHabiles(inicio, fin) {
+
+
+// src/constants/a3Defaults.js
+
+// 🔑 Claves de almacenamiento
+export const STORAGE_KEYS = {
+  IMPLEMENTACION_5S: "implementacion5S",
+};
+
+// 🧮 Días hábiles (L-V)
+export const contarDiasHabiles = (inicio, fin) => {
   if (!inicio || !fin) return 0;
   const start = new Date(inicio);
   const end = new Date(fin);
@@ -44,15 +53,93 @@ export function contarDiasHabiles(inicio, fin) {
     if (day !== 0 && day !== 6) count++;
   }
   return count;
-}
+};
 
-// 🔹 Plantilla base de secciones 5S
+// 🔢 Numeración visible
+export const numeroTarea = (sIdx, tIdx) => `${sIdx + 1}.${tIdx + 1}`;
+
+// 🧱 Plantillas base
+
+export const crearTareaBase = () => ({
+  id: crypto.randomUUID(),
+  lugar: "",
+  descripcion: "",
+  responsable: "",
+  inicio: "",
+  fin: "",
+  dependeDe: null,
+  completada: false,
+  evidencias: [],
+  subtareas: [],
+});
+
+export const crearSeccionBase = (nombre) => ({
+  nombre,
+  inicioPlanificado: "",
+  finPlanificado: "",
+  duracion: 0,
+  tareas: [],
+  avance: 0,
+});
+
+// 📚 Secciones por defecto
 export const SECCIONES_5S_DEFAULT = [
-  { nombre: "1S · Seiri (Clasificar)", inicioPlanificado: "", finPlanificado: "", duracion: 0, tareas: [], avance: 0 },
-  { nombre: "2S · Seiton (Ordenar)", inicioPlanificado: "", finPlanificado: "", duracion: 0, tareas: [], avance: 0 },
-  { nombre: "3S · Seiso (Limpiar)", inicioPlanificado: "", finPlanificado: "", duracion: 0, tareas: [], avance: 0 },
-  { nombre: "4S · Seiketsu (Estandarizar)", inicioPlanificado: "", finPlanificado: "", duracion: 0, tareas: [], avance: 0 },
-  { nombre: "5S · Shitsuke (Disciplina)", inicioPlanificado: "", finPlanificado: "", duracion: 0, tareas: [], avance: 0 },
+  crearSeccionBase("1S · Seiri (Clasificar)"),
+  crearSeccionBase("2S · Seiton (Ordenar)"),
+  crearSeccionBase("3S · Seiso (Limpiar)"),
+  crearSeccionBase("4S · Seiketsu (Estandarizar)"),
+  crearSeccionBase("5S · Shitsuke (Disciplina)"),
 ];
 
+// ✅ Estado / Cómputos
+export const isBlocked = (t, tareas) => {
+  if (!t.dependeDe) return false;
+  const pred = tareas.find((x) => x.id === t.dependeDe);
+  return !pred || !pred.completada;
+};
 
+export const calcularAvanceS = (tareas) => {
+  if (!tareas?.length) return 0;
+  const done = tareas.filter((t) => t.completada).length;
+  return Math.round((done / tareas.length) * 100);
+};
+
+export const calcularAvanceGlobal = (secciones) => {
+  if (!secciones?.length) return 0;
+  const sum = secciones.reduce((acc, s) => acc + (s.avance || 0), 0);
+  return Number((sum / secciones.length).toFixed(1));
+};
+
+// 💾 Persistencia
+export const loadImplementacion5S = () => {
+  const raw = localStorage.getItem(STORAGE_KEYS.IMPLEMENTACION_5S);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+export const saveImplementacion5S = (secciones) => {
+  localStorage.setItem(
+    STORAGE_KEYS.IMPLEMENTACION_5S,
+    JSON.stringify(secciones)
+  );
+};
+
+export const clearImplementacion5S = () => {
+  localStorage.removeItem(STORAGE_KEYS.IMPLEMENTACION_5S);
+};
+
+// 🔹 Crear una subtarea base (misma estructura que una tarea, pero anidada)
+export const crearSubtareaBase = () => ({
+  id: crypto.randomUUID(),
+  lugar: "",
+  descripcion: "",
+  responsable: "",
+  inicio: "",
+  fin: "",
+  completada: false,
+  evidencias: [],
+});
