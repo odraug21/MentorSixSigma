@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import logo5s from "../img/logo5s.png";
-import logogemba from "../img/logogamba.png";
+import logogemba from "../img/logogemba.png";
 import logosixsigma from "../img/logosixsigma.png";
 import logolean from "../img/logolean.png";
 import logokaizen from "../img/logokaizen.png";
@@ -16,12 +16,12 @@ export default function Inicio() {
   const opciones = [
     { title: "📘 A3 Solución de Problema", path: "/create-a3", color: "bg-blue-600", img: logosixsigma },
     { title: "🧭 5S - Organización", path: "/5s/intro", color: "bg-green-600", img: logo5s },
-    { title: "🚶 Gemba Walk", path: "/gemba/plan", color: "bg-yellow-500", img: logogemba },
+    { title: "🚶 Gemba Walk", path: "/gemba/intro", color: "bg-yellow-500", img: logogemba },
     { title: "⚙️ OEE", path: "/oee", color: "bg-indigo-600", img: logolean },
     { title: "🚀 OOE", path: "/ooe", color: "bg-purple-600", img: logolean },
     { title: "🏭 TEEP", path: "/teep", color: "bg-teal-600", img: logolean },
     { title: "💡 Kaizen", path: "/kaizen", color: "bg-pink-600", img: logokaizen },
-    { title: "📊 VSM", path: "/vsm", color: "bg-orange-600", img: logovsm },
+    { title: "📊 VSM", path: "/vsm/intro", color: "bg-orange-600", img: logovsm },
     { title: "🔗 SIPOC", path: "/sipoc", color: "bg-red-600", img: logosipoc },
   ];
 

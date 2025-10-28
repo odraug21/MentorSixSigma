@@ -137,4 +137,13 @@ export const clearImplementacion5S = () => {
   localStorage.removeItem(STORAGE_KEYS.IMPLEMENTACION_5S);
 };
 
+export const DEFAULT_GEMBA = {
+  proyecto: "",
+  responsable: "",
+  fecha: new Date().toISOString().slice(0, 10),
+  area: "",
+  observaciones: [],
+  oportunidades: [],
+  acciones: [],
+};
 

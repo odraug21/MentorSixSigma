@@ -11,12 +11,19 @@ import Login from "./pages/Login";
 import Inicio from "./pages/Inicio";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sipoc from "./pages/Sipoc";
-import Vsm from "./pages/Vsm";
+import Vsm from "./pages/VSM/Vsm";
 import FiveSIntro from "./pages/5S/5sIntro";
 import FiveSImplementacion from "./pages/5S/5sImplementacion";
 import FiveSAuditoria from "./pages/5S/5sAuditoria";
 import FiveSSeguimiento from "./pages/5S/5sSeguimiento";
 import FiveSProyectos from "./pages/5S/5sProyectos";
+import GwPlan from "./pages/GembaWalk/GwPlan";
+import GwIntro from "./pages/GembaWalk/GwIntro";
+import GwEjecucion from "./pages/GembaWalk/GwEjecucion";
+import GwReporte from "./pages/GembaWalk/GwReporte";
+import VsmIntro from "./pages/VSM/VsmIntro";
+import VsmMapa from "./pages/VSM/Vsm";
+import VsmBuilder from "./pages/VSM/VsmBuilder";
 
 
 function App() {
@@ -62,14 +69,6 @@ function App() {
             }
           />
 
-          <Route
-            path="/vsm"
-            element={
-              <ProtectedRoute>
-                <Vsm />
-              </ProtectedRoute>
-            }
-          />
 
           <Route
             path="/sipoc"
@@ -130,7 +129,70 @@ function App() {
 
 
 
+{/* --- Gemba Walk --- */}
+<Route
+  path="/gemba/intro"
+  element={
+    <ProtectedRoute>
+      <GwIntro />
+    </ProtectedRoute>
+  }
+/>
 
+<Route
+  path="/gemba/plan"
+  element={
+    <ProtectedRoute>
+      <GwPlan />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/gemba/ejecucion"
+  element={
+    <ProtectedRoute>
+      <GwEjecucion />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/gemba/reporte"
+  element={
+    <ProtectedRoute>
+      <GwReporte />
+    </ProtectedRoute>
+  }
+/>
+
+{/* --- VSM --- */}
+<Route
+  path="/vsm/intro"
+  element={
+    <ProtectedRoute>
+      <VsmIntro />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/vsm/Vsm"
+  element={
+    <ProtectedRoute>
+      <VsmMapa />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/vsm/builder"
+  element={
+    <ProtectedRoute>
+      <VsmBuilder />
+    </ProtectedRoute>
+  }
+/>
 
 
         </Routes>
