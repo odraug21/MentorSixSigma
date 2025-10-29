@@ -73,13 +73,6 @@ export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, gene
                     </button>
 
                     <button
-                        onClick={exportJSON}
-                        className="bg-green-600 px-3 py-2 rounded hover:bg-green-700"
-                    >
-                        Exportar JSON
-                    </button>
-
-                    <button
                         onClick={clearDraft}
                         className="bg-red-600 px-3 py-2 rounded hover:bg-red-700"
                     >
@@ -104,7 +97,7 @@ export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, gene
                         onClick={() => goTo("/inicio")}
                         className="bg-gray-600 px-3 py-2 rounded hover:bg-gray-700"
                     >
-                        Salir
+                        Menú Principal
                     </button>
                 </div>
             </div>
