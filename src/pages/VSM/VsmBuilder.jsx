@@ -1,18 +1,17 @@
+// src/pages/VSM/VsmBuilder.jsx
 import React, { useState, useRef, useEffect } from "react";
-import Draggable from "react-draggable";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { VSM_SYMBOLS } from "../../constants/vsmSymbols";
 import { useNavigate } from "react-router-dom";
 import { Rnd } from "react-rnd";
 
-
 export default function VsmBuilder() {
   const navigate = useNavigate();
   const [elements, setElements] = useState([]);
   const [connecting, setConnecting] = useState(null);
   const [connections, setConnections] = useState([]);
-  const [flowType, setFlowType] = useState("push"); // push/pull
+  const [flowType, setFlowType] = useState("push");
   const canvasRef = useRef();
 
   // === Cargar desde localStorage ===
@@ -33,19 +32,48 @@ export default function VsmBuilder() {
     );
   }, [elements, connections]);
 
+  // === Agregar símbolo ===
   const addElement = (symbol) => {
     setElements([
       ...elements,
-      { ...symbol, x: 100, y: 100, id: Date.now(), color: "#4f46e5" },
+      { ...symbol, id: Date.now(), x: 100, y: 100, type: "symbol" },
     ]);
   };
 
-  const handleDrag = (e, data, id) => {
-    setElements((prev) =>
-      prev.map((el) => (el.id === id ? { ...el, x: data.x, y: data.y } : el))
-    );
+  // === Agregar texto libre ===
+  const addTextBlock = () => {
+    setElements([
+      ...elements,
+      {
+        id: Date.now(),
+        type: "process-box",
+        title: "Proceso",
+        content: "",
+        x: 200,
+        y: 200,
+        width: 150,
+        height: 120,
+      },
+    ]);
   };
 
+  // === Agregar bloque de proceso (editable en canvas) ===
+  const addProcessBox = () => {
+    setElements([
+      ...elements,
+      {
+        id: Date.now(),
+        type: "process-box",
+        content: "C/T=\nC/O=\nTiempo=\nTurnos=\nDisponible=",
+        x: 200,
+        y: 200,
+        width: 150,
+        height: 120,
+      },
+    ]);
+  };
+
+  // === Conexión entre símbolos ===
   const startConnection = (fromId) => {
     if (connecting === fromId) {
       setConnecting(null);
@@ -60,6 +88,7 @@ export default function VsmBuilder() {
     }
   };
 
+  // === Exportar PDF ===
   const exportPDF = async () => {
     const canvas = await html2canvas(canvasRef.current);
     const imgData = canvas.toDataURL("image/png");
@@ -70,12 +99,22 @@ export default function VsmBuilder() {
     pdf.save("VSM_Mapa.pdf");
   };
 
+  // === Limpiar ===
   const clearAll = () => {
     if (window.confirm("¿Borrar el mapa completo?")) {
       setElements([]);
       setConnections([]);
       localStorage.removeItem("vsmLayout");
     }
+  };
+
+  // === Editar texto directamente en canvas ===
+  const handleTextChange = (id, field, value) => {
+    setElements((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
   };
 
   return (
@@ -91,6 +130,20 @@ export default function VsmBuilder() {
             <span>{s.icon}</span> {s.label}
           </button>
         ))}
+
+        <button
+          onClick={addProcessBox}
+          className="bg-blue-700 hover:bg-blue-800 px-3 py-2 rounded"
+        >
+          ➕ Proceso
+        </button>
+
+        <button
+          onClick={addTextBlock}
+          className="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded"
+        >
+          ➕ Texto libre
+        </button>
 
         <select
           value={flowType}
@@ -121,11 +174,22 @@ export default function VsmBuilder() {
         </button>
       </div>
 
-      {/* 🔹 Área del lienzo */}
+      {/* 🔹 Lienzo estructurado */}
       <div
         ref={canvasRef}
         className="relative flex-1 bg-gray-800 border border-gray-700 rounded-lg overflow-hidden"
       >
+        {/* Zonas de referencia */}
+        <div className="absolute top-0 h-[20%] w-full bg-green-200/100 border-b border-gray-700 flex items-center justify-center text-xs text-gray-400">
+          Flujo de información
+        </div>
+        <div className="absolute top-[20%] h-[60%] w-full bg-blue-200/100 border-b border-gray-700 flex items-center justify-center text-xs text-gray-400">
+          Flujo de materiales
+        </div>
+        <div className="absolute bottom-0 h-[20%] w-full bg-yellow-200/100 flex items-center justify-center text-xs text-gray-400">
+          Plazos de entrega
+        </div>
+
         {/* Conexiones (líneas SVG) */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
           {connections.map((c, i) => {
@@ -164,38 +228,78 @@ export default function VsmBuilder() {
           </defs>
         </svg>
 
-        {/* Íconos arrastrables */}
-{elements.map((el) => (
-  <Rnd
-    key={el.id}
-    size={{ width: 120, height: "auto" }}
-    position={{ x: el.x, y: el.y }}
-    onDragStop={(e, d) =>
-      setElements((prev) =>
-        prev.map((item) =>
-          item.id === el.id ? { ...item, x: d.x, y: d.y } : item
-        )
-      )
-    }
-    enableResizing={false}
-    bounds="parent"
-  >
-    <div
-      className={`cursor-move p-2 rounded-lg text-center shadow-md border-2 ${
-        connecting === el.id ? "border-yellow-400" : "border-transparent"
-      }`}
-      style={{
-        backgroundColor: el.color,
-        userSelect: "none",
-      }}
-      onClick={() => startConnection(el.id)}
-    >
-      <div className="text-2xl">{el.icon}</div>
-      <div className="text-xs mt-1">{el.label}</div>
-    </div>
-  </Rnd>
-))}
-
+        {/* Elementos arrastrables */}
+        {elements.map((el) => (
+          <Rnd
+            key={el.id}
+            size={{ width: el.width || 130, height: el.height || "auto" }}
+            position={{ x: el.x, y: el.y }}
+            onDragStop={(e, d) =>
+              setElements((prev) =>
+                prev.map((item) =>
+                  item.id === el.id ? { ...item, x: d.x, y: d.y } : item
+                )
+              )
+            }
+            enableResizing
+            bounds="parent"
+          >
+            {el.type === "process-box" ? (
+              <div
+                className="border border-white bg-gray-700 text-white text-xs rounded shadow-md"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <input
+                  type="text"
+                  value={el.title}
+                  onChange={(e) =>
+                    handleTextChange(el.id, "title", e.target.value)
+                  }
+                  className="bg-gray-600 text-center font-bold border-b border-white outline-none rounded-t w-full"
+                />
+                <textarea
+                  value={el.content}
+                  onChange={(e) =>
+                    handleTextChange(el.id, "content", e.target.value)
+                  }
+                  className="flex-1 p-2 bg-gray-700 text-white resize-none outline-none rounded-b whitespace-pre-line"
+                />
+              </div>
+            ) : el.type === "text" ? (
+              <div
+                className="p-2 rounded-lg border border-gray-600 bg-gray-600/90 cursor-text text-xs whitespace-pre-line text-white shadow"
+                contentEditable
+                suppressContentEditableWarning
+                onBlur={(e) =>
+                  handleTextChange(el.id, "text", e.target.textContent)
+                }
+              >
+                {el.text}
+              </div>
+            ) : (
+              <div
+                className={`cursor-move p-2 rounded-lg text-center shadow-md border-2 ${
+                  connecting === el.id
+                    ? "border-yellow-400"
+                    : "border-transparent"
+                }`}
+                style={{
+                  backgroundColor: "#4f46e5",
+                  userSelect: "none",
+                }}
+                onClick={() => startConnection(el.id)}
+              >
+                <div className="text-2xl">{el.icon}</div>
+                <div className="text-xs mt-1">{el.label}</div>
+              </div>
+            )}
+          </Rnd>
+        ))}
       </div>
     </div>
   );

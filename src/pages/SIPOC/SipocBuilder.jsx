@@ -90,7 +90,13 @@ export default function SipocBuilder() {
             onClick={() => navigate("/sipoc/resumen")}
             className="bg-gray-800 px-4 py-2 rounded hover:bg-gray-700"
           >
-            ➜ Ver Resumen
+            Ver Resumen
+          </button>
+          <button
+            onClick={() => navigate("/sipoc/intro")}
+            className="bg-gray-800 px-4 py-2 rounded hover:bg-gray-700"
+          >
+            Menú SIPOC
           </button>
         </div>
       </div>
