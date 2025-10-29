@@ -38,7 +38,7 @@ export default function Vsm() {
   const exportPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(14);
-    doc.text("📉 VSM - Value Stream Mapping", 10, 10);
+    doc.text("VSM - Value Stream Mapping", 10, 10);
     doc.text(`Unidad de tiempo: ${unidad}`, 10, 18);
     let y = 28;
     procesos.forEach((p, idx) => {
@@ -97,7 +97,7 @@ export default function Vsm() {
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-3">
               <h1 className="text-3xl font-bold text-indigo-400">
-                📉 Value Stream Mapping
+                Value Stream Mapping
               </h1>
 
               <div className="flex flex-wrap gap-3 items-center">
@@ -138,6 +138,12 @@ export default function Vsm() {
 >
   🧩 Diseñar Mapa VSM
 </button>
+          <button
+            onClick={() => navigate("/vsm/intro")}
+            className="bg-indigo-600 px-6 py-2 rounded hover:bg-indigo-700 transition"
+          >
+            Menú VSM
+          </button>
 
               </div>
             </div>
@@ -227,6 +233,7 @@ export default function Vsm() {
                       ))}
                     </tbody>
                   </table>
+
 
                   <button
                     onClick={addRow}
