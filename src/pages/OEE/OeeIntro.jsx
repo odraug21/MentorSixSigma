@@ -54,7 +54,7 @@ export default function OeeIntro() {
 
           <button
            onClick={() => navigate("/inicio")}
-           className="bg-gray-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-700 transition"
+           className="bg-gray-600 px-6 py-2 rounded hover:bg-gray-700 transition"
           >
           Volver al menú principal
           </button>

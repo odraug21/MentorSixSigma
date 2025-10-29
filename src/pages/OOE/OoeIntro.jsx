@@ -74,7 +74,7 @@ export default function OoeIntro() {
 
 {/* 🔹 Fórmula de cálculo */}
 <motion.div
-  className="max-w-3xl mx-auto bg-gray-800 p-6 rounded-xl shadow-lg text-center"
+  className="max-w-5xl mx-auto bg-gray-800 p-6 rounded-xl shadow-lg text-center"
   initial={{ opacity: 0, y: 30 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.6 }}
@@ -83,21 +83,23 @@ export default function OoeIntro() {
     📘 Fórmula del OOE
   </h2>
 
-  {/* 🔹 Fórmula renderizada directamente */}
-  <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 mb-4 inline-block text-white text-xl font-serif">
-    <span className="mr-2 font-bold">OOE =</span>
-    <span className="align-middle">
-      <div className="flex flex-col items-center inline-block mx-2">
-        <span className="border-b border-white px-3">
-          Tiempo Operativo Total
-        </span>
-        <span className="px-3 text-sm mt-1">
-          Tiempo Disponible Planificado
-        </span>
-      </div>
+{/* 🔹 Fórmula renderizada horizontal */}  
+<div className="bg-gray-900 border border-gray-700 rounded-lg p-6 mb-6 inline-flex flex-wrap justify-center items-center gap-x-3 text-white text-lg font-serif w-full max-w-4xl mx-auto">
+  <span className="font-bold">OOE =</span>
+
+  {/* Fracción principal */}
+  <div className="flex flex-col items-center mx-3">
+    <span className="border-b border-white px-3 text-base">
+      Tiempo Operativo Total
     </span>
-    <span className="ml-2">× 100</span>
+    <span className="px-3 text-sm mt-1 text-gray-300">
+      Tiempo Disponible Planificado
+    </span>
   </div>
+
+  <span className="text-yellow-400 text-lg mx-2">× 100</span>
+</div>
+
 
   <p className="text-gray-300 mt-4">
     Donde: <br />
@@ -105,7 +107,7 @@ export default function OoeIntro() {
     <strong>Tiempo Disponible Planificado</strong> = Horas programadas para producción.
   </p>
 
-  <div className="mt-6 text-gray-400 text-sm">
+  <div className="mt-6 text-gray-400 text-base">
     <p>
       Ejemplo: Si una línea tenía 8h planificadas, pero sólo operó 6.5h efectivas, entonces:
     </p>
@@ -117,7 +119,7 @@ export default function OoeIntro() {
 
 
       {/* 🔹 Navegación sugerida */}
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-4 justify-center mt-10">
         
   <button
             onClick={() => navigate("/ooe/builder")}
@@ -128,7 +130,7 @@ export default function OoeIntro() {
 
           <button
            onClick={() => navigate("/inicio")}
-           className="bg-gray-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-700 transition"
+           className="bg-gray-600 px-6 py-2 rounded hover:bg-gray-700 transition"
           >
           Volver al menú principal
           </button>
