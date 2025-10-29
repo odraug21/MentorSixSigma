@@ -17,12 +17,12 @@ export default function Inicio() {
     { title: "📘 A3 Solución de Problema", path: "/create-a3", color: "bg-blue-600", img: logosixsigma },
     { title: "🧭 5S - Organización", path: "/5s/intro", color: "bg-green-600", img: logo5s },
     { title: "🚶 Gemba Walk", path: "/gemba/intro", color: "bg-yellow-500", img: logogemba },
-    { title: "⚙️ OEE", path: "/oee", color: "bg-indigo-600", img: logolean },
-    { title: "🚀 OOE", path: "/ooe", color: "bg-purple-600", img: logolean },
-    { title: "🏭 TEEP", path: "/teep", color: "bg-teal-600", img: logolean },
-    { title: "💡 Kaizen", path: "/kaizen", color: "bg-pink-600", img: logokaizen },
+    { title: "⚙️ OEE", path: "/oee/intro", color: "bg-indigo-600", img: logolean },
+    { title: "🚀 OOE", path: "/ooe/intro", color: "bg-purple-600", img: logolean },
+    { title: "🏭 TEEP", path: "/teep/intro", color: "bg-teal-600", img: logolean },
+    { title: "💡 Panel LEAN", path: "/kpi/dashboard", color: "bg-pink-600", img: logolean },
     { title: "📊 VSM", path: "/vsm/intro", color: "bg-orange-600", img: logovsm },
-    { title: "🔗 SIPOC", path: "/sipoc", color: "bg-red-600", img: logosipoc },
+    { title: "🔗 SIPOC", path: "/sipoc/intro", color: "bg-red-600", img: logosipoc },
   ];
 
   return (

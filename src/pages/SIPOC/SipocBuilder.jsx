@@ -1,8 +1,10 @@
-// src/pages/Sipoc.jsx
+// src/pages/SIPOC/SipocBuilder.jsx
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
+import { useNavigate } from "react-router-dom";
 
-export default function Sipoc() {
+export default function SipocBuilder() {
+  const navigate = useNavigate();
   const [sipoc, setSipoc] = useState({
     suppliers: [""],
     inputs: [""],
@@ -11,7 +13,6 @@ export default function Sipoc() {
     customers: [""],
   });
 
-  // ✅ Funciones auxiliares
   const handleChange = (section, index, value) => {
     const updated = { ...sipoc };
     updated[section][index] = value;
@@ -73,12 +74,9 @@ export default function Sipoc() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
-      {/* 🔹 Encabezado */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-indigo-400 mb-4 md:mb-0">
-          📊 SIPOC - Mapa de Proceso
-        </h1>
-        <div className="flex gap-3">
+        <h1 className="text-3xl font-bold text-indigo-400 mb-4 md:mb-0">📊 SIPOC</h1>
+        <div className="flex flex-wrap gap-3">
           <button onClick={saveToLocal} className="bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-700">
             Guardar
           </button>
@@ -88,23 +86,24 @@ export default function Sipoc() {
           <button onClick={exportPDF} className="bg-green-600 px-4 py-2 rounded hover:bg-green-700">
             Exportar PDF
           </button>
+          <button
+            onClick={() => navigate("/sipoc/resumen")}
+            className="bg-gray-800 px-4 py-2 rounded hover:bg-gray-700"
+          >
+            ➜ Ver Resumen
+          </button>
         </div>
       </div>
 
-      {/* 🔹 Contenedor principal */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {sections.map((section) => (
           <div key={section.id} className={`${section.color} rounded-lg p-4`}>
-            <h2 className="text-lg font-semibold mb-3 text-center">
-              {section.label}
-            </h2>
+            <h2 className="text-lg font-semibold mb-3 text-center">{section.label}</h2>
             {sipoc[section.id].map((value, index) => (
               <div key={index} className="flex items-center gap-2 mb-2">
                 <input
                   value={value}
-                  onChange={(e) =>
-                    handleChange(section.id, index, e.target.value)
-                  }
+                  onChange={(e) => handleChange(section.id, index, e.target.value)}
                   className="flex-1 p-2 rounded bg-gray-800 text-white"
                   placeholder="Escribe aquí..."
                 />

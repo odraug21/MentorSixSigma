@@ -34,6 +34,13 @@ export default function VsmIntro() {
         >
           📊 Análisis de Flujo (VSA)
         </button>
+
+                <button
+          onClick={() => navigate("/inicio")}
+          className="bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-md"
+        >
+          Volver al menú principal
+        </button>
       </div>
     </div>
     
