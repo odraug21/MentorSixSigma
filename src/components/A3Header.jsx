@@ -79,12 +79,6 @@ export default function A3Header({ a3, setA3, goTo, setMessage, exportJSON, gene
                         Limpiar
                     </button>
 
-                    <button
-                        onClick={sugerirCausasIA}
-                        className="bg-yellow-600 px-3 py-2 rounded hover:bg-yellow-700 text-black"
-                    >
-                        Sugerir causas (IA)
-                    </button>
 
                     <button
                         onClick={generatePDF}

@@ -130,6 +130,69 @@ export default function SipocBuilder() {
           </div>
         ))}
       </div>
+
+{/* 🔹 Análisis IA SIPOC */}
+<div className="mt-10 bg-indigo-950 border border-indigo-600 rounded-xl p-6 shadow-lg">
+  <div className="flex justify-between items-center mb-3">
+    <h2 className="text-xl font-semibold text-indigo-300">
+      🤖 Análisis IA del SIPOC
+    </h2>
+    <button
+      onClick={async () => {
+        // Construir resumen del SIPOC para enviar al backend
+        const resumenSIPOC = Object.entries(sipoc)
+          .map(([key, values]) => {
+            const titulo = key.toUpperCase();
+            const contenido = values.filter((v) => v.trim() !== "").join(", ");
+            return `${titulo}: ${contenido}`;
+          })
+          .join(" | ");
+
+        const prompt = `
+Analiza el siguiente diagrama SIPOC y proporciona un diagnóstico operativo Lean:
+${resumenSIPOC}
+
+Responde de manera estructurada con:
+1️⃣ Una síntesis general del flujo.
+2️⃣ Observaciones clave (riesgos, cuellos de botella o redundancias).
+3️⃣ Sugerencias de mejora o alineación entre proveedores, entradas, procesos, salidas y clientes.
+4️⃣ Mantén un tono profesional, conciso y en español.`;
+
+        try {
+          const response = await fetch("http://localhost:5000/api/ia", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ engine: "gemini", prompt }), // 👈 fuerza Gemini
+          });
+
+          const data = await response.json();
+          const texto = data.sugerencia || "No se obtuvo respuesta de la IA.";
+
+          // Mostrar resultado directamente en el textarea
+          document.getElementById("iaResultSIPOC").value = texto;
+        } catch (error) {
+          console.error("⚠️ Error al generar análisis IA:", error);
+          document.getElementById("iaResultSIPOC").value =
+            "Error al generar análisis IA.";
+        }
+      }}
+      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full shadow transition"
+    >
+      Generar Análisis IA
+    </button>
+  </div>
+
+  <textarea
+    id="iaResultSIPOC"
+    readOnly
+    rows={6}
+    className="w-full bg-gray-900 text-white p-3 rounded-lg outline-none resize-none"
+    placeholder="Presiona 'Generar Análisis IA' para obtener una evaluación automática..."
+  />
+</div>
+
+
+
     </div>
   );
 }

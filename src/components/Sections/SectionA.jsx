@@ -168,16 +168,91 @@ export default function SectionA({ a3, setA3, goTo, setMessage }) {
           </tbody>
         </table>
 
-        <div className="mt-2">
-          <label className="text-sm text-gray-400">Resumen lectura 5W2H (IA / manual)</label>
-          <textarea
-            value={a3.analisis5W2H?.resumen || ""}
-            onChange={(e) => setResumen5W2H(a3, setA3, e.target.value)}
-            className="w-full mt-1 p-2 rounded bg-gray-700"
-            rows={3}
-            placeholder="Aquí se generará la síntesis del problema según 5W2H..."
-          />
-        </div>
+        {/* Resumen lectura 5W2H */}
+<div className="mt-2">
+  <label className="text-sm text-gray-400">Resumen lectura 5W2H (manual)</label>
+  <textarea
+    value={a3.analisis5W2H?.resumen || ""}
+    onChange={(e) => setResumen5W2H(a3, setA3, e.target.value)}
+    className="w-full mt-1 p-2 rounded bg-gray-700"
+    rows={3}
+    placeholder="Aquí se generará la síntesis del problema según 5W2H..."
+  />
+</div>
+
+{/* 🔹 Nuevo bloque IA */}
+<div className="mt-4 bg-gray-900 border border-indigo-500 rounded-lg p-4 shadow-lg">
+  <div className="flex justify-between items-center mb-2">
+    <label className="text-sm font-semibold text-indigo-300">
+      Propuesta con IA 🤖 (generada por Gemini)
+    </label>
+    <button
+      onClick={async () => {
+        const resumen5W2H = [
+          { key: "que", label: "Qué" },
+          { key: "cuando", label: "Cuándo" },
+          { key: "donde", label: "Dónde" },
+          { key: "quien", label: "Quién" },
+          { key: "como", label: "Cómo" },
+          { key: "cuantos", label: "Cuántos" },
+          { key: "por_que", label: "Por qué" },
+        ]
+          .map(({ key, label }) => {
+            const es = a3.analisis5W2H?.[key]?.es || "";
+            const noEs = a3.analisis5W2H?.[key]?.noEs || "";
+            return `${label}: ${es ? "Es " + es : ""} ${noEs ? "/ No es " + noEs : ""}`;
+          })
+          .join(" | ");
+
+        const prompt = `
+Analiza el siguiente 5W2H y genera una síntesis clara del problema:
+${resumen5W2H}
+
+Proporciona:
+1️⃣ Un resumen breve (2-3 líneas) en lenguaje simple.
+2️⃣ Una hipótesis de causa probable basada en los datos.
+3️⃣ Un tono profesional (formato A3 Lean).
+`;
+
+        try {
+          const response = await fetch("http://localhost:5000/api/ia", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ engine: "gemini", prompt }), // 👈 fuerza uso de Gemini
+          });
+
+          const data = await response.json();
+          const texto = data.sugerencia || "No se obtuvo respuesta de la IA.";
+
+          setA3((prev) => {
+            const copy = JSON.parse(JSON.stringify(prev));
+            copy.analisis5W2H.resumenIA = texto;
+            return copy;
+          });
+        } catch (error) {
+          console.error("⚠️ Error IA 5W2H:", error);
+          setA3((prev) => {
+            const copy = JSON.parse(JSON.stringify(prev));
+            copy.analisis5W2H.resumenIA = "Error al generar propuesta IA.";
+            return copy;
+          });
+        }
+      }}
+      className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-full text-sm shadow"
+    >
+      Generar con IA
+    </button>
+  </div>
+
+  <textarea
+    value={a3.analisis5W2H?.resumenIA || ""}
+    readOnly
+    className="w-full bg-gray-800 text-white p-2 rounded resize-none"
+    rows={4}
+    placeholder="Presiona 'Generar con IA' para obtener una propuesta automática..."
+  />
+</div>
+
       </div>
 
       <div className="mt-2">

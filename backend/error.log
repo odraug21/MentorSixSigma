@@ -1,0 +1,33 @@
+
+❌ ERROR IA (03-11-2025, 12:30:42 p. m.):
+Nombre: Error
+Mensaje: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+Stack: Error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/core/error.mjs:59:20)
+    at OpenAI.makeStatusError (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/client.mjs:162:32)
+    at OpenAI.makeRequest (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/client.mjs:330:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/ia.js:40:26
+------------------------
+
+❌ ERROR IA (03-11-2025, 12:43:55 p. m.):
+Nombre: Error
+Mensaje: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+Stack: Error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/core/error.mjs:59:20)
+    at OpenAI.makeStatusError (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/client.mjs:162:32)
+    at OpenAI.makeRequest (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/client.mjs:330:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/ia.js:40:26
+------------------------
+
+❌ ERROR IA (03-11-2025, 12:44:14 p. m.):
+Nombre: Error
+Mensaje: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+Stack: Error: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/core/error.mjs:59:20)
+    at OpenAI.makeStatusError (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/client.mjs:162:32)
+    at OpenAI.makeRequest (file:///C:/1OdraugSmartLogistics/a3mentor/node_modules/openai/client.mjs:330:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/ia.js:40:26
+------------------------
