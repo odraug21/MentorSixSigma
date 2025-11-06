@@ -1,3 +1,4 @@
+// src/pages/5S/5sProyectos.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -48,7 +49,7 @@ export default function FiveSProyectos() {
   };
 
   const abrirProyecto = (id, ruta) => {
-    navigate(`/5s/${id}/${ruta}`);
+    navigate(`/5s/${ruta}/${id}`);
   };
 
   return (

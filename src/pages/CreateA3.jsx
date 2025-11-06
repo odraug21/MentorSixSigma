@@ -10,7 +10,7 @@ import SectionA from "../components/Sections/SectionA";
 import SectionB from "../components/Sections/SectionB";
 import SectionC from "../components/Sections/SectionC";
 import SectionD from "../components/Sections/SectionD";
-import A3Pdf from "../components/A3Pdf";
+import A3Pdf from "./A3/A3Pdf";
 import ReactDOM from "react-dom/client";
 
 export default function CreateA3() {
@@ -48,7 +48,7 @@ const handleGeneratePDF = () => {
   }
   // Renderiza el componente A3Pdf en memoria
   const root = ReactDOM.createRoot(container);
-  import("../components/A3Pdf").then(({ default: A3Pdf }) => {
+  import("./A3/A3Pdf").then(({ default: A3Pdf }) => {
     root.render(<A3Pdf a3={a3} />);
   });
 };

@@ -1,13 +1,14 @@
 // src/pages/Home.jsx
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Footer from "../components/Footer"; // 
+import Footer from "../components/Footer";
 import logoprincipal from "../img/logoppl2.png";
 
 const Home = () => {
   const [review, setReview] = useState({ name: "", email: "", message: "" });
   const [reviews, setReviews] = useState([]);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setReview({ ...review, [e.target.name]: e.target.value });
@@ -20,6 +21,23 @@ const Home = () => {
       setReview({ name: "", email: "", message: "" });
     }
   };
+
+  // ✅ Redirección automática solo si el usuario entra desde "/"
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr && window.location.pathname === "/") {
+      const user = JSON.parse(userStr);
+      const rol = user.rol?.toLowerCase().replace(/\s+/g, "");
+
+      if (rol === "superadmin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else if (rol === "adminempresa") {
+        navigate("/inicio", { replace: true });
+      } else {
+        navigate("/inicio", { replace: true });
+      }
+    }
+  }, [navigate]);
 
   return (
     <>
@@ -71,13 +89,10 @@ const Home = () => {
 
       {/* 💼 SUITE DE HERRAMIENTAS */}
       <section className="py-24 px-6 bg-gray-800 text-white text-center">
-        <h2 className="text-4xl font-bold mb-12 text-indigo-400">
-          Explora la Suites
-        </h2>
+        <h2 className="text-4xl font-bold mb-12 text-indigo-400">Explora la Suites</h2>
 
         <p className="max-w-3xl mx-auto text-lg mb-16 text-gray-300">
-          Desde Lean hasta 5S, analiza, optimiza y transforma tus procesos con
-          herramientas digitales de excelencia operacional.
+          Desde Lean hasta 5S, analiza, optimiza y transforma tus procesos con herramientas digitales de excelencia operacional.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
@@ -106,9 +121,7 @@ const Home = () => {
 
       {/* ✉️ CONTACTO */}
       <section className="py-24 px-6 bg-gray-900 text-white">
-        <h2 className="text-4xl font-bold text-center mb-8 text-indigo-400">
-          Contáctanos
-        </h2>
+        <h2 className="text-4xl font-bold text-center mb-8 text-indigo-400">Contáctanos</h2>
 
         <form
           onSubmit={handleSubmit}
@@ -167,4 +180,5 @@ const Home = () => {
 };
 
 export default Home;
+
 

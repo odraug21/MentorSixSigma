@@ -12,19 +12,35 @@ import {
 import { Bar } from "react-chartjs-2";
 import { exportarSeguimientoPDF } from "../../reports/5sSeguimientoPDF";
 import { fusionarDatos5S } from "../../utils/fusion5S";
-
+import { useParams } from "react-router-dom";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function FiveSSeguimiento() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const usuario = JSON.parse(localStorage.getItem("user"))?.email || "anonimo";
 
+  
   // 🔹 Fusiona implementación + auditorías
-  const [datos, setDatos] = useState(fusionarDatos5S(usuario));
+const BASE_5S = [
+  { nombre: "1S · Seiri (Clasificar)", inicio: "", fin: "", avance: 0 },
+  { nombre: "2S · Seiton (Ordenar)", inicio: "", fin: "", avance: 0 },
+  { nombre: "3S · Seiso (Limpiar)", inicio: "", fin: "", avance: 0 },
+  { nombre: "4S · Seiketsu (Estandarizar)", inicio: "", fin: "", avance: 0 },
+  { nombre: "5S · Shitsuke (Disciplina)", inicio: "", fin: "", avance: 0 },
+];
 
-  useEffect(() => {
-    setDatos(fusionarDatos5S(usuario));
-  }, []);
+const [datos, setDatos] = useState(BASE_5S);
+
+useEffect(() => {
+  const fusionados = fusionarDatos5S(usuario, id);
+  if (fusionados && fusionados.length > 0) {
+    setDatos(fusionados);
+  } else {
+    setDatos(BASE_5S);
+  }
+}, [usuario, id]);
+
 
   const promedio = useMemo(
     () => datos.reduce((acc, d) => acc + Number(d.avance || 0), 0) / (datos.length || 1),
@@ -42,9 +58,6 @@ export default function FiveSSeguimiento() {
   };
 
 
-
-
-  
 
   // 🔹 Datos para el gráfico Gantt simulado
   const chartData = {
@@ -105,6 +118,9 @@ const generarPDF = () => {
   exportarSeguimientoPDF(datos, "Proyecto 5S", "Carlo Guardo");
 };
 
+useEffect(() => {
+  console.log("🔍 Datos fusionados:", datos);
+}, [datos]);
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       {/* 🔹 Encabezado */}

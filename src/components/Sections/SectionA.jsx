@@ -184,7 +184,7 @@ export default function SectionA({ a3, setA3, goTo, setMessage }) {
 <div className="mt-4 bg-gray-900 border border-indigo-500 rounded-lg p-4 shadow-lg">
   <div className="flex justify-between items-center mb-2">
     <label className="text-sm font-semibold text-indigo-300">
-      Propuesta con IA 🤖 (generada por Gemini)
+      Propuesta generada con IA 🤖
     </label>
     <button
       onClick={async () => {
@@ -209,9 +209,9 @@ Analiza el siguiente 5W2H y genera una síntesis clara del problema:
 ${resumen5W2H}
 
 Proporciona:
-1️⃣ Un resumen breve (2-3 líneas) en lenguaje simple.
+1️⃣ Un resumen breve en lenguaje simple.
 2️⃣ Una hipótesis de causa probable basada en los datos.
-3️⃣ Un tono profesional (formato A3 Lean).
+3️⃣ Profesional (formato A3 Lean).
 `;
 
         try {

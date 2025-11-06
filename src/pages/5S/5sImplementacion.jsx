@@ -8,27 +8,24 @@ import {
 } from "../../constants/a3Defaults";
 import { exportarImplementacionPDF } from "../../reports/5SImplementacionPDF";
 import { crearSubtareaBase } from "../../utils/a3Helpers";
+import { useParams } from "react-router-dom";
 export default function FiveSImplementacion() {
   const navigate = useNavigate();
   const [secciones, setSecciones] = useState(SECCIONES_5S_DEFAULT);
 
-  
+  const { id } = useParams();
+  const usuario = JSON.parse(localStorage.getItem("user"))?.email || "anonimo";
+
 
   // === Cargar y guardar localStorage ===
-  useEffect(() => {
-    const saved = localStorage.getItem("implementacion5S");
-    if (saved) {
-      try {
-        setSecciones(JSON.parse(saved));
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-      }
-    }
-  }, []);
+useEffect(() => {
+  const saved = localStorage.getItem(`implementacion5s-${usuario}-${id}`);
+  if (saved) setSecciones(JSON.parse(saved));
+}, [id, usuario]);
 
-  useEffect(() => {
-    localStorage.setItem("implementacion5S", JSON.stringify(secciones));
-  }, [secciones]);
+useEffect(() => {
+  localStorage.setItem(`implementacion5s-${usuario}-${id}`, JSON.stringify(secciones));
+}, [secciones, usuario, id]);
 
   // === Helpers ===
   const setSeccion = (idx, next) =>
@@ -185,6 +182,8 @@ export default function FiveSImplementacion() {
   const generarPDF = () =>
     exportarImplementacionPDF(secciones, "Proyecto 5S", "Carlo Guardo");
 
+
+  
   // === Render ===
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
