@@ -1,16 +1,16 @@
-// src/pages/CreateA3.jsx
+// src/pages/A3/CreateA3.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { defaultA3 } from "../constants/a3Defaults";
-import { useLocalStorageState } from "../hooks/useLocalStorage";
-import { useUnsavedChangesPrompt } from "../hooks/useUnsavedChangesPrompt";
-import { setResumen5W2H } from "../utils/a3Helpers";
-import A3Header from "../components/A3Header";
-import SectionA from "../components/Sections/SectionA";
-import SectionB from "../components/Sections/SectionB";
-import SectionC from "../components/Sections/SectionC";
-import SectionD from "../components/Sections/SectionD";
-import A3Pdf from "./A3/A3Pdf";
+import { defaultA3 } from "../src/constants/a3Defaults";
+import { useLocalStorageState } from "../src/hooks/useLocalStorage";
+import { useUnsavedChangesPrompt } from "../src/hooks/useUnsavedChangesPrompt";
+import { setResumen5W2H } from "../src/utils/a3Helpers";
+import A3Header from "../src/components/A3Header";
+import SectionA from "../src/components/Sections/SectionA";
+import SectionB from "../src/components/Sections/SectionB";
+import SectionC from "../src/components/Sections/SectionC";
+import SectionD from "../src/components/Sections/SectionD";
+import A3Pdf from "../src/pages/A3/A3Pdf";
 import ReactDOM from "react-dom/client";
 
 export default function CreateA3() {
@@ -48,7 +48,7 @@ const handleGeneratePDF = () => {
   }
   // Renderiza el componente A3Pdf en memoria
   const root = ReactDOM.createRoot(container);
-  import("./A3/A3Pdf").then(({ default: A3Pdf }) => {
+  import("../components/A3Pdf").then(({ default: A3Pdf }) => {
     root.render(<A3Pdf a3={a3} />);
   });
 };
@@ -151,4 +151,5 @@ Causa Posible: ${por_que.es || "-"} (no es: ${por_que.noEs || "-"})`;
     </div>
   );
 }
+
 

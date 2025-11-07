@@ -9,4 +9,6 @@ export const pool = new Pool({
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
   port: process.env.PGPORT,
+  ssl: false,
+  client_encoding: "UTF8" 
 });

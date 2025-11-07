@@ -1,11 +1,13 @@
 // src/components/Navbar.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import logoprincipal from "../img/logoppl2.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [modulosPermitidos, setModulosPermitidos] = useState([]);
 
   // 🔹 Detectar sesión activa
   useEffect(() => {
@@ -19,53 +21,67 @@ const Navbar = () => {
     }
   }, []);
 
-  // 🔹 Cerrar sesión con confirmación
+  // 🔹 Cargar permisos dinámicamente desde backend
+  useEffect(() => {
+    const cargarPermisos = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await axios.get("http://localhost:5000/api/roles-modulos/permitidos/usuario", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setModulosPermitidos(res.data);
+      } catch (err) {
+        console.error("❌ Error cargando módulos del usuario:", err);
+      }
+    };
+
+    cargarPermisos();
+  }, []);
+
+  // 🔹 Cerrar sesión
   const handleLogout = () => {
-    const confirmLogout = window.confirm("¿Deseas cerrar sesión y volver al login?");
+    const confirmLogout = window.confirm("¿Deseas cerrar sesión?");
     if (confirmLogout) {
       localStorage.clear();
-      navigate("/login", { replace: true });
+      navigate("/", { replace: true });
     }
   };
 
-  // 🔹 Menú visible según el rol
-  const renderMenu = () => {
-    if (!user) return null;
+  // 🔹 Construir menú según módulos permitidos
+const renderMenu = () => {
+  if (!user) return null;
+  const rol = user.rol;
 
-    const rol = user.rol;
-
-    if (rol === "SuperAdmin") {
+  switch (rol) {
+    case "SuperAdmin":
       return (
         <>
           <Link to="/inicio" className="hover:text-indigo-300">Inicio</Link>
           <Link to="/admin/empresas" className="hover:text-indigo-300">Empresas</Link>
           <Link to="/admin/usuarios" className="hover:text-indigo-300">Usuarios</Link>
           <Link to="/admin/roles" className="hover:text-indigo-300">Roles</Link>
+          <Link to="/admin/modulos" className="hover:text-indigo-300">Módulos</Link>
         </>
       );
-    }
 
-    if (rol === "AdminEmpresa") {
+    case "AdminEmpresa":
       return (
         <>
           <Link to="/inicio" className="hover:text-indigo-300">Inicio</Link>
           <Link to="/admin/usuarios" className="hover:text-indigo-300">Usuarios</Link>
         </>
       );
-    }
 
-    // Usuario estándar
-    return (
-      <>
-        <Link to="/inicio" className="hover:text-indigo-300">Inicio</Link>
-        <Link to="/create-a3" className="hover:text-indigo-300">A3</Link>
-        <Link to="/5s/intro" className="hover:text-indigo-300">5S</Link>
-        <Link to="/gemba/intro" className="hover:text-indigo-300">Gemba</Link>
-        <Link to="/vsm/intro" className="hover:text-indigo-300">VSM</Link>
-        <Link to="/sipoc/intro" className="hover:text-indigo-300">SIPOC</Link>
-      </>
-    );
-  };
+    default:
+      return (
+        <>
+          <Link to="/inicio" className="hover:text-indigo-300">Inicio</Link>
+        </>
+      );
+  }
+};
 
   return (
     <nav className="flex justify-between items-center p-4 bg-gray-800 shadow-lg text-white">
@@ -93,7 +109,7 @@ const Navbar = () => {
             <div className="flex items-center gap-2 bg-gray-700 px-3 py-1 rounded-md">
               <span className="text-green-400 text-sm">🟢 En línea</span>
               <span className="text-gray-300 font-medium text-sm truncate max-w-[150px]">
-                {user.email || "Usuario"}
+                {user.email}
               </span>
             </div>
             <button
@@ -112,3 +128,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

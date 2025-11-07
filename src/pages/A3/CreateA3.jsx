@@ -1,4 +1,4 @@
-// src/pages/A3/CreateA3.jsx
+// src/pages/CreateA3.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { defaultA3 } from "../../constants/a3Defaults";
@@ -48,7 +48,7 @@ const handleGeneratePDF = () => {
   }
   // Renderiza el componente A3Pdf en memoria
   const root = ReactDOM.createRoot(container);
-  import("../components/A3Pdf").then(({ default: A3Pdf }) => {
+  import("./A3Pdf").then(({ default: A3Pdf }) => {
     root.render(<A3Pdf a3={a3} />);
   });
 };
@@ -151,5 +151,4 @@ Causa Posible: ${por_que.es || "-"} (no es: ${por_que.noEs || "-"})`;
     </div>
   );
 }
-
 

@@ -1,199 +1,146 @@
 // src/pages/Admin/Empresas.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import EmpresasForm from "./components/EmpresasForm";
+
 
 export default function Empresas() {
   const [empresas, setEmpresas] = useState([]);
-  const [form, setForm] = useState({ nombre: "", rut: "", pais: "" });
+  const [mensaje, setMensaje] = useState("");
+  const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+
   const token = localStorage.getItem("token");
 
-  // 🧠 Cargar empresas
+  // 🔹 Cargar empresas
+  const cargarEmpresas = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/empresas", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEmpresas(res.data);
+    } catch (err) {
+      console.error("❌ Error al obtener empresas:", err);
+      setMensaje("⚠️ Error al obtener empresas");
+    }
+  };
+
   useEffect(() => {
     cargarEmpresas();
   }, []);
 
-  const cargarEmpresas = async () => {
+  // 🔹 Eliminar empresa
+  const eliminarEmpresa = async (id) => {
+    if (!window.confirm("¿Eliminar esta empresa permanentemente?")) return;
     try {
-      const res = await fetch("http://localhost:5000/api/empresas", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ TOKEN agregado
-        },
+      await axios.delete(`http://localhost:5000/api/empresas/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (!res.ok) {
-        const errMsg = await res.text();
-        console.warn("⚠️ Error cargando empresas:", res.status, errMsg);
-        alert(`⚠️ Error al obtener empresas: ${res.status}`);
-        return;
-      }
-
-      const data = await res.json();
-      console.log("🏢 Empresas cargadas:", data);
-
-      if (Array.isArray(data)) {
-        setEmpresas(data);
-      } else {
-        setEmpresas([]);
-      }
+      setEmpresas(empresas.filter((e) => e.id !== id));
+      setMensaje("🗑️ Empresa eliminada correctamente");
+      setTimeout(() => setMensaje(""), 3000);
     } catch (err) {
-      console.error("❌ Error de conexión:", err);
+      console.error("❌ Error al eliminar empresa:", err);
+      setMensaje("⚠️ No se pudo eliminar la empresa.");
     }
   };
 
-  // 🧱 Crear empresa
-  const crearEmpresa = async () => {
-    if (!form.nombre || !form.rut || !form.pais) {
-      alert("Por favor completa todos los campos.");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/empresas", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ TOKEN agregado
-        },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-      console.log("📦 Respuesta backend:", data);
-
-      if (res.ok) {
-        alert("✅ Empresa creada correctamente");
-        setEmpresas((prev) => [...prev, data.empresa || form]);
-        resetForm();
-      } else {
-        alert(`⚠️ Error al crear la empresa: ${data.message || "Error en el servidor"}`);
-      }
-    } catch (err) {
-      console.error("❌ Error de conexión:", err);
-      alert("Error de conexión con el servidor");
-    }
+  // 🔹 Editar empresa (abre el formulario con datos)
+  const editarEmpresa = (empresa) => {
+    setEmpresaSeleccionada(empresa);
+    setMostrarFormulario(true);
   };
 
-// 🗑️ Eliminar empresa
-const eliminarEmpresa = async (id) => {
-  const confirmar = window.confirm("¿Seguro que deseas eliminar esta empresa?");
-  if (!confirmar) return;
-
-  try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/api/empresas/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      // Actualiza el estado para eliminarla del frontend
-      setEmpresas((prev) => prev.filter((e) => e.id !== id));
-      alert("🗑️ Empresa eliminada correctamente");
-    } else {
-      alert(`⚠️ ${data.message || "Error al eliminar empresa"}`);
-    }
-  } catch (err) {
-    console.error("❌ Error eliminando empresa:", err);
-    alert("Error de conexión con el servidor");
-  }
-};
-
-
-
-  // ✏️ Manejo de inputs
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // 🔄 Reset formulario
-  const resetForm = () => {
-    setForm({ nombre: "", rut: "", pais: "" });
+  // 🔹 Crear nueva empresa (abre formulario vacío)
+  const nuevaEmpresa = () => {
+    setEmpresaSeleccionada(null);
+    setMostrarFormulario(true);
   };
 
   return (
-    <div className="p-6 bg-gray-900 min-h-screen text-white">
-      <h2 className="text-3xl font-bold text-indigo-400 mb-6">
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      <h1 className="text-3xl font-bold text-indigo-400 mb-6">
         Gestión de Empresas
-      </h2>
+      </h1>
 
-      {/* Formulario */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre de la empresa"
-          value={form.nombre}
-          onChange={handleChange}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-        />
-        <input
-          type="text"
-          name="rut"
-          placeholder="RUT o identificación"
-          value={form.rut}
-          onChange={handleChange}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-        />
-        <input
-          type="text"
-          name="pais"
-          placeholder="País"
-          value={form.pais}
-          onChange={handleChange}
-          className="p-2 rounded bg-gray-700 text-white w-full"
-        />
-      </div>
+      {mensaje && (
+        <p className="text-center text-green-400 mb-4 font-semibold">
+          {mensaje}
+        </p>
+      )}
 
       <button
-        onClick={crearEmpresa}
-        className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded font-semibold mb-8"
+        onClick={nuevaEmpresa}
+        className="mb-6 bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-semibold"
       >
-        Crear Empresa
+        ➕ Nueva Empresa
       </button>
 
-      {/* Tabla */}
-      <table className="w-full bg-gray-800 rounded-lg shadow-md">
-        <thead className="bg-gray-700 text-indigo-300">
-          <tr>
-            <th className="py-2 px-4 text-left">ID</th>
-            <th className="py-2 px-4 text-left">Nombre</th>
-            <th className="py-2 px-4 text-left">RUT</th>
-            <th className="py-2 px-4 text-left">País</th>
-            <th className="py-2 px-4 text-left">Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {empresas.map((e) => (
-            <tr
-              key={e.id}
-              className="border-t border-gray-700 hover:bg-gray-700/50"
-            >
-              <td className="py-2 px-4">{e.id}</td>
-              <td className="py-2 px-4">{e.nombre}</td>
-              <td className="py-2 px-4">{e.rut}</td>
-              <td className="py-2 px-4">{e.pais}</td>
-              <td className="py-2 px-4 flex justify-center">
-                <button
-                onClick={() => eliminarEmpresa(e.id)}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-semibold"
-                 >
-                  Eliminar
-            </button>
+      {/* Formulario de creación/edición */}
+      {mostrarFormulario && (
+        <EmpresasForm
+          empresa={empresaSeleccionada}
+          onCancel={() => setMostrarFormulario(false)}
+          onSuccess={() => {
+            setMostrarFormulario(false);
+            cargarEmpresas();
+          }}
+        />
+      )}
 
-              </td>
-
+      {/* Tabla de empresas */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden text-sm">
+          <thead className="bg-gray-700 text-indigo-300">
+            <tr>
+              <th className="py-3 px-4 text-left">ID</th>
+              <th className="py-3 px-4 text-left">Nombre</th>
+              <th className="py-3 px-4 text-left">RUT</th>
+              <th className="py-3 px-4 text-left">País</th>
+              <th className="py-3 px-4 text-center">Acciones</th>
             </tr>
-          ))}
-
-
-
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {empresas.map((e) => (
+              <tr
+                key={e.id}
+                className="border-b border-gray-700 hover:bg-gray-800/70"
+              >
+                <td className="py-2 px-4">{e.id}</td>
+                <td className="py-2 px-4">{e.nombre}</td>
+                <td className="py-2 px-4">{e.rut}</td>
+                <td className="py-2 px-4">{e.pais}</td>
+                <td className="py-2 px-4 text-center flex gap-2 justify-center">
+                  <button
+                    onClick={() => editarEmpresa(e)}
+                    className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs"
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button
+                    onClick={() => eliminarEmpresa(e.id)}
+                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-xs"
+                  >
+                    🗑️ Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {empresas.length === 0 && (
+              <tr>
+                <td
+                  colSpan="5"
+                  className="text-center text-gray-400 p-3 border border-gray-700"
+                >
+                  No hay empresas registradas.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
+
 

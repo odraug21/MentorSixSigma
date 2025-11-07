@@ -1,18 +1,18 @@
 // backend/routes/empresaRoutes.js
 import express from "express";
 import { pool } from "../db.js";
-import { verifyToken } from "../middleware/authMiddleware.js";
+import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
 // 🧠 Solo SuperAdmin puede listar o crear empresas
-router.get("/", verifyToken(), requireRole(["SuperAdmin"]), async (req, res) => {
+router.get("/", verifyToken(["SuperAdmin"]), async (req, res) => {
   const result = await pool.query("SELECT * FROM empresas ORDER BY id ASC");
   res.json(result.rows);
 });
 
-router.post("/", verifyToken(), requireRole(["SuperAdmin"]), async (req, res) => {
+router.post("/", verifyToken(["SuperAdmin"]), async (req, res) => {
   const { nombre, rut, pais } = req.body;
 
   if (!nombre || !rut || !pais)
@@ -31,7 +31,7 @@ router.post("/", verifyToken(), requireRole(["SuperAdmin"]), async (req, res) =>
 });
 
 // 🗑️ Eliminar empresa (solo SuperAdmin)
-router.delete("/:id", verifyToken(), requireRole(["SuperAdmin"]), async (req, res) => {
+router.delete("/:id", verifyToken(["SuperAdmin"]), async (req, res) => {
   const { id } = req.params;
 
   try {

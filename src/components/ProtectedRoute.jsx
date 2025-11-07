@@ -1,31 +1,45 @@
 // src/components/ProtectedRoute.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import axios from "axios";
 
-export default function ProtectedRoute({ children }) {
-  let user = null;
-  let token = null;
+export default function ProtectedRoute({ children, roles }) {
+  const [isAllowed, setIsAllowed] = useState(null);
+  const token = localStorage.getItem("token");
 
-  try {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
+  useEffect(() => {
+    const verificarAcceso = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/roles-modulos/permitidos/usuario", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-    if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
-      user = JSON.parse(storedUser);
-    }
+        // ✅ si el backend responde correctamente
+        if (res.status === 200) {
+          setIsAllowed(true);
+        } else {
+          setIsAllowed(false);
+        }
+      } catch (error) {
+        console.error("❌ Error verificando acceso:", error);
+        setIsAllowed(false);
+      }
+    };
 
-    if (storedToken && storedToken !== "undefined" && storedToken !== "null") {
-      token = storedToken;
-    }
-  } catch (error) {
-    console.warn("⚠️ Error al parsear datos de sesión:", error);
-    localStorage.clear();
+    if (token) verificarAcceso();
+    else setIsAllowed(false);
+  }, [token]);
+
+  // ⏳ mientras se verifica, no renderiza nada (evita saltos visuales)
+  if (isAllowed === null) {
+    return <div className="text-center text-white mt-10">Verificando acceso...</div>;
   }
 
-  if (!user || !token) {
+  // ❌ sin acceso → redirigir al login
+  if (!isAllowed) {
     return <Navigate to="/login" replace />;
   }
 
+  // ✅ acceso permitido → mostrar el contenido
   return children;
 }
-
