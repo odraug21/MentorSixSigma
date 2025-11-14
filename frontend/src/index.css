@@ -1,0 +1,10 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Aquí puedes agregar tus estilos adicionales si quieres */
+body {
+  @apply bg-gray-900 text-white;
+}
+
