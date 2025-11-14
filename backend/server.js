@@ -8,7 +8,6 @@ import authRoutes from "./routes/authRoutes.js";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import empresasRoutes from "./routes/empresasRoutes.js";
 import rolesModulosRoutes from "./routes/rolesModulosRoutes.js";
-
 import rolRoutes from "./routes/rolRoutes.js";
 import modulosRoutes from "./routes/modulosRoutes.js";
 import debugRoutes from "./routes/debugRoutes.js";
@@ -18,11 +17,9 @@ import a3Routes from "./routes/a3Routes.js";
 import geminiIA from "./api/geminiIA.js";
 
 dotenv.config();
-
 const app = express();
-app.use(express.json());
 
-// CORS
+// 🌍 CORS seguro
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5000",
@@ -33,7 +30,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || !origin) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("No permitido por CORS"));
@@ -45,20 +42,24 @@ app.use(
   })
 );
 
-// Logging
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 🧠 Middleware simple de logging
 app.use((req, _res, next) => {
   console.log(`📡 ${req.method} ${req.url}`);
   next();
 });
 
-// Rutas
-app.get("/", (_req, res) => res.json({ message: "Servidor MentorSuites activo 🚀" }));
+// ✅ Rutas
+app.get("/", (_req, res) =>
+  res.json({ message: "Servidor MentorSuites activo 🚀" })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/empresas", empresasRoutes);
 app.use("/api/roles-modulos", rolesModulosRoutes);
-
 app.use("/api/roles", rolRoutes);
 app.use("/api/modulos", modulosRoutes);
 app.use("/api/debug", debugRoutes);
@@ -67,17 +68,21 @@ app.use("/api/consultas", consultasRoutes);
 app.use("/api/a3", a3Routes);
 app.use("/api/geminiIA", geminiIA);
 
-// 404
+// 🧭 Ruta de prueba del backend (útil en Vercel)
+app.get("/api", (_req, res) =>
+  res.json({ status: "✅ Backend activo en Vercel", time: new Date().toISOString() })
+);
+
+// 404 genérico
 app.use((_req, res) => res.status(404).json({ message: "Ruta no encontrada" }));
 
-// ⛔ ATENCIÓN: Vercel NO permite app.listen()
-// Por eso lo exportamos:
+// ⚙️ Exportar para Serverless (Vercel)
 export default app;
 
-// ✔ PERMITIMOS app.listen SOLO EN LOCAL
-if (process.env.VERCEL !== "1") {
+// 🖥️ Ejecutar solo en local
+if (!process.env.VERCEL && process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () =>
-    console.log(`🚀 MentorSuites API corriendo en puerto ${PORT}`)
+    console.log(`🚀 MentorSuites API corriendo en http://localhost:${PORT}`)
   );
 }
