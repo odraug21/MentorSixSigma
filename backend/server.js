@@ -19,30 +19,29 @@ import geminiIA from "./api/geminiIA.js";
 dotenv.config();
 const app = express();
 
-// 🌍 CORS seguro
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5000",
-  "http://localhost:4000",
-  "https://mentor-six-sigma.vercel.app",
-  "https://mentor-six-sigma-jeaa7yumk-carlo-guardos-projects.vercel.app", // ⚙️ frontend actual en Vercel
-  "https://mentorsuites.com", // 🔮 agregado futuro
-];
-
+// 🌍 CORS flexible y seguro
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("No permitido por CORS"));
+      // Permitir solicitudes sin origen (ej: Postman) o dominios de desarrollo/producción
+      if (
+        !origin ||
+        origin.includes("localhost") ||
+        origin.includes("vercel.app") ||
+        origin.includes("mentorsuites.com")
+      ) {
+        return callback(null, true);
       }
+      console.warn("🚫 CORS bloqueado para:", origin);
+      return callback(new Error("No permitido por CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
