@@ -25,6 +25,8 @@ const allowedOrigins = [
   "http://localhost:5000",
   "http://localhost:4000",
   "https://mentor-six-sigma.vercel.app",
+  "https://mentor-six-sigma-jeaa7yumk-carlo-guardos-projects.vercel.app", // ⚙️ frontend actual en Vercel
+  "https://mentorsuites.com", // 🔮 agregado futuro
 ];
 
 app.use(
