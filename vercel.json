@@ -4,7 +4,6 @@
   "installCommand": "npm install",
   "outputDirectory": "build",
   "framework": null,
-  "rootDirectory": "./",
   "routes": [
     { "src": "/api/(.*)", "dest": "https://mentorsuites-backend.vercel.app/api/$1" },
     { "handle": "filesystem" },
