@@ -19,11 +19,11 @@ import geminiIA from "./api/geminiIA.js";
 dotenv.config();
 const app = express();
 
-// 🌍 CORS flexible y seguro
+// 🌍 CORS flexible y seguro (Vercel + Localhost + mentorSuites)
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Permitir solicitudes sin origen (ej: Postman) o dominios de desarrollo/producción
+      // Permite localhost, cualquier dominio vercel.app o mentorsuites.com
       if (
         !origin ||
         origin.includes("localhost") ||
@@ -36,10 +36,12 @@ app.use(
       return callback(new Error("No permitido por CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+
 
 
 
