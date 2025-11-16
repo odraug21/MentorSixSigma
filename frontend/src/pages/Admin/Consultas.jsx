@@ -13,17 +13,29 @@ const Consultas = () => {
     obtenerConsultas();
   }, []);
 
-  const obtenerConsultas = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await axios.get(`${API_BASE}/consultas`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setConsultas(res.data);
-    } catch (error) {
-      console.error("❌ Error obteniendo consultas:", error);
-    }
-  };
+const obtenerConsultas = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const res = await axios.get(`${API_BASE}/consultas`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = res.data;
+
+    // 🔥 Normalización
+    const lista = Array.isArray(data)
+      ? data
+      : Array.isArray(data.consultas)
+      ? data.consultas
+      : [];
+
+    setConsultas(lista);
+  } catch (error) {
+    console.error("❌ Error obteniendo consultas:", error);
+    setConsultas([]); // evita crash
+  }
+};
+
 
   const verComentarios = async (id) => {
     setSeleccionada(id);

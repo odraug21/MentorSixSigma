@@ -1,27 +1,19 @@
 // src/utils/api.js
 
-// 🧩 Detectar entorno automáticamente
-const isLocalhost =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
+// 🌐 URL del backend en Render
+const PROD_API_BASE = "https://mentorsuites-backend.onrender.com/api";
 
-// 🔗 URL BASE del backend (ajusta el dominio según tu despliegue)
-const PROD_API_BASE = "https://mentor-six-sigma-api.vercel.app/api"; // ⚙️ cámbialo si tu backend tiene otro dominio
+// 🚀 Forzar siempre el backend Render (porque tu backend local no está corriendo)
+export const API_BASE = PROD_API_BASE;
 
-export const API_BASE = isLocalhost
-  ? "http://localhost:5000/api" // 💻 Desarrollo local
-  : PROD_API_BASE;              // 🌐 Producción (Vercel)
-
-// 🧠 Log (solo una vez)
 if (!window._loggedApiBase) {
-  console.log("🌍 API_BASE actual:", API_BASE);
+  console.log("🌍 API_BASE forzado:", API_BASE);
   window._loggedApiBase = true;
 }
 
-// ---------------------------------------------------------------------------
-// 🔧 Helpers genéricos
-// ---------------------------------------------------------------------------
-
+// ----------------------------------------------
+// 🔧 Helpers
+// ----------------------------------------------
 export const getHeaders = (auth = true) => {
   const headers = { "Content-Type": "application/json" };
 
@@ -33,14 +25,13 @@ export const getHeaders = (auth = true) => {
   return { headers };
 };
 
-// ---------------------------------------------------------------------------
-// 🚀 Métodos API con fetch (optimizado)
-// ---------------------------------------------------------------------------
-
+// ----------------------------------------------
+// 🚀 Métodos API
+// ----------------------------------------------
 export const apiGet = async (url, auth = true) => {
   const { headers } = getHeaders(auth);
   const res = await fetch(`${API_BASE}${url}`, { headers });
-  if (!res.ok) throw new Error(`GET ${url} → ${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(`GET ${url} → ${res.status}`);
   return res.json();
 };
 
@@ -51,7 +42,7 @@ export const apiPost = async (url, body, auth = true) => {
     headers,
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`POST ${url} → ${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(`POST ${url} → ${res.status}`);
   return res.json();
 };
 
@@ -62,7 +53,7 @@ export const apiPatch = async (url, body, auth = true) => {
     headers,
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`PATCH ${url} → ${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(`PATCH ${url} → ${res.status}`);
   return res.json();
 };
 
@@ -72,6 +63,6 @@ export const apiDelete = async (url, auth = true) => {
     method: "DELETE",
     headers,
   });
-  if (!res.ok) throw new Error(`DELETE ${url} → ${res.status} ${res.statusText}`);
+  if (!res.ok) throw new Error(`DELETE ${url} → ${res.status}`);
   return res.json();
 };
