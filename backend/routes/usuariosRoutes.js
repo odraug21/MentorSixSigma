@@ -1,6 +1,6 @@
 // backend/routes/usuariosRoutes.js
 import express from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import pool from "../db.js";
 import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleMiddleware.js";

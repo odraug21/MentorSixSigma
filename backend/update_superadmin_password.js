@@ -1,5 +1,5 @@
 // update_superadmin_password.js
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { pool } from "./db.js";
 
 const email = "super@mentor.com";
