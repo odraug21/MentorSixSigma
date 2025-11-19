@@ -1,12 +1,26 @@
 // src/pages/5S/5sProyectos.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiGet, apiPost, apiDelete } from "../../utils/api";
+
+const mapProyecto = (row) => ({
+  id: row.id,
+  nombre: row.nombre,
+  area: row.area,
+  responsable: row.responsable,
+  fechaInicio: row.fecha_inicio,   // viene desde SQL
+  estado: row.estado,
+  avance: row.avance,
+  fechaCreacion: row.fecha_creacion,
+  empresaNombre: row.empresa_nombre || "",
+});
 
 export default function FiveSProyectos() {
   const navigate = useNavigate();
-  const usuario = JSON.parse(localStorage.getItem("user"))?.email || "anonimo";
 
   const [proyectos, setProyectos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [mensaje, setMensaje] = useState("");
   const [nuevoProyecto, setNuevoProyecto] = useState({
     nombre: "",
     area: "",
@@ -14,37 +28,64 @@ export default function FiveSProyectos() {
     fechaInicio: "",
   });
 
-  // Cargar proyectos guardados
+  // 🔹 Cargar proyectos desde el backend
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem(`proyectos5s-${usuario}`)) || [];
-    setProyectos(data);
-  }, [usuario]);
+    const cargarProyectos = async () => {
+      try {
+        const data = await apiGet("/5s/proyectos", true);
+        setProyectos(data.map(mapProyecto));
+      } catch (error) {
+        console.error("❌ Error cargando proyectos 5S:", error);
+        setMensaje("Error cargando proyectos 5S");
+      } finally {
+        setLoading(false);
+      }
+    };
+    cargarProyectos();
+  }, []);
 
-  // Guardar proyectos en localStorage
-  useEffect(() => {
-    localStorage.setItem(`proyectos5s-${usuario}`, JSON.stringify(proyectos));
-  }, [proyectos, usuario]);
-
-  const crearProyecto = (e) => {
+  const crearProyecto = async (e) => {
     e.preventDefault();
+    setMensaje("");
+
     if (!nuevoProyecto.nombre || !nuevoProyecto.area) {
       alert("Por favor completa al menos el nombre y el área del proyecto.");
       return;
     }
-    const nuevo = {
-      id: Date.now(),
-      ...nuevoProyecto,
-      estado: "En progreso",
-      avance: 0,
-      fechaCreacion: new Date().toLocaleDateString(),
-    };
-    setProyectos([...proyectos, nuevo]);
-    setNuevoProyecto({ nombre: "", area: "", responsable: "", fechaInicio: "" });
+
+    try {
+      const creado = await apiPost(
+        "/5s/proyectos",
+        {
+          nombre: nuevoProyecto.nombre,
+          area: nuevoProyecto.area,
+          responsable: nuevoProyecto.responsable,
+          fechaInicio: nuevoProyecto.fechaInicio || null,
+        },
+        true
+      );
+
+      const proyectoUI = mapProyecto(creado);
+      // lo agregamos al inicio de la lista
+      setProyectos((prev) => [proyectoUI, ...prev]);
+      setNuevoProyecto({ nombre: "", area: "", responsable: "", fechaInicio: "" });
+      setMensaje("✅ Proyecto creado correctamente");
+    } catch (error) {
+      console.error("❌ Error creando proyecto 5S:", error);
+      setMensaje("Error creando proyecto 5S");
+    }
   };
 
-  const eliminarProyecto = (id) => {
-    if (window.confirm("¿Seguro que deseas eliminar este proyecto?")) {
-      setProyectos(proyectos.filter((p) => p.id !== id));
+  const eliminarProyecto = async (id) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este proyecto?")) return;
+
+    try {
+      await apiDelete(`/5s/proyectos/${id}`, true);
+      setProyectos((prev) => prev.filter((p) => p.id !== id));
+      setMensaje("🗑️ Proyecto eliminado correctamente");
+    } catch (error) {
+      console.error("❌ Error eliminando proyecto 5S:", error);
+      setMensaje("Error eliminando proyecto 5S");
     }
   };
 
@@ -63,6 +104,12 @@ export default function FiveSProyectos() {
           Volver al menú 5S
         </button>
       </div>
+
+      {mensaje && (
+        <div className="mb-4 bg-gray-800 border border-gray-600 px-4 py-2 rounded">
+          {mensaje}
+        </div>
+      )}
 
       {/* Formulario para crear proyecto */}
       <form
@@ -89,13 +136,17 @@ export default function FiveSProyectos() {
             type="text"
             placeholder="Responsable"
             value={nuevoProyecto.responsable}
-            onChange={(e) => setNuevoProyecto({ ...nuevoProyecto, responsable: e.target.value })}
+            onChange={(e) =>
+              setNuevoProyecto({ ...nuevoProyecto, responsable: e.target.value })
+            }
             className="bg-gray-700 p-2 rounded w-full"
           />
           <input
             type="date"
             value={nuevoProyecto.fechaInicio}
-            onChange={(e) => setNuevoProyecto({ ...nuevoProyecto, fechaInicio: e.target.value })}
+            onChange={(e) =>
+              setNuevoProyecto({ ...nuevoProyecto, fechaInicio: e.target.value })
+            }
             className="bg-gray-700 p-2 rounded w-full"
           />
         </div>
@@ -108,7 +159,9 @@ export default function FiveSProyectos() {
       </form>
 
       {/* Lista de proyectos */}
-      {proyectos.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-400 text-center">Cargando proyectos 5S...</p>
+      ) : proyectos.length === 0 ? (
         <p className="text-gray-400 text-center">No hay proyectos creados aún.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -124,11 +177,15 @@ export default function FiveSProyectos() {
               <p className="text-gray-300 text-sm mb-1">
                 <strong>Responsable:</strong> {p.responsable || "—"}
               </p>
-              <p className="text-gray-400 text-sm mb-3">
+              <p className="text-gray-400 text-sm mb-1">
                 <strong>Inicio:</strong> {p.fechaInicio || "—"}
               </p>
+              {p.empresaNombre && (
+                <p className="text-gray-500 text-xs mb-2">
+                  <strong>Empresa:</strong> {p.empresaNombre}
+                </p>
+              )}
 
-              {/* Botones de navegación */}
               <div className="flex flex-wrap gap-2 mt-2">
                 <button
                   onClick={() => abrirProyecto(p.id, "implementacion")}

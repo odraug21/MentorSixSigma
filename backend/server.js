@@ -16,6 +16,7 @@ import contactoRoutes from "./routes/contactoRoutes.js";
 import consultasRoutes from "./routes/consultasRoutes.js";
 import a3Routes from "./routes/a3Routes.js";
 import geminiIA from "./api/geminiIA.js";
+import fiveSRoutes from "./routes/fiveSRoutes.js";
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use("/api/contacto", contactoRoutes);
 app.use("/api/consultas", consultasRoutes);
 app.use("/api/a3", a3Routes);
 app.use("/api/geminiIA", geminiIA);
+app.use("/api/5s", fiveSRoutes);
 
 // 404
 app.use((_req, res) => res.status(404).json({ message: "Ruta no encontrada" }));
