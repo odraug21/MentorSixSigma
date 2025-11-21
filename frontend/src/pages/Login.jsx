@@ -2,15 +2,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoprincipal from "../img/logoppl2.png";
-import { API_BASE } from "../utils/api"; // ✅ Fuente centralizada
+import { API_BASE } from "../utils/api";
+import { useAuth } from "../context/AuthContext";   // ⬅️ IMPORTANTE
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();                      // ⬅️ USAR CONTEXTO
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     empresa: "",
   });
+
   const [empresas, setEmpresas] = useState([]);
   const [error, setError] = useState("");
 
@@ -23,18 +27,17 @@ export default function Login() {
   const buscarEmpresas = async () => {
     if (!formData.email) return;
     try {
-      const res = await fetch(`${API_BASE}/usuarios/empresas/${encodeURIComponent(formData.email)}`);
-
+      const res = await fetch(
+        `${API_BASE}/usuarios/empresas/${encodeURIComponent(formData.email)}`
+      );
 
       if (!res.ok) {
-        console.error("❌ Error al obtener empresas:", res.statusText);
         setEmpresas([]);
         return;
       }
 
       const data = await res.json();
-      if (Array.isArray(data)) setEmpresas(data);
-      else setEmpresas([]);
+      setEmpresas(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("❌ Error cargando empresas:", err);
       setEmpresas([]);
@@ -56,10 +59,12 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.usuario));
+        // ⬅️ USAR EL CONTEXTO CORRECTO
+        login(data.usuario, data.token);
 
+        // Redirección por rol
         const rol = data.usuario.rol?.toLowerCase().replace(/\s+/g, "");
+
         if (rol === "superadmin") {
           navigate("/admin/dashboard", { replace: true });
         } else {
@@ -96,7 +101,7 @@ export default function Login() {
             value={formData.email}
             onChange={handleChange}
             onBlur={buscarEmpresas}
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-3 rounded bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500"
             placeholder="ejemplo@correo.com"
             required
           />
@@ -107,7 +112,7 @@ export default function Login() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-3 rounded bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500"
             placeholder="••••••••"
             required
           />
@@ -117,7 +122,7 @@ export default function Login() {
             name="empresa"
             value={formData.empresa}
             onChange={handleChange}
-            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-3 rounded bg-gray-700 text-white focus:ring-2 focus:ring-indigo-500"
             required
           >
             <option value="">Selecciona empresa...</option>
@@ -129,9 +134,7 @@ export default function Login() {
               ))
             ) : (
               <option value="" disabled>
-                {empresas && empresas.message
-                  ? "Error al cargar"
-                  : "Sin empresas asociadas"}
+                Sin empresas asociadas
               </option>
             )}
           </select>

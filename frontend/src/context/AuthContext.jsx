@@ -1,99 +1,94 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../utils/api";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);       // datos del usuario
+  const [token, setToken] = useState(null);     // token JWT
+  const [modulos, setModulos] = useState([]);   // módulos permitidos
+  const [loading, setLoading] = useState(true); // carga inicial
 
-  // Cargar sesión desde localStorage al iniciar
-useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
+  /* ===========================================================
+     🔄 1. Cargar usuario desde LocalStorage una sola vez
+     =========================================================== */
+  useEffect(() => {
     try {
-      setUser(JSON.parse(storedUser));
-    } catch {
-      console.error("⚠️ Error parsing stored user, limpiando localStorage");
-      localStorage.removeItem("user");
-    }
-  }
-}, []);
+      const storedUser = localStorage.getItem("user");
+      const storedToken = localStorage.getItem("token");
 
+      if (storedUser && storedToken) {
+        const parsed = JSON.parse(storedUser);
 
-  // Simulación de login (para pruebas sin backend)
-const login = async ({ email, password, empresa }) => {
-  try {
-    // 🔹 Intenta login real con backend
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, empresa }),
-    });
+        setUser(parsed);
+        setToken(storedToken);
 
-    const data = await response.json();
-
-    if (response.ok && data.token) {
-      // 🟢 Login exitoso desde el backend
-      setUser(data.usuario);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.usuario));
-      navigate("/inicio");
-      return { success: true };
+        if (parsed.modulos && Array.isArray(parsed.modulos)) {
+          setModulos(parsed.modulos);
+        }
+      }
+    } catch (error) {
+      console.warn("⚠️ Error cargando usuario:", error);
+      localStorage.clear();
     }
 
-    // ⚠️ Si el backend falla, mostrar mensaje
-    return { success: false, message: data.message || "Error de autenticación" };
-  } catch (err) {
-    console.error("Error conectando al backend:", err);
+    setLoading(false);
+  }, []);
 
-    // 🔸 Fallback local si el servidor está caído
-    const fakeUsers = [
-      {
-        email: "super@mentor.com",
-        password: "1234",
-        nombre: "SuperAdmin MentorSuites",
-        rol: "SuperAdmin",
-        empresa: "MentorSuites HQ",
-      },
-      {
-        email: "admin@empresa1.com",
-        password: "1234",
-        nombre: "Administrador Empresa 1",
-        rol: "AdminEmpresa",
-        empresa: "Empresa 1",
-      },
-    ];
+  /* ===========================================================
+     🔐 2. Login: guardar usuario + token + módulos
+     =========================================================== */
+  const login = (usuario, jwtToken) => {
+    const pkg = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol: usuario.rol,
+      empresa: usuario.empresa,
+      empresa_id: usuario.empresa_id,
+      modulos: usuario.modulos || [],
+    };
 
-    const found = fakeUsers.find(
-      (u) =>
-        u.email === email && u.password === password && u.empresa === empresa
-    );
+    // Guardar en estado
+    setUser(pkg);
+    setToken(jwtToken);
+    setModulos(usuario.modulos || []);
 
-    if (found) {
-      setUser(found);
-      localStorage.setItem("user", JSON.stringify(found));
-      navigate("/inicio");
-      return { success: true, message: "Modo local (sin backend)" };
-    } else {
-      return { success: false, message: "Error de conexión con el servidor" };
-    }
-  }
-};
-
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    navigate("/login");
+    // Guardar en LocalStorage
+    localStorage.setItem("user", JSON.stringify(pkg));
+    localStorage.setItem("token", jwtToken);
   };
 
+  /* ===========================================================
+     🚪 3. Logout: limpiar app
+     =========================================================== */
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    setModulos([]);
+
+    localStorage.clear();
+  };
+
+  /* ===========================================================
+     ❤️ 4. Exportar valores globales
+     =========================================================== */
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        modulos,
+        loading,
+        login,
+        logout,
+        isLogged: !!user && !!token,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}

@@ -34,7 +34,7 @@ useEffect(() => {
 
   // 🔹 Lista completa de opciones (solo frontend)
   const opciones = [
-    { nombre: "A3", title: "📘 A3 Solución de Problema", path: "/a3", color: "bg-blue-600", img: logosixsigma },
+    { nombre: "A3", title: "📘 A3 Solución de Problema", path: "/a3/intro", color: "bg-blue-600", img: logosixsigma },
     { nombre: "5S", title: "🧭 5S - Organización", path: "/5s/intro", color: "bg-green-600", img: logo5s },
     { nombre: "Gemba Walk", title: "🚶 Gemba Walk", path: "/gemba/intro", color: "bg-yellow-500", img: logogemba },
     { nombre: "OEE", title: "⚙️ OEE", path: "/oee/intro", color: "bg-indigo-600", img: logolean },

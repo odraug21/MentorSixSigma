@@ -1,20 +1,34 @@
-// backend/middleware/auth.js
+// ============================================================
+// 📌 auth.js — verifyToken optimizado
+// 🚀 Valida el token sin tocar la base de datos
+// ============================================================
+
 import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
   try {
-    const authHeader = req.headers?.authorization || "";
-    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const header = req.headers.authorization;
 
-    if (!token) {
-      return res.status(401).json({ message: "Falta token de autorización" });
+    if (!header) {
+      return res.status(401).json({ message: "No se proporcionó token." });
     }
 
+    const token = header.split(" ")[1];
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // { id, email, rol, ... }
+
+    // Decodificación correcta
+    req.user = {
+      id: decoded.id,
+      email: decoded.email,
+      rol: decoded.rol,
+      empresa_id: decoded.empresa_id,
+    };
+
     return next();
-  } catch (err) {
-    console.error("❌ Error en verifyToken:", err?.message);
-    return res.status(403).json({ message: "Token inválido o expirado" });
+
+  } catch (error) {
+    console.error("❌ Error en verifyToken:", error.message);
+    return res.status(403).json({ message: "Token inválido o expirado." });
   }
 };

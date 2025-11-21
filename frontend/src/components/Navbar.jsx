@@ -1,45 +1,25 @@
 // src/components/Navbar.jsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import logoprincipal from "../img/logoppl2.png";
-import { API_BASE } from "../utils/api"; // ✅ asegúrate de importar tu variable API_BASE
+import { useAuth } from "../context/AuthContext";
 
-const Navbar = () => {
+export default function Navbar() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [modulosPermitidos, setModulosPermitidos] = useState([]);
+  const { user, logout } = useAuth();
 
-  // 🔹 Detectar sesión activa
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.warn("Error al parsear usuario:", e);
-      }
-    }
-  }, []);
-
-  // 🔹 Cargar permisos dinámicamente desde backend
-useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) setUser(JSON.parse(storedUser));
-}, []);
-
-  // 🔹 Cerrar sesión
+  // 🔹 Logout
   const handleLogout = () => {
-    const confirmLogout = window.confirm("¿Deseas cerrar sesión?");
-    if (confirmLogout) {
-      localStorage.clear();
-      navigate("/", { replace: true }); // ✅ corregido: comilla y ruta base
+    if (window.confirm("¿Deseas cerrar sesión?")) {
+      logout();
+      navigate("/", { replace: true });
     }
   };
 
-  // 🔹 Construir menú según módulos permitidos
+  // 🔹 Menú por rol
   const renderMenu = () => {
     if (!user) return null;
+
     const rol = user.rol;
 
     switch (rol) {
@@ -61,6 +41,7 @@ useEffect(() => {
           <>
             <Link to="/inicio" className="hover:text-indigo-300">Inicio</Link>
             <Link to="/admin/usuarios" className="hover:text-indigo-300">Usuarios</Link>
+            <span className="ml-3 text-sm text-blue-300 font-semibold">👔 Admin</span>
           </>
         );
 
@@ -75,7 +56,8 @@ useEffect(() => {
 
   return (
     <nav className="flex justify-between items-center p-4 bg-gray-800 shadow-lg text-white">
-      {/* 🔷 LOGO */}
+
+      {/* LOGO */}
       <div
         className="flex items-center gap-3 cursor-pointer"
         onClick={() => navigate("/inicio")}
@@ -87,12 +69,12 @@ useEffect(() => {
         />
       </div>
 
-      {/* 🔹 MENÚ CENTRAL */}
+      {/* MENÚ */}
       <ul className="flex space-x-6 items-center text-sm font-medium">
         {renderMenu()}
       </ul>
 
-      {/* 🧠 ESTADO DE USUARIO */}
+      {/* USUARIO */}
       <div className="flex items-center gap-3">
         {user ? (
           <>
@@ -113,8 +95,7 @@ useEffect(() => {
           <span className="text-sm text-gray-400">🔴 Desconectado</span>
         )}
       </div>
+
     </nav>
   );
-};
-
-export default Navbar;
+}

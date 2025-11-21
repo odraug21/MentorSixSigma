@@ -8,7 +8,7 @@ const ProtectedLayout = () => {
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       <Navbar />
       <main className="flex-1">
-        <Outlet /> {/* Aquí se renderiza la página hija */}
+        <Outlet />
       </main>
       <Footer />
     </div>
