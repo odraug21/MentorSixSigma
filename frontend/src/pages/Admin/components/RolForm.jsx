@@ -1,7 +1,7 @@
 // src/pages/Admin/components/RolForm.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../../../utils/api"; // ✅ limpieza: solo importamos lo necesario
+import { API_BASE } from '../../../config/env'; // ✅ limpieza: solo importamos lo necesario
 
 export default function RolForm({ rolEditando, onGuardar, onCancelar }) {
   const token = localStorage.getItem("token");

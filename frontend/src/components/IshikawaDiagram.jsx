@@ -1,7 +1,8 @@
 // src/components/IshikawaDiagram.jsx
 import React, { useState, useEffect } from "react";
 import * as htmlToImage from "html-to-image";
-import { API_BASE } from "../utils/api";
+import { API_BASE } from '../config/env';
+
 
 export default function IshikawaDiagram({ a3, setA3 }) {
   const categorias = [

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import RolForm from "./components/RolForm";
-import { API_BASE } from "../../utils/api"; // ✅ correcto
+import { API_BASE } from '../../config/env';// ✅ correcto
 
 export default function Roles() {
   const [roles, setRoles] = useState([]);
@@ -14,7 +14,7 @@ export default function Roles() {
   /* 🔹 Cargar roles desde backend */
   const cargarRoles = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/roles`, {
+      const res = await axios.get(`${API_BASE}/api/roles`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRoles(res.data);
@@ -53,7 +53,7 @@ export default function Roles() {
   const eliminarRol = async (id) => {
     if (!window.confirm("¿Eliminar este rol permanentemente?")) return;
     try {
-      await axios.delete(`${API_BASE}/roles/${id}`, {
+      await axios.delete(`${API_BASE}/api/roles/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setRoles((prev) => prev.filter((r) => r.id !== id));

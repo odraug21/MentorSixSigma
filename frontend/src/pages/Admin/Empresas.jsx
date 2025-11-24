@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EmpresasForm from "./components/EmpresasForm";
-import { API_BASE } from "../../utils/api"; // ✅ único import necesario
+import { API_BASE } from '../../config/env'; // ✅ único import necesario
 
 export default function Empresas() {
   const [empresas, setEmpresas] = useState([]);
@@ -19,7 +19,7 @@ export default function Empresas() {
   // 🔹 Cargar empresas
   const cargarEmpresas = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/empresas`, {
+      const res = await axios.get(`${API_BASE}/api/empresas`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmpresas(res.data);
@@ -37,7 +37,7 @@ export default function Empresas() {
   const eliminarEmpresa = async (id) => {
     if (!window.confirm("¿Eliminar esta empresa permanentemente?")) return;
     try {
-      await axios.delete(`${API_BASE}/empresas/${id}`, {
+      await axios.delete(`${API_BASE}/api/empresas/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmpresas((prev) => prev.filter((e) => e.id !== id));
@@ -67,7 +67,7 @@ export default function Empresas() {
 
     try {
       await axios.patch(
-        `${API_BASE}/empresas/${id}`,
+        `${API_BASE}/api/empresas/${id}`,
         { activa: false },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -8,6 +8,9 @@ import authRoutes from "./routes/authRoutes.js";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import empresasRoutes from "./routes/empresasRoutes.js";
 import rolesModulosRoutes from "./routes/rolesModulosRoutes.js";
+import evidenciasRoutes from "./routes/fiveSEvidenciasRoutes.js";
+import fiveSImplementacionRoutes from "./routes/fiveSImplementacionRoutes.js";
+
 
 import rolRoutes from "./routes/rolRoutes.js";
 import modulosRoutes from "./routes/modulosRoutes.js";
@@ -17,6 +20,9 @@ import consultasRoutes from "./routes/consultasRoutes.js";
 import a3Routes from "./routes/a3Routes.js";
 import geminiIA from "./api/geminiIA.js";
 import fiveSRoutes from "./routes/fiveSRoutes.js";
+import fiveSTareasRoutes from "./routes/fiveSTareasRoutes.js";
+import fiveSSubtareasRoutes from "./routes/fiveSSubtareasRoutes.js";
+import fiveSEvidenciasRoutes from "./routes/fiveSEvidenciasRoutes.js";
 
 dotenv.config();
 
@@ -26,25 +32,26 @@ app.use(express.json());
 // CORS
 const allowedOrigins = [
   "http://localhost:3000",
-  "http://localhost:5000",
-  "http://localhost:4000",
-  "https://mentor-six-sigma.vercel.app",
+  "https://mentorsuites.com",
+  "https://www.mentorsuites.com"
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error("No permitido por CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// CORS universal
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permite Postman, Thunder Client, SSR, etc.
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("❌ CORS bloqueado para origen: " + origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Logging
 app.use((req, _res, next) => {
@@ -68,9 +75,31 @@ app.use("/api/consultas", consultasRoutes);
 app.use("/api/a3", a3Routes);
 app.use("/api/geminiIA", geminiIA);
 app.use("/api/5s", fiveSRoutes);
+app.use("/api/evidencias", evidenciasRoutes);
+app.use("/api/5s/implementacion", fiveSImplementacionRoutes);
+app.use("/api/5s", fiveSTareasRoutes);
+app.use("/api/5s", fiveSSubtareasRoutes);
+app.use("/api/5s/evidencias", fiveSEvidenciasRoutes);
 
-// 404
-app.use((_req, res) => res.status(404).json({ message: "Ruta no encontrada" }));
+
+
+// ======================================================
+// HEALTH CHECK (debe ir antes del 404)
+// ======================================================
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    message: "MentorSuites backend activo 🚀"
+  });
+});
+
+// ======================================================
+// 404 - NO ENCONTRADA (siempre la última)
+// ======================================================
+app.use("*", (req, res) => {
+  res.status(404).json({ message: "Ruta no encontrada" });
+});
 
 // ⛔ ATENCIÓN: Vercel NO permite app.listen()
 // Por eso lo exportamos:
@@ -83,3 +112,5 @@ if (process.env.VERCEL !== "1") {
     console.log(`🚀 MentorSuites API corriendo en puerto ${PORT}`)
   );
 }
+
+

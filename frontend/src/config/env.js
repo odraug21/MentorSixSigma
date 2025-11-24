@@ -35,4 +35,6 @@ function pickBaseUrl() {
   }
 }
 
-export const API_BASE = pickBaseUrl();
+export const API_BASE = pickBaseUrl().replace(/\/+$/, "");
+
+

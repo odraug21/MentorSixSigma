@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../utils/api"
+import { API_BASE } from '../config/env';
 
 // tus imágenes
 import logosixsigma from "../img/logosixsigma.png";
@@ -17,20 +17,23 @@ export default function Inicio() {
   const [modulosPermitidos, setModulosPermitidos] = useState([]);
   const token = localStorage.getItem("token");
 
-  // 🔹 Cargar módulos permitidos según el rol del usuario
-useEffect(() => {
-  const cargarModulos = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/modulos`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setModulosPermitidos(res.data);
-    } catch (err) {
-      console.error("❌ Error cargando módulos permitidos:", err);
-    }
-  };
-  cargarModulos();
-}, [token]);
+  // 🔹 Cargar módulos permitidos según el rol
+  useEffect(() => {
+    const cargarModulos = async () => {
+      try {
+        const res = await axios.get(
+          `${API_BASE}/api/modulos/roles-modulos/permitidos/usuario`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setModulosPermitidos(res.data);
+      } catch (err) {
+        console.error("❌ Error cargando módulos permitidos:", err);
+      }
+    };
+    cargarModulos();
+  }, [token]);
 
   // 🔹 Lista completa de opciones (solo frontend)
   const opciones = [
@@ -45,7 +48,7 @@ useEffect(() => {
     { nombre: "SIPOC", title: "🔗 SIPOC", path: "/sipoc/intro", color: "bg-red-600", img: logosipoc },
   ];
 
-  // 🔹 Filtramos las tarjetas visibles según los módulos del backend
+  // 🔹 Filtrar según modulosPermitidos
   const accesos = opciones.filter(op =>
     modulosPermitidos.some(m => m.nombre.toLowerCase() === op.nombre.toLowerCase())
   );
@@ -82,4 +85,3 @@ useEffect(() => {
     </div>
   );
 }
-

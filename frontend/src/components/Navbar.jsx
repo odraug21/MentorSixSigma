@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { usuario, logout } = useAuth();
 
   // 🔹 Logout
   const handleLogout = () => {
@@ -18,9 +18,9 @@ export default function Navbar() {
 
   // 🔹 Menú por rol
   const renderMenu = () => {
-    if (!user) return null;
+    if (!usuario) return null;
 
-    const rol = user.rol;
+    const rol = usuario.rol;
 
     switch (rol) {
       case "SuperAdmin":
@@ -76,12 +76,12 @@ export default function Navbar() {
 
       {/* USUARIO */}
       <div className="flex items-center gap-3">
-        {user ? (
+        {usuario ? (
           <>
             <div className="flex items-center gap-2 bg-gray-700 px-3 py-1 rounded-md">
               <span className="text-green-400 text-sm">🟢 En línea</span>
               <span className="text-gray-300 font-medium text-sm truncate max-w-[150px]">
-                {user.email}
+                {usuario.email}
               </span>
             </div>
             <button

@@ -121,7 +121,7 @@ console.log("📤 Enviando a3:", {
                     </button>
 
                     <button
-                        onClick={() => goTo("/a3")}
+                        onClick={() => goTo("/a3/intro")}
                         className="bg-gray-600 px-3 py-2 rounded hover:bg-gray-700"
                     >
                         Menú A3

@@ -28,7 +28,7 @@ export default function ListA3() {
       </button>
 
         <button
-        onClick={() => navigate("/a3")}
+        onClick={() => navigate("/a3/intro")}
         className="bg-indigo-600 px-4 py-2 rounded mb-4"
       >
      Volver Menú A3

@@ -1,7 +1,7 @@
 // src/pages/Admin/Consultas.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../../utils/api"; // ✅ ruta correcta
+import { API_BASE } from '../../config/env'; // ✅ ruta correcta
 
 const Consultas = () => {
   const [consultas, setConsultas] = useState([]);
@@ -16,7 +16,7 @@ const Consultas = () => {
 const obtenerConsultas = async () => {
   const token = localStorage.getItem("token");
   try {
-    const res = await axios.get(`${API_BASE}/consultas`, {
+    const res = await axios.get(`${API_BASE}/api/consultas`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -41,7 +41,7 @@ const obtenerConsultas = async () => {
     setSeleccionada(id);
     const token = localStorage.getItem("token");
     try {
-      const res = await axios.get(`${API_BASE}/consultas/${id}/comentarios`, {
+      const res = await axios.get(`${API_BASE}/api/consultas/${id}/comentarios`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setComentarios(res.data);
@@ -55,7 +55,7 @@ const obtenerConsultas = async () => {
     const token = localStorage.getItem("token");
     try {
       await axios.post(
-        `${API_BASE}/consultas/${seleccionada}/comentarios`,
+        `${API_BASE}/api/consultas/${seleccionada}/comentarios`,
         { comentario },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -70,7 +70,7 @@ const obtenerConsultas = async () => {
     const token = localStorage.getItem("token");
     try {
       await axios.put(
-        `${API_BASE}/consultas/${id}/estado`,
+        `${API_BASE}/api/consultas/${id}/estado`,
         { estado: nuevoEstado },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -2,7 +2,8 @@
 import React from "react";
 import { update, set5W2H, setResumen5W2H } from "../../utils/a3Helpers";
 import A3Header from "../A3Header";
-import { API_BASE } from "../../utils/api";
+import { API_BASE } from '../../config/env';
+
 
 export default function SectionA({ a3, setA3, goTo, setMessage }) {
 

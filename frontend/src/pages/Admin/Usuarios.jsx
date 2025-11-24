@@ -1,6 +1,6 @@
 // src/pages/Admin/Usuarios.jsx
 import React, { useState, useEffect } from "react";
-import { API_BASE } from "../../utils/api";
+import { API_BASE } from '../../config/env';
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -28,7 +28,7 @@ export default function Usuarios() {
   // 📌 Obtener usuarios
   const cargarUsuarios = async () => {
     try {
-      const res = await fetch(`${API_BASE}/usuarios`, {
+      const res = await fetch(`${API_BASE}/api/usuarios`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -43,7 +43,7 @@ export default function Usuarios() {
   // 📌 Obtener empresas
   const cargarEmpresas = async () => {
     try {
-      const res = await fetch(`${API_BASE}/empresas`, {
+      const res = await fetch(`${API_BASE}/api/empresas`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -58,7 +58,7 @@ export default function Usuarios() {
   // 📌 Obtener roles
   const cargarRoles = async () => {
     try {
-      const res = await fetch(`${API_BASE}/roles`, {
+      const res = await fetch(`${API_BASE}/api/roles`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -83,7 +83,7 @@ export default function Usuarios() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/usuarios`, {
+      const res = await fetch(`${API_BASE}/api/usuarios`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -121,7 +121,7 @@ export default function Usuarios() {
   // 🔄 Actualizar usuario
   const actualizarUsuario = async () => {
     try {
-      const res = await fetch(`${API_BASE}/usuarios/${form.id}`, {
+      const res = await fetch(`${API_BASE}/api/usuarios/${form.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export default function Usuarios() {
     if (!confirmar) return;
 
     try {
-      const res = await fetch(`${API_BASE}/usuarios/${id}`, {
+      const res = await fetch(`${API_BASE}/api/usuarios/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

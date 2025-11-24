@@ -1,8 +1,3 @@
-// ============================================================
-// 📌 auth.js — verifyToken optimizado
-// 🚀 Valida el token sin tocar la base de datos
-// ============================================================
-
 import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
@@ -10,25 +5,23 @@ export const verifyToken = (req, res, next) => {
     const header = req.headers.authorization;
 
     if (!header) {
-      return res.status(401).json({ message: "No se proporcionó token." });
+      return res.status(401).json({ message: "Token no entregado" });
     }
 
     const token = header.split(" ")[1];
 
+    if (!token) {
+      return res.status(401).json({ message: "Token vacío" });
+    }
+
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Decodificación correcta
-    req.user = {
-      id: decoded.id,
-      email: decoded.email,
-      rol: decoded.rol,
-      empresa_id: decoded.empresa_id,
-    };
-
-    return next();
+    req.user = decoded; // { id, email, rol, empresa_id }
+    next();
 
   } catch (error) {
-    console.error("❌ Error en verifyToken:", error.message);
-    return res.status(403).json({ message: "Token inválido o expirado." });
+    console.error("❌ Error en verifyToken:", error);
+    return res.status(403).json({ message: "Token inválido o expirado" });
   }
 };

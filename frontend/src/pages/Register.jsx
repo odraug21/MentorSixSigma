@@ -5,7 +5,8 @@ import axios from "axios";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
 import logoprincipal from "../img/logoppl2.png";
-import { API_BASE } from "../utils/api";
+import { API_BASE } from '../config/env';
+
 const Register = () => {
   const navigate = useNavigate();
 

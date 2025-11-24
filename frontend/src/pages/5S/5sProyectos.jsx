@@ -8,7 +8,7 @@ const mapProyecto = (row) => ({
   nombre: row.nombre,
   area: row.area,
   responsable: row.responsable,
-  fechaInicio: row.fecha_inicio,   // viene desde SQL
+  fechaInicio: row.fecha_inicio,
   estado: row.estado,
   avance: row.avance,
   fechaCreacion: row.fecha_creacion,
@@ -28,7 +28,7 @@ export default function FiveSProyectos() {
     fechaInicio: "",
   });
 
-  // 🔹 Cargar proyectos desde el backend
+  // 🔹 Cargar proyectos desde backend
   useEffect(() => {
     const cargarProyectos = async () => {
       try {
@@ -44,45 +44,52 @@ export default function FiveSProyectos() {
     cargarProyectos();
   }, []);
 
-  const crearProyecto = async (e) => {
-    e.preventDefault();
-    setMensaje("");
+  // 🔹 Crear proyecto nuevo
+const crearProyecto = async (e) => {
+  e.preventDefault();
+  setMensaje("");
 
-    if (!nuevoProyecto.nombre || !nuevoProyecto.area) {
-      alert("Por favor completa al menos el nombre y el área del proyecto.");
-      return;
-    }
+  if (!nuevoProyecto.nombre || !nuevoProyecto.area) {
+    alert("Por favor completa al menos el nombre y el área del proyecto.");
+    return;
+  }
 
-    try {
-      const creado = await apiPost(
-        "/5s/proyectos",
-        {
-          nombre: nuevoProyecto.nombre,
-          area: nuevoProyecto.area,
-          responsable: nuevoProyecto.responsable,
-          fechaInicio: nuevoProyecto.fechaInicio || null,
-        },
-        true
-      );
+  try {
+    const creado = await apiPost(
+      "/5s/proyectos",
+      {
+        nombre: nuevoProyecto.nombre,
+        area: nuevoProyecto.area,
+        responsable: nuevoProyecto.responsable,
+        fechaInicio: nuevoProyecto.fechaInicio || null
+        // ❌ YA NO enviamos id_empresa
+      },
+      true
+    );
 
-      const proyectoUI = mapProyecto(creado);
-      // lo agregamos al inicio de la lista
-      setProyectos((prev) => [proyectoUI, ...prev]);
-      setNuevoProyecto({ nombre: "", area: "", responsable: "", fechaInicio: "" });
-      setMensaje("✅ Proyecto creado correctamente");
-    } catch (error) {
-      console.error("❌ Error creando proyecto 5S:", error);
-      setMensaje("Error creando proyecto 5S");
-    }
-  };
+    setProyectos((prev) => [mapProyecto(creado), ...prev]);
+
+    setNuevoProyecto({
+      nombre: "",
+      area: "",
+      responsable: "",
+      fechaInicio: ""
+    });
+
+    setMensaje("✅ Proyecto creado correctamente");
+  } catch (error) {
+    console.error("❌ Error creando proyecto 5S:", error);
+    setMensaje("Error creando proyecto 5S");
+  }
+};
 
   const eliminarProyecto = async (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este proyecto?")) return;
+    if (!window.confirm("¿Eliminar este proyecto?")) return;
 
     try {
       await apiDelete(`/5s/proyectos/${id}`, true);
       setProyectos((prev) => prev.filter((p) => p.id !== id));
-      setMensaje("🗑️ Proyecto eliminado correctamente");
+      setMensaje("🗑️ Proyecto eliminado");
     } catch (error) {
       console.error("❌ Error eliminando proyecto 5S:", error);
       setMensaje("Error eliminando proyecto 5S");
@@ -111,27 +118,36 @@ export default function FiveSProyectos() {
         </div>
       )}
 
-      {/* Formulario para crear proyecto */}
+      {/* Formulario */}
       <form
         onSubmit={crearProyecto}
         className="bg-gray-800 p-6 rounded-lg shadow-md mb-8 border border-gray-700"
       >
-        <h2 className="text-xl font-semibold mb-4 text-indigo-300">Nuevo Proyecto</h2>
+        <h2 className="text-xl font-semibold mb-4 text-indigo-300">
+          Nuevo Proyecto
+        </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <input
             type="text"
             placeholder="Nombre del proyecto"
             value={nuevoProyecto.nombre}
-            onChange={(e) => setNuevoProyecto({ ...nuevoProyecto, nombre: e.target.value })}
+            onChange={(e) =>
+              setNuevoProyecto({ ...nuevoProyecto, nombre: e.target.value })
+            }
             className="bg-gray-700 p-2 rounded w-full"
           />
+
           <input
             type="text"
             placeholder="Área"
             value={nuevoProyecto.area}
-            onChange={(e) => setNuevoProyecto({ ...nuevoProyecto, area: e.target.value })}
+            onChange={(e) =>
+              setNuevoProyecto({ ...nuevoProyecto, area: e.target.value })
+            }
             className="bg-gray-700 p-2 rounded w-full"
           />
+
           <input
             type="text"
             placeholder="Responsable"
@@ -141,6 +157,7 @@ export default function FiveSProyectos() {
             }
             className="bg-gray-700 p-2 rounded w-full"
           />
+
           <input
             type="date"
             value={nuevoProyecto.fechaInicio}
@@ -150,6 +167,7 @@ export default function FiveSProyectos() {
             className="bg-gray-700 p-2 rounded w-full"
           />
         </div>
+
         <button
           type="submit"
           className="mt-4 bg-green-600 px-4 py-2 rounded hover:bg-green-700 font-semibold"
@@ -158,11 +176,13 @@ export default function FiveSProyectos() {
         </button>
       </form>
 
-      {/* Lista de proyectos */}
+      {/* Lista */}
       {loading ? (
-        <p className="text-gray-400 text-center">Cargando proyectos 5S...</p>
+        <p className="text-gray-400 text-center">Cargando proyectos…</p>
       ) : proyectos.length === 0 ? (
-        <p className="text-gray-400 text-center">No hay proyectos creados aún.</p>
+        <p className="text-gray-400 text-center">
+          No hay proyectos creados aún.
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {proyectos.map((p) => (
@@ -170,7 +190,9 @@ export default function FiveSProyectos() {
               key={p.id}
               className="bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700"
             >
-              <h3 className="text-2xl font-semibold text-indigo-300 mb-2">{p.nombre}</h3>
+              <h3 className="text-2xl font-semibold text-indigo-300 mb-2">
+                {p.nombre}
+              </h3>
               <p className="text-gray-300 text-sm mb-1">
                 <strong>Área:</strong> {p.area}
               </p>
@@ -193,18 +215,21 @@ export default function FiveSProyectos() {
                 >
                   Implementación
                 </button>
+
                 <button
                   onClick={() => abrirProyecto(p.id, "seguimiento")}
                   className="bg-yellow-600 px-3 py-2 rounded hover:bg-yellow-700 text-sm text-black"
                 >
                   Seguimiento
                 </button>
+
                 <button
                   onClick={() => abrirProyecto(p.id, "auditoria")}
                   className="bg-purple-600 px-3 py-2 rounded hover:bg-purple-700 text-sm"
                 >
                   Auditoría
                 </button>
+
                 <button
                   onClick={() => eliminarProyecto(p.id)}
                   className="bg-red-600 px-3 py-2 rounded hover:bg-red-700 text-sm"

@@ -1,7 +1,7 @@
 // src/pages/Admin/components/EmpresasForm.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_BASE } from "../../../utils/api";
+import { API_BASE } from '../../../config/env';
 
 export default function EmpresasForm({ empresa, onCancel, onSuccess }) {
   const [formData, setFormData] = useState(

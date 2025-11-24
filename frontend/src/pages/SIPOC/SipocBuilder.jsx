@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../../utils/api";
+import { API_BASE } from '../../config/env';
+
 export default function SipocBuilder() {
   const navigate = useNavigate();
   const [sipoc, setSipoc] = useState({

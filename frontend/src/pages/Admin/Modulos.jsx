@@ -1,7 +1,7 @@
 // src/pages/Admin/Modulos.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../../utils/api"; // ✅ correcto
+import { API_BASE } from '../../config/env'; // ✅ correcto
 
 export default function Modulos() {
   const [modulos, setModulos] = useState([]);
@@ -17,7 +17,7 @@ export default function Modulos() {
   // 🔹 Cargar módulos
   const cargarModulos = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/modulos`, {
+      const res = await axios.get(`${API_BASE}/api/modulos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setModulos(res.data);
@@ -40,7 +40,7 @@ export default function Modulos() {
     e.preventDefault();
     try {
       if (editando) {
-        await axios.put(`${API_BASE}/modulos/${editando.id}`, form, {
+        await axios.put(`${API_BASE}/api/modulos/${editando.id}`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
@@ -68,7 +68,7 @@ export default function Modulos() {
   const eliminarModulo = async (id) => {
     if (!window.confirm("¿Eliminar este módulo?")) return;
     try {
-      await axios.delete(`${API_BASE}/modulos/${id}`, {
+      await axios.delete(`${API_BASE}/api/modulos/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       cargarModulos();

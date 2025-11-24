@@ -2,12 +2,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoprincipal from "../img/logoppl2.png";
-import { API_BASE } from "../utils/api";
-import { useAuth } from "../context/AuthContext";   // ⬅️ IMPORTANTE
+import { API_BASE } from "../config/env";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();                      // ⬅️ USAR CONTEXTO
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -18,18 +18,22 @@ export default function Login() {
   const [empresas, setEmpresas] = useState([]);
   const [error, setError] = useState("");
 
-  // 🔄 Actualizar inputs
+  // Manejar inputs
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔍 Buscar empresas asociadas al email
+  // Cargar empresas del usuario
   const buscarEmpresas = async () => {
     if (!formData.email) return;
+
     try {
-      const res = await fetch(
-        `${API_BASE}/usuarios/empresas/${encodeURIComponent(formData.email)}`
-      );
+      const emailEncoded = encodeURIComponent(formData.email);
+      const url = `${API_BASE}/api/usuarios/empresas/${emailEncoded}`;
+
+      console.log("🔎 Consultando empresas en:", url);
+
+      const res = await fetch(url);
 
       if (!res.ok) {
         setEmpresas([]);
@@ -44,13 +48,13 @@ export default function Login() {
     }
   };
 
-  // 🧠 Enviar formulario de login
+  // Enviar login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -59,8 +63,24 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // ⬅️ USAR EL CONTEXTO CORRECTO
-        login(data.usuario, data.token);
+        login(data.usuario, data.token, formData.empresa);
+
+        // Cargar empresa asociada
+        try {
+          const emailEncoded = encodeURIComponent(data.usuario.email);
+          const resEmp = await fetch(
+            `${API_BASE}/api/usuarios/empresas/${emailEncoded}`
+          );
+          const empList = await resEmp.json();
+
+          if (Array.isArray(empList) && empList.length > 0) {
+            localStorage.setItem("empresaId", empList[0].id);
+          } else {
+            localStorage.setItem("empresaId", 1);
+          }
+        } catch {
+          localStorage.setItem("empresaId", 1);
+        }
 
         // Redirección por rol
         const rol = data.usuario.rol?.toLowerCase().replace(/\s+/g, "");
@@ -71,7 +91,7 @@ export default function Login() {
           navigate("/inicio", { replace: true });
         }
       } else {
-        setError(data.message || "Error de autenticación");
+        setError(data.message || "Credenciales inválidas");
       }
     } catch (err) {
       console.error("❌ Error al conectar:", err);
@@ -126,7 +146,7 @@ export default function Login() {
             required
           >
             <option value="">Selecciona empresa...</option>
-            {Array.isArray(empresas) && empresas.length > 0 ? (
+            {empresas.length > 0 ? (
               empresas.map((e) => (
                 <option key={e.id} value={e.id}>
                   {e.nombre}
@@ -139,10 +159,8 @@ export default function Login() {
             )}
           </select>
 
-          {/* Error */}
           {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          {/* Botón */}
           <button
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded transition duration-300"
