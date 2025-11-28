@@ -117,3 +117,42 @@ export const eliminarProyecto5S = async (req, res) => {
     res.status(500).json({ message: "Error al eliminar proyecto 5S" });
   }
 };
+
+/**
+ * ==========================================
+ * 4️⃣ Obtener un proyecto 5S por ID
+ * GET /api/5s/proyectos/:id
+ * ==========================================
+ */
+export const getProyecto5SById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = `
+      SELECT 
+        p.id,
+        p.nombre,
+        p.area,
+        p.responsable,
+        p.fecha_inicio,
+        p.estado,
+        p.avance,
+        e.nombre AS empresa_nombre
+      FROM proyectos_5s p
+      LEFT JOIN empresas e ON e.id = p.empresa_id
+      WHERE p.id = $1
+      LIMIT 1;
+    `;
+
+    const { rows } = await pool.query(query, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Proyecto 5S no encontrado" });
+    }
+
+    return res.json(rows[0]);
+  } catch (error) {
+    console.error("❌ Error obteniendo proyecto 5S por ID:", error);
+    return res.status(500).json({ message: "Error al cargar proyecto 5S" });
+  }
+};

@@ -8,7 +8,6 @@ import authRoutes from "./routes/authRoutes.js";
 import usuariosRoutes from "./routes/usuariosRoutes.js";
 import empresasRoutes from "./routes/empresasRoutes.js";
 import rolesModulosRoutes from "./routes/rolesModulosRoutes.js";
-import evidenciasRoutes from "./routes/fiveSEvidenciasRoutes.js";
 import fiveSImplementacionRoutes from "./routes/fiveSImplementacionRoutes.js";
 
 
@@ -67,19 +66,22 @@ app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/empresas", empresasRoutes);
 app.use("/api/roles-modulos", rolesModulosRoutes);
 
+
 app.use("/api/roles", rolRoutes);
 app.use("/api/modulos", modulosRoutes);
 app.use("/api/debug", debugRoutes);
 app.use("/api/contacto", contactoRoutes);
 app.use("/api/consultas", consultasRoutes);
 app.use("/api/a3", a3Routes);
-app.use("/api/geminiIA", geminiIA);
-app.use("/api/5s", fiveSRoutes);
-app.use("/api/evidencias", evidenciasRoutes);
+
+app.use("/api/5s/evidencias", fiveSEvidenciasRoutes);
 app.use("/api/5s/implementacion", fiveSImplementacionRoutes);
 app.use("/api/5s", fiveSTareasRoutes);
 app.use("/api/5s", fiveSSubtareasRoutes);
-app.use("/api/5s/evidencias", fiveSEvidenciasRoutes);
+app.use("/api/5s", fiveSRoutes);
+
+
+
 
 
 

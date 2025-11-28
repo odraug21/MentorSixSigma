@@ -5,11 +5,18 @@ import { verifyToken } from "../middleware/auth.js";
 import multer from "multer";
 import { subirEvidencia } from "../controllers/5sEvidenciasController.js";
 import { supabase } from "../services/supabaseClient.js";
+
 import {
   getProyectos5S,
   crearProyecto5S,
   eliminarProyecto5S,
+  getProyecto5SById,
 } from "../controllers/5sProyectosController.js";
+
+import {
+  getImplementacion5S,
+  guardarImplementacion5S,
+} from "../controllers/5sImplementacionController.js";
 
 const router = express.Router();
 
@@ -26,8 +33,15 @@ router.use(verifyToken);
 // 📁 Proyectos 5S
 // ================================
 router.get("/proyectos", getProyectos5S);
+router.get("/proyectos/:id", getProyecto5SById);
 router.post("/proyectos", crearProyecto5S);
 router.delete("/proyectos/:id", eliminarProyecto5S);
+
+// ================================
+// 🧱 Implementación 5S (matriz)
+// ================================
+router.get("/implementacion/:proyectoId", getImplementacion5S);
+router.post("/implementacion/:proyectoId", guardarImplementacion5S);
 
 /**
  * ==========================================
@@ -42,7 +56,6 @@ router.post(
   upload.single("file"),
   subirEvidencia
 );
-
 
 router.delete("/evidencias/:id", verifyToken, async (req, res) => {
   try {

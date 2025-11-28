@@ -1,10 +1,9 @@
-// backend/routes/fiveSImplementacionRoutes.js
 import express from "express";
 import { verifyToken } from "../middleware/auth.js";
 
 import {
-  obtenerImplementacion5S,
-  crearImplementacion5S
+  getImplementacion5S,
+  guardarImplementacion5S
 } from "../controllers/5sImplementacionController.js";
 
 import {
@@ -27,8 +26,8 @@ router.use(verifyToken);
 // ===========================
 // IMPLEMENTACIÓN BASE
 // ===========================
-router.get("/:proyectoId", obtenerImplementacion5S);
-router.post("/:proyectoId", crearImplementacion5S);
+router.get("/:proyectoId", getImplementacion5S);
+router.post("/:proyectoId", guardarImplementacion5S);
 
 // ===========================
 // TAREAS

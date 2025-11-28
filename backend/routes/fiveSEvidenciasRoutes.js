@@ -9,12 +9,15 @@ import {
 const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
-router.use(verifyToken);
+// ✅ SUBIR ARCHIVO A SUBTAREA (CON TOKEN)
+router.post(
+  "/upload/:idSubtarea",
+  verifyToken,
+  upload.single("file"),
+  subirEvidencia
+);
 
-// POST → subir archivo
-router.post("/upload", upload.single("file"), subirEvidencia);
-
-// DELETE → eliminar archivo
-router.delete("/:evidencia_id", eliminarEvidencia);
+// ✅ ELIMINAR ARCHIVO
+router.delete("/:evidencia_id", verifyToken, eliminarEvidencia);
 
 export default router;

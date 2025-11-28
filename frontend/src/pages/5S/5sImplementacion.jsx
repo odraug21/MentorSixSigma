@@ -1,466 +1,806 @@
-// ======================================================
-// 📌 Implementación 5S (Tareas REALES con Backend)
-// ↳ Subtareas y evidencias siguen temporalmente en local
-// ======================================================
+// src/pages/5S/5sImplementacion.jsx
+// 🎯 Implementación 5S con matriz por secciones (1S..5S)
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiGet, apiPost, apiPatch, apiDelete } from "../../utils/api";
+import { SECCIONES_5S_DEFAULT } from "../../constants/a3Defaults";
+import { exportarImplementacionPDF } from "../../reports/5SImplementacionPDF";
+import { crearSubtareaBase } from "../../utils/a3Helpers";
+import { apiGet, apiPost } from "../../utils/api";
+import { jwtDecode } from "jwt-decode";
 
 export default function FiveSImplementacion() {
   const navigate = useNavigate();
-  const { id: proyectoId } = useParams(); // ID real del proyecto
+  const { id } = useParams(); // id = proyectoId
 
-  // -------------------------------
-  // ESTADO PRINCIPAL
-  // -------------------------------
-  const [tareas, setTareas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // =====================================================
+  // 🔐 USUARIO (solo usado para PDF)
+  // =====================================================
+  const token = localStorage.getItem("token");
+  let usuario = "anonimo";
 
-  // Subtareas y evidencias: todavía en local hasta la siguiente fase
-  const [subtareasLocal, setSubtareasLocal] = useState({});
-  const [evidenciasLocal, setEvidenciasLocal] = useState({});
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      usuario = decoded.email || decoded.id || "anonimo";
+    } catch (err) {
+      console.error("❌ Error decodificando token:", err);
+    }
+  }
 
-  const nuevaTareaBase = {
-    lugar: "",
-    descripcion: "",
-    responsable: "",
-    inicio: "",
-    fin: "",
-    dependeDe: null,
-    completada: false,
-  };
+  // =====================================================
+  // 📌 LLAVE ÚNICA DEL PROYECTO
+  // =====================================================
+  const storageKey = `implementacion5s-proyecto-${id}`;
 
-  // ===========================================
-  // 1️⃣ Cargar tareas reales desde el backend
-  // ===========================================
+  // 📌 Datos del proyecto (desde backend)
+  const [proyecto, setProyecto] = useState(null);
+
+  // 📌 Estado local de secciones 1S..5S
+  const [secciones, setSecciones] = useState(SECCIONES_5S_DEFAULT);
+
+  // =====================================================
+  // 1️⃣ Cargar datos reales del proyecto 5S (backend)
+  // =====================================================
   useEffect(() => {
-    async function cargar() {
+    async function cargarProyecto() {
       try {
-        const data = await apiGet(`/5s/implementacion/${proyectoId}/tareas`, true);
-        setTareas(data);
+        const data = await apiGet(`/5s/proyectos/${id}`, true);
+        setProyecto(data);
       } catch (err) {
-        console.error("❌ Error cargando tareas:", err);
-      } finally {
-        setLoading(false);
+        console.error("❌ Error cargando proyecto 5S:", err);
+      }
+    }
+    cargarProyecto();
+  }, [id]);
+
+  // =====================================================
+  // 2️⃣ Cargar / asegurar implementación desde la BD
+  //      (y sincronizar con localStorage)
+  // =====================================================
+  useEffect(() => {
+    if (!proyecto) return;
+
+    async function cargarImplementacion() {
+      try {
+        const res = await apiGet(`/5s/implementacion/${id}`, true);
+
+        // 🟣 No existe implementación -> crear fila base
+        if (!res || !res.implementacion) {
+          const creada = await apiPost(`/5s/implementacion/${id}`, {}, true);
+          console.log("🟢 Implementación 5S creada en BD:", creada?.implementacion?.id || creada?.id);
+
+          setSecciones(SECCIONES_5S_DEFAULT);
+          localStorage.setItem(storageKey, JSON.stringify(SECCIONES_5S_DEFAULT));
+          return;
+        }
+
+        console.log("🟦 Implementación 5S encontrada:", res.implementacion.id);
+
+        const seccionesBD =
+          Array.isArray(res.secciones) && res.secciones.length
+            ? res.secciones
+            : SECCIONES_5S_DEFAULT;
+
+        setSecciones(seccionesBD);
+        localStorage.setItem(storageKey, JSON.stringify(seccionesBD));
+      } catch (err) {
+        console.error("❌ Error cargando/asegurando implementación 5S:", err);
       }
     }
 
-    cargar();
-  }, [proyectoId]);
+    cargarImplementacion();
+  }, [proyecto, id, storageKey]);
 
-  // ==================================================
-  // 2️⃣ Crear nueva tarea (POST → backend)
-  // ==================================================
-  const crearTarea = async () => {
-    try {
-      const nueva = await apiPost(
-        `/5s/implementacion/${proyectoId}/tareas`,
-        nuevaTareaBase,
-        true
-      );
+  // =====================================================
+  // 3️⃣ Guardar automáticamente en localStorage
+  // =====================================================
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(secciones));
+    console.log("💾 Guardado 5S en localStorage:", storageKey);
+  }, [secciones, storageKey]);
 
-      setTareas((prev) => [...prev, nueva]);
-    } catch (err) {
-      console.error("❌ Error creando tarea:", err);
-    }
-  };
+  // =====================================================
+  // Helpers
+  // =====================================================
+  const setSeccion = (idx, next) =>
+    setSecciones((prev) => {
+      const copy = structuredClone(prev);
+      copy[idx] = typeof next === "function" ? next(copy[idx]) : next;
+      return copy;
+    });
 
-  // ==================================================
-  // 3️⃣ Actualizar tarea (PATCH → backend)
-  // ==================================================
-  const actualizarTarea = async (tareaId, campo, valor) => {
-    try {
-      const updated = await apiPatch(
-        `/5s/implementacion/tarea/${tareaId}`,
-        { [campo]: valor },
-        true
-      );
-
-      setTareas((prev) =>
-        prev.map((t) => (t.id === tareaId ? updated : t))
-      );
-    } catch (err) {
-      console.error("❌ Error actualizando tarea:", err);
-    }
-  };
-
-  // ==================================================
-  // 4️⃣ Eliminar tarea (DELETE → backend)
-  // ==================================================
-  const eliminarTarea = async (tareaId) => {
-    if (!window.confirm("¿Deseas eliminar esta tarea?")) return;
-
-    try {
-      await apiDelete(`/5s/implementacion/tarea/${tareaId}`, true);
-      setTareas((prev) => prev.filter((t) => t.id !== tareaId));
-    } catch (err) {
-      console.error("❌ Error eliminando tarea:", err);
-    }
-  };
-
-// ==================================================
-// 5️⃣ Subtareas 100% Backend (Node.js + PostgreSQL)
-// ==================================================
-
-// 🔹 Cargar subtareas desde backend
-const cargarSubtareas = async (tareaId) => {
-  try {
-    const data = await apiGet(`/5s/implementacion/tarea/${tareaId}/subtareas`, true);
-    setSubtareasLocal((prev) => ({ ...prev, [tareaId]: data }));
-  } catch (error) {
-    console.error("❌ Error cargando subtareas:", error);
-  }
-};
-
-// 🔹 Crear subtarea
-const addSubtarea = async (tareaId) => {
-  try {
-    const nueva = await apiPost(
-      `/5s/implementacion/tarea/${tareaId}/subtareas`,
-      {
-        lugar: "",
-        descripcion: "",
-        responsable: "",
-        inicio: "",
-        fin: "",
-      },
-      true
-    );
-
-    setSubtareasLocal((prev) => ({
-      ...prev,
-      [tareaId]: [...(prev[tareaId] || []), nueva],
+  const addTarea = (sIdx) =>
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: [
+        ...sec.tareas,
+        {
+          id: crypto.randomUUID(),
+          lugar: "",
+          descripcion: "",
+          responsable: "",
+          inicio: "",
+          fin: "",
+          dependeDe: null,
+          completada: false,
+          evidencias: [],
+          subtareas: [],
+        },
+      ],
     }));
-  } catch (error) {
-    console.error("❌ Error creando subtarea:", error);
-  }
-};
 
-// 🔹 Actualizar subtarea
-const actualizarSubtarea = async (tareaId, subId, campo, valor) => {
-  try {
-    const updated = await apiPatch(
-      `/5s/implementacion/subtarea/${subId}`,
-      { [campo]: valor },
-      true
-    );
-
-    setSubtareasLocal((prev) => ({
-      ...prev,
-      [tareaId]: prev[tareaId].map((s) =>
-        s.id === subId ? updated : s
+  const addSubtarea = (sIdx, tareaId) =>
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: sec.tareas.map((t) =>
+        t.id === tareaId
+          ? { ...t, subtareas: [...t.subtareas, crearSubtareaBase()] }
+          : t
       ),
     }));
-  } catch (error) {
-    console.error("❌ Error actualizando subtarea:", error);
-  }
-};
 
-// 🔹 Eliminar subtarea
-const eliminarSubtarea = async (tareaId, subId) => {
-  if (!window.confirm("¿Eliminar subtarea permanentemente?")) return;
-
-  try {
-    await apiDelete(`/5s/implementacion/subtarea/${subId}`, true);
-
-    setSubtareasLocal((prev) => ({
-      ...prev,
-      [tareaId]: prev[tareaId].filter((s) => s.id !== subId),
+  const removeTarea = (sIdx, tareaId) =>
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: sec.tareas
+        .filter((t) => t.id !== tareaId)
+        .map((t) => (t.dependeDe === tareaId ? { ...t, dependeDe: null } : t)),
     }));
+
+  const removeSubtarea = (sIdx, tareaId, subId) =>
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: sec.tareas.map((t) =>
+        t.id === tareaId
+          ? { ...t, subtareas: t.subtareas.filter((s) => s.id !== subId) }
+          : t
+      ),
+    }));
+
+  const setTareaField = (sIdx, tareaId, field, value) =>
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: sec.tareas.map((t) =>
+        t.id === tareaId ? { ...t, [field]: value } : t
+      ),
+    }));
+
+  const setSubtareaField = (sIdx, tareaId, subId, field, value) =>
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: sec.tareas.map((t) =>
+        t.id === tareaId
+          ? {
+              ...t,
+              subtareas: t.subtareas.map((st) =>
+                st.id === subId ? { ...st, [field]: value } : st
+              ),
+            }
+          : t
+      ),
+    }));
+
+const handleFileUpload = async (sIdx, tareaId, file) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("tarea_id", tareaId);
+
+    const res = await fetch("http://localhost:5000/api/5s/evidencias/upload", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Error en subida");
+
+    const data = await res.json();
+
+    setSeccion(sIdx, (sec) => ({
+      ...sec,
+      tareas: sec.tareas.map((t) =>
+        t.id === tareaId
+          ? { ...t, evidencias: [...t.evidencias, data] }
+          : t
+      ),
+    }));
+
+    alert("✅ Archivo subido correctamente");
   } catch (error) {
-    console.error("❌ Error eliminando subtarea:", error);
+    console.error("❌ Error subiendo archivo:", error);
+    alert("Error subiendo archivo");
   }
 };
 
-// ==================================================
-// 6️⃣ Evidencias → Supabase Storage (100% funcional)
-// ==================================================
-const handleFileUpload = async (tareaId, files, subtareaId = null) => {
+
+
+
+
+const handleSubtareaFileUpload = async (sIdx, tareaId, subId, files) => {
   try {
     const file = files[0];
     if (!file) return;
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("proyecto_id", proyectoId);   // 👈 OJO: aquí usas proyectoId (lo tienes arriba)
-    formData.append("tarea_id", tareaId);
-    formData.append("subtarea_id", subtareaId);
+    formData.append("id_subtarea", subId);
 
-    const evidencia = await apiUpload("/5s/evidencias/upload", formData, true);
+    const data = await apiPost("/5s/evidencias/upload", formData, true, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
-    // actualizar UI
-    setEvidenciasLocal((prev) => ({
-      ...prev,
-      [tareaId]: [...(prev[tareaId] || []), evidencia],
+    setSeccion(sIdx, sec => ({
+      ...sec,
+      tareas: sec.tareas.map(t =>
+        t.id === tareaId
+          ? {
+              ...t,
+              subtareas: t.subtareas.map(st =>
+                st.id === subId
+                  ? { ...st, evidencias: [...st.evidencias, data] }
+                  : st
+              ),
+            }
+          : t
+      ),
     }));
-  } catch (error) {
-    console.error("❌ Error subiendo evidencia:", error);
+
+    alert("Archivo de subtarea subido correctamente ✅");
+  } catch (err) {
+    console.error("❌ Error subiendo archivo:", err);
     alert("Error subiendo archivo");
   }
 };
 
 
-const eliminarEvidencia = async (tareaId, evidenciaId) => {
-  if (!window.confirm("¿Eliminar evidencia permanentemente?")) return;
-
-  try {
-    await apiDelete(`/5s/evidencias/${evidenciaId}`, true);
-
-    setEvidenciasLocal((prev) => ({
-      ...prev,
-      [tareaId]: prev[tareaId].filter((ev) => ev.id !== evidenciaId),
-    }));
-  } catch (error) {
-    console.error("❌ Error eliminando evidencia:", error);
-    alert("Error eliminando evidencia");
-  }
-};
 
 
 
 
+  const calcularAvanceS = (tareas) => {
+    if (!tareas.length) return 0;
+    const total = tareas.flatMap((t) => [t, ...t.subtareas]);
+    const done = total.filter((x) => x.completada).length;
+    return Math.round((done / total.length) * 100);
+  };
 
-  // ==================================================
-// RENDER
-// ==================================================
-return (
-  <div className="min-h-screen bg-gray-900 text-white p-8">
-    <div className="flex justify-between mb-6">
-      <h1 className="text-3xl font-bold text-indigo-400">
-        Implementación 5S – Proyecto #{proyectoId}
-      </h1>
+  useEffect(() => {
+    setSecciones((prev) =>
+      prev.map((s) => ({
+        ...s,
+        avance: calcularAvanceS(s.tareas),
+      }))
+    );
+  }, [JSON.stringify(secciones.map((s) => s.tareas))]);
 
-      <button
-        onClick={() => navigate("/5s/proyectos")}
-        className="bg-indigo-700 px-4 py-2 rounded hover:bg-indigo-600"
-      >
-        Volver
-      </button>
-    </div>
+  const avanceGlobal = useMemo(() => {
+    if (!secciones.length) return 0;
+    const sum = secciones.reduce((acc, s) => acc + (s.avance || 0), 0);
+    return (sum / secciones.length).toFixed(1);
+  }, [secciones]);
 
-    {/* =========================== */}
-    {/* LOADING */}
-    {/* =========================== */}
-    {loading ? (
-      <p className="text-gray-400">Cargando tareas…</p>
-    ) : (
-      <>
-        {/* BOTÓN AGREGAR */}
-        <button
-          onClick={crearTarea}
-          className="bg-green-600 px-3 py-2 rounded mb-4 hover:bg-green-700"
-        >
-          + Agregar tarea
-        </button>
+  // =====================================================
+  // BOTONES
+  // =====================================================
+  const guardar = async () => {
+    try {
+      await apiPost(`/5s/implementacion/${id}`, { secciones }, true);
+      alert("Implementación guardada en la base de datos ✔");
+    } catch (err) {
+      console.error("❌ Error guardando implementación:", err);
+      alert("Error al guardar");
+    }
+  };
 
-        {/* LISTA DE TAREAS */}
-        <div className="space-y-6">
-          {tareas.map((t) => (
-            <div
-              key={t.id}
-              className="bg-gray-800 p-4 rounded border border-gray-700"
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-indigo-300">
-                  Tarea #{t.id}
-                </h3>
+  const limpiar = () => {
+    if (window.confirm("¿Deseas limpiar todos los datos de este proyecto?")) {
+      localStorage.removeItem(storageKey);
+      setSecciones(SECCIONES_5S_DEFAULT);
+    }
+  };
+
+  const generarPDF = () =>
+    exportarImplementacionPDF(
+      secciones,
+      proyecto?.nombre || `Proyecto 5S #${id}`,
+      usuario
+    );
+
+  // =====================================================
+  // RENDER
+  // =====================================================
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-8">
+      {/* ENCABEZADO */}
+      <div className="flex justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-indigo-400">
+            Implementación 5S – {proyecto?.nombre || `Proyecto #${id}`}
+          </h1>
+
+          {proyecto && (
+            <div className="mt-1 text-gray-300 text-sm">
+              <p>
+                <span className="font-semibold text-gray-400">Área:</span>{" "}
+                {proyecto.area}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-400">Responsable:</span>{" "}
+                {proyecto.responsable}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-400">Empresa:</span>{" "}
+                {proyecto.empresa_nombre}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-400">Inicio:</span>{" "}
+                {proyecto.fecha_inicio?.slice(0, 10)}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => navigate("/5s/proyectos")}
+            className="bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 rounded-md text-sm font-medium shadow-md transition"
+          >
+            Volver
+          </button>
+          <button
+            onClick={guardar}
+            className="bg-green-600 hover:bg-green-700 px-4 py-1.5 rounded-md text-sm font-medium shadow-md transition"
+          >
+            Guardar
+          </button>
+          <button
+            onClick={limpiar}
+            className="bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-md text-sm font-medium shadow-md transition"
+          >
+            Limpiar
+          </button>
+          <button
+            onClick={generarPDF}
+            className="bg-pink-600 hover:bg-pink-700 px-4 py-1.5 rounded-md text-sm font-medium shadow-md transition"
+          >
+            PDF
+          </button>
+        </div>
+      </div>
+
+      {/* AVANCE GLOBAL */}
+      <div className="bg-gray-800 p-4 rounded-lg mb-8">
+        <p className="text-sm text-gray-400 mb-1">Avance global:</p>
+        <div className="w-full bg-gray-700 rounded-full h-4">
+          <div
+            className="bg-green-500 h-4 rounded-full transition-all duration-500"
+            style={{ width: `${avanceGlobal}%` }}
+          ></div>
+        </div>
+        <p className="text-center text-sm mt-2 text-gray-300">
+          {avanceGlobal}%
+        </p>
+      </div>
+
+      {/* MATRIZ 1S..5S */}
+      <div className="flex flex-col gap-6">
+        {secciones.map((s, sIdx) => (
+          <div
+            key={sIdx}
+            className="bg-gray-800 p-4 rounded-lg border border-gray-700"
+          >
+            {/* HEADER */}
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-semibold text-indigo-300">
+                {s.nombre}
+              </h2>
+
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-300">
+                  Avance:{" "}
+                  <span className="font-semibold text-white">
+                    {s.avance}%
+                  </span>
+                </span>
 
                 <button
-                  onClick={() => eliminarTarea(t.id)}
-                  className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
+                  onClick={() => addTarea(sIdx)}
+                  className="bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded text-sm"
                 >
-                  Eliminar
+                  + Agregar tarea
                 </button>
-              </div>
-
-              {/* Campos */}
-              <div className="grid grid-cols-4 gap-4 mt-4">
-                <input
-                  className="bg-gray-700 p-2 rounded"
-                  placeholder="Lugar"
-                  value={t.lugar || ""}
-                  onChange={(e) =>
-                    actualizarTarea(t.id, "lugar", e.target.value)
-                  }
-                />
-
-                <input
-                  className="bg-gray-700 p-2 rounded"
-                  placeholder="Responsable"
-                  value={t.responsable || ""}
-                  onChange={(e) =>
-                    actualizarTarea(t.id, "responsable", e.target.value)
-                  }
-                />
-
-                <input
-                  type="date"
-                  className="bg-gray-700 p-2 rounded"
-                  value={t.inicio || ""}
-                  onChange={(e) =>
-                    actualizarTarea(t.id, "inicio", e.target.value)
-                  }
-                />
-
-                <input
-                  type="date"
-                  className="bg-gray-700 p-2 rounded"
-                  value={t.fin || ""}
-                  onChange={(e) =>
-                    actualizarTarea(t.id, "fin", e.target.value)
-                  }
-                />
-              </div>
-
-              {/* =========================== */}
-              {/* Evidencias de la TAREA */}
-              {/* =========================== */}
-              <div className="mt-4">
-                <label className="text-sm text-gray-300">Adjuntar evidencia:</label>
-                <input
-                  type="file"
-                  className="mt-1 text-sm"
-                  onChange={(e) => handleFileUpload(t.id, e.target.files)}
-                />
-
-                {/* Vista previa si existen evidencias */}
-                {(evidenciasLocal[t.id] || []).map((ev) => (
-                  <div key={ev.id} className="relative">
-                    <img
-                      src={ev.url}
-                      alt="evidencia"
-                      className="w-20 h-20 object-cover rounded border border-gray-600"
-                    />
-
-                    {/* Botón eliminar */}
-                    <button
-                      onClick={() => eliminarEvidencia(t.id, ev.id)}
-                      className="absolute top-0 right-0 bg-red-600 text-xs px-1 rounded"
-                      title="Eliminar"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-
-              </div>
-
-              {/* =========================== */}
-              {/* SUBTAREAS */}
-              {/* =========================== */}
-              <div className="mt-4">
-                <button
-                  onClick={() => addSubtarea(t.id)}
-                  className="bg-indigo-600 px-3 py-1 rounded hover:bg-indigo-700 text-sm"
-                >
-                  + Subtarea
-                </button>
-
-                {(subtareasLocal[t.id] || []).map((s) => (
-                  <div
-                    key={s.id}
-                    className="bg-gray-900 p-3 rounded mt-2 border border-gray-700"
-                  >
-                    <input
-                      className="bg-gray-700 p-1 rounded w-full mb-2"
-                      placeholder="Descripción"
-                      value={s.descripcion}
-                      onChange={(e) =>
-                        actualizarSubtarea(
-                          t.id,
-                          s.id,
-                          "descripcion",
-                          e.target.value
-                        )
-                      }
-                    />
-
-                    <div className="grid grid-cols-3 gap-2">
-                      <input
-                        className="bg-gray-700 p-1 rounded"
-                        placeholder="Responsable"
-                        value={s.responsable}
-                        onChange={(e) =>
-                          actualizarSubtarea(
-                            t.id,
-                            s.id,
-                            "responsable",
-                            e.target.value
-                          )
-                        }
-                      />
-
-                      <input
-                        type="date"
-                        className="bg-gray-700 p-1 rounded"
-                        value={s.inicio}
-                        onChange={(e) =>
-                          actualizarSubtarea(
-                            t.id,
-                            s.id,
-                            "inicio",
-                            e.target.value
-                          )
-                        }
-                      />
-
-                      <input
-                        type="date"
-                        className="bg-gray-700 p-1 rounded"
-                        value={s.fin}
-                        onChange={(e) =>
-                          actualizarSubtarea(
-                            t.id,
-                            s.id,
-                            "fin",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </div>
-
-                    {/* Evidencias de SUBTAREA */}
-                    <div className="mt-2">
-                      <label className="text-xs text-gray-300">
-                        Adjuntar evidencia (subtarea):
-                      </label>
-
-                      <input
-                        type="file"
-                        className="mt-1 text-xs"
-                        onChange={(e) =>
-                          handleFileUpload(t.id, e.target.files, s.id)
-                        }
-                      />
-
-                      {/* Vista previa */}
-                      {(evidenciasLocal[t.id] || [])
-                        .filter((ev) => ev.subtarea_id === s.id)
-                        .map((ev) => (
-                          <img
-                            key={ev.id}
-                            src={ev.url}
-                            alt="evidencia"
-                            className="w-16 h-16 mt-2 object-cover rounded border border-gray-600"
-                          />
-                        ))}
-                    </div>
-
-                    <button
-                      onClick={() => eliminarSubtarea(t.id, s.id)}
-                      className="bg-red-700 px-2 py-1 rounded mt-3 text-xs"
-                    >
-                      Eliminar subtarea
-                    </button>
-                  </div>
-                ))}
               </div>
             </div>
-          ))}
-        </div>
-      </>
-    )}
-  </div>
-);
+
+            {/* TABLA */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-center border-collapse">
+                <thead>
+                  <tr className="bg-gray-700 text-gray-300 text-sm">
+                    <th className="p-2 border border-gray-600">Id</th>
+                    <th className="p-2 border border-gray-600">Lugar</th>
+                    <th className="p-2 border border-gray-600">
+                      Descripción
+                    </th>
+                    <th className="p-2 border border-gray-600">
+                      Responsable
+                    </th>
+                    <th className="p-2 border border-gray-600">Inicio</th>
+                    <th className="p-2 border border-gray-600">Fin</th>
+                    <th className="p-2 border border-gray-600">
+                      Depende de
+                    </th>
+                    <th className="p-2 border border-gray-600">Estado</th>
+                    <th className="p-2 border border-gray-600">
+                      Evidencias
+                    </th>
+                    <th className="p-2 border border-gray-600">Acción</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {s.tareas.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={10}
+                        className="p-3 text-center text-gray-400 border border-gray-700"
+                      >
+                        No hay tareas. Agrega la primera con “+ Agregar
+                        tarea”.
+                      </td>
+                    </tr>
+                  ) : (
+                    s.tareas.map((t, idx) => (
+                      <React.Fragment key={t.id}>
+                        {/* TAREA */}
+                        <tr className="text-sm align-top bg-gray-800 hover:bg-gray-750">
+                          <td className="p-2 border border-gray-700">
+                            {idx + 1}
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <input
+                              value={t.lugar}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "lugar",
+                                  e.target.value
+                                )
+                              }
+                              className="bg-gray-700 p-1 rounded w-full"
+                              placeholder="Área / Ubicación"
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <textarea
+                              value={t.descripcion}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "descripcion",
+                                  e.target.value
+                                )
+                              }
+                              className="bg-gray-700 p-1 rounded w-full"
+                              rows={2}
+                              placeholder="Describe la tarea…"
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <input
+                              value={t.responsable}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "responsable",
+                                  e.target.value
+                                )
+                              }
+                              className="bg-gray-700 p-1 rounded w-full"
+                              placeholder="Nombre"
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <input
+                              type="date"
+                              value={t.inicio}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "inicio",
+                                  e.target.value
+                                )
+                              }
+                              className="bg-gray-700 p-1 rounded w-full"
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <input
+                              type="date"
+                              value={t.fin}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "fin",
+                                  e.target.value
+                                )
+                              }
+                              className="bg-gray-700 p-1 rounded w-full"
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <select
+                              value={t.dependeDe ?? ""}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "dependeDe",
+                                  e.target.value || null
+                                )
+                              }
+                              className="bg-gray-700 p-1 rounded w-full"
+                            >
+                              <option value="">(Sin dependencia)</option>
+                              {s.tareas
+                                .filter((x) => x.id !== t.id)
+                                .map((x, xIdx) => (
+                                  <option key={x.id} value={x.id}>
+                                    {xIdx + 1} -{" "}
+                                    {x.descripcion?.slice(0, 40)}
+                                  </option>
+                                ))}
+                            </select>
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={t.completada}
+                              onChange={(e) =>
+                                setTareaField(
+                                  sIdx,
+                                  t.id,
+                                  "completada",
+                                  e.target.checked
+                                )
+                              }
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={(e) =>
+                                handleFileUpload(
+                                  sIdx,
+                                  t.id,
+                                  e.target.files
+                                )
+                              }
+                              className="text-xs"
+                            />
+                          </td>
+
+                          <td className="p-2 border border-gray-700">
+                            <div className="flex flex-col gap-1">
+                              <button
+                                onClick={() => addSubtarea(sIdx, t.id)}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-xs px-2 py-1 rounded"
+                              >
+                                Subtarea
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      "¿Eliminar esta tarea?"
+                                    )
+                                  ) {
+                                    removeTarea(sIdx, t.id);
+                                  }
+                                }}
+                                className="bg-red-600 hover:bg-red-700 text-xs px-2 py-1 rounded"
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+
+                        {/* SUBTAREAS */}
+                        {(t.subtareas || []).map((st, stIdx) => {
+                          const fueraDeRango =
+                            (st.inicio &&
+                              new Date(st.inicio) < new Date(t.inicio)) ||
+                            (st.fin &&
+                              new Date(st.fin) > new Date(t.fin));
+
+                          return (
+                            <tr
+                              key={st.id}
+                              className={`text-xs align-top ${
+                                fueraDeRango
+                                  ? "bg-red-900/40"
+                                  : "bg-gray-900/70"
+                              }`}
+                            >
+                              <td className="p-2 border border-gray-700 text-indigo-400">
+                                {idx + 1}.{stIdx + 1}
+                              </td>
+
+                              <td className="p-2 border border-gray-700 pl-6">
+                                <input
+                                  value={st.lugar}
+                                  onChange={(e) =>
+                                    setSubtareaField(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      "lugar",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="bg-gray-700 p-1 rounded w-full"
+                                  placeholder="Sub-lugar"
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <textarea
+                                  value={st.descripcion}
+                                  onChange={(e) =>
+                                    setSubtareaField(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      "descripcion",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="bg-gray-700 p-1 rounded w-full"
+                                  rows={1}
+                                  placeholder="Subtarea…"
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <input
+                                  value={st.responsable}
+                                  onChange={(e) =>
+                                    setSubtareaField(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      "responsable",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="bg-gray-700 p-1 rounded w-full"
+                                  placeholder="Nombre"
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <input
+                                  type="date"
+                                  value={st.inicio}
+                                  onChange={(e) =>
+                                    setSubtareaField(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      "inicio",
+                                      e.target.value
+                                    )
+                                  }
+                                  className={`bg-gray-700 p-1 rounded w-full ${
+                                    fueraDeRango
+                                      ? "border border-red-500"
+                                      : ""
+                                  }`}
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <input
+                                  type="date"
+                                  value={st.fin}
+                                  onChange={(e) =>
+                                    setSubtareaField(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      "fin",
+                                      e.target.value
+                                    )
+                                  }
+                                  className={`bg-gray-700 p-1 rounded w-full ${
+                                    fueraDeRango
+                                      ? "border border-red-500"
+                                      : ""
+                                  }`}
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700 text-gray-500">
+                                —
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <input
+                                  type="checkbox"
+                                  checked={st.completada}
+                                  onChange={(e) =>
+                                    setSubtareaField(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      "completada",
+                                      e.target.checked
+                                    )
+                                  }
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  onChange={(e) =>
+                                    handleSubtareaFileUpload(
+                                      sIdx,
+                                      t.id,
+                                      st.id,
+                                      e.target.files
+                                    )
+                                  }
+                                  className="text-xs"
+                                />
+                              </td>
+
+                              <td className="p-2 border border-gray-700">
+                                <button
+                                  onClick={() =>
+                                    removeSubtarea(sIdx, t.id, st.id)
+                                  }
+                                  className="bg-red-600 hover:bg-red-700 text-xs px-2 py-1 rounded"
+                                >
+                                  Eliminar
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </React.Fragment>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
