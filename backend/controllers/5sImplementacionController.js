@@ -171,53 +171,97 @@ export const guardarImplementacion5S = async (req, res) => {
     try {
       await client.query("BEGIN");
 
-      // Borrar subtareas y tareas anteriores de esta implementación
-      await client.query(
-        `DELETE FROM subtareas_5s
-         WHERE tarea_id IN (
-           SELECT id FROM tareas_5s WHERE implementacion_id = $1
-         )`,
+      // === Cargar tareas y subtareas actuales de esta implementación ===
+      const tareasDbRes = await client.query(
+        `SELECT * FROM tareas_5s WHERE implementacion_id = $1`,
         [impl.id]
       );
+      const tareasDbMap = new Map();
+      for (const row of tareasDbRes.rows) {
+        tareasDbMap.set(row.id, row);
+      }
 
-      await client.query(
-        `DELETE FROM tareas_5s WHERE implementacion_id = $1`,
+      const subtareasDbRes = await client.query(
+        `SELECT st.*
+         FROM subtareas_5s st
+         JOIN tareas_5s t ON st.tarea_id = t.id
+         WHERE t.implementacion_id = $1`,
         [impl.id]
       );
+      const subtareasDbMap = new Map();
+      for (const row of subtareasDbRes.rows) {
+        subtareasDbMap.set(row.id, row);
+      }
 
-      // Mapa para poder resolver depende_de
-      const tareaIdMap = new Map(); // idFront -> idDB
+      const usedTaskIds = new Set();    // ids de tareas que siguen existiendo
+      const usedSubIds = new Set();     // ids de subtareas que siguen existiendo
+      const tareaIdMap = new Map();     // idFront -> idDB (para depende_de)
 
-      // 1ª pasada: insertar tareas SIN depende_de
+      // === 1ª pasada: INSERT / UPDATE de TAREAS (sin depende_de) ===
       for (const sec of secciones) {
         const seccionNombre = sec.nombre;
 
         for (const t of sec.tareas || []) {
-          const resultTar = await client.query(
-            `INSERT INTO tareas_5s
-              (implementacion_id, seccion, lugar, descripcion, responsable, inicio, fin, depende_de, completada)
-             VALUES
-              ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-             RETURNING id`,
-            [
-              impl.id,
-              seccionNombre,
-              t.lugar || null,
-              t.descripcion || "",
-              t.responsable || null,
-              t.inicio || null,
-              t.fin || null,
-              null, // depende_de se setea en 2ª pasada
-              !!t.completada,
-            ]
-          );
+          const frontId = t.id;
+          const maybeDbId = Number(frontId);
+          let tareaDbId;
 
-          const dbId = resultTar.rows[0].id;
-          tareaIdMap.set(t.id, dbId);
+          if (!Number.isNaN(maybeDbId) && tareasDbMap.has(maybeDbId)) {
+            // 🔁 Tarea existente → UPDATE
+            tareaDbId = maybeDbId;
+            usedTaskIds.add(tareaDbId);
+
+            await client.query(
+              `UPDATE tareas_5s
+               SET seccion = $2,
+                   lugar = $3,
+                   descripcion = $4,
+                   responsable = $5,
+                   inicio = $6,
+                   fin = $7,
+                   completada = $8
+               WHERE id = $1`,
+              [
+                tareaDbId,
+                seccionNombre,
+                t.lugar || null,
+                t.descripcion || "",
+                t.responsable || null,
+                t.inicio || null,
+                t.fin || null,
+                !!t.completada,
+              ]
+            );
+          } else {
+            // ➕ Tarea nueva → INSERT
+            const resultTar = await client.query(
+              `INSERT INTO tareas_5s
+                (implementacion_id, seccion, lugar, descripcion, responsable, inicio, fin, depende_de, completada)
+               VALUES
+                ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+               RETURNING id`,
+              [
+                impl.id,
+                seccionNombre,
+                t.lugar || null,
+                t.descripcion || "",
+                t.responsable || null,
+                t.inicio || null,
+                t.fin || null,
+                null, // depende_de se setea en 2ª pasada
+                !!t.completada,
+              ]
+            );
+
+            tareaDbId = resultTar.rows[0].id;
+            usedTaskIds.add(tareaDbId);
+          }
+
+          tareaIdMap.set(frontId, tareaDbId);
         }
       }
 
-      // 2ª pasada: actualizar depende_de y crear subtareas
+      // === 2ª pasada: depende_de + SUBTAREAS (INSERT / UPDATE) ===
       for (const sec of secciones) {
         for (const t of sec.tareas || []) {
           const tareaDbId = tareaIdMap.get(t.id);
@@ -232,30 +276,103 @@ export const guardarImplementacion5S = async (req, res) => {
                 [tareaDbId, depDbId]
               );
             }
+          } else {
+            await client.query(
+              `UPDATE tareas_5s SET depende_de = NULL WHERE id = $1`,
+              [tareaDbId]
+            );
           }
 
-          // subtareas
+          // SUBTAREAS
           for (const st of t.subtareas || []) {
-            await client.query(
-              `INSERT INTO subtareas_5s
-                (tarea_id, lugar, descripcion, responsable, inicio, fin, completada)
-               VALUES
-                ($1, $2, $3, $4, $5, $6, $7)`,
-              [
-                tareaDbId,
-                st.lugar || null,
-                st.descripcion || "",
-                st.responsable || null,
-                st.inicio || null,
-                st.fin || null,
-                !!st.completada,
-              ]
-            );
+            const frontSubId = st.id;
+            const maybeSubDbId = Number(frontSubId);
+            let subDbId;
+
+            if (!Number.isNaN(maybeSubDbId) && subtareasDbMap.has(maybeSubDbId)) {
+              // 🔁 Subtarea existente → UPDATE
+              subDbId = maybeSubDbId;
+              usedSubIds.add(subDbId);
+
+              await client.query(
+                `UPDATE subtareas_5s
+                 SET lugar = $2,
+                     descripcion = $3,
+                     responsable = $4,
+                     inicio = $5,
+                     fin = $6,
+                     completada = $7
+                 WHERE id = $1`,
+                [
+                  subDbId,
+                  st.lugar || null,
+                  st.descripcion || "",
+                  st.responsable || null,
+                  st.inicio || null,
+                  st.fin || null,
+                  !!st.completada,
+                ]
+              );
+            } else {
+              // ➕ Subtarea nueva → INSERT
+              const resultSub = await client.query(
+                `INSERT INTO subtareas_5s
+                  (tarea_id, lugar, descripcion, responsable, inicio, fin, completada)
+                 VALUES
+                  ($1, $2, $3, $4, $5, $6, $7)
+                 RETURNING id`,
+                [
+                  tareaDbId,
+                  st.lugar || null,
+                  st.descripcion || "",
+                  st.responsable || null,
+                  st.inicio || null,
+                  st.fin || null,
+                  !!st.completada,
+                ]
+              );
+
+              subDbId = resultSub.rows[0].id;
+              usedSubIds.add(subDbId);
+            }
           }
         }
       }
 
-      // 3) Actualizar avance global
+      // === 3) Borrar SUBTAREAS que ya no existen en el front ===
+      const allSubIds = Array.from(subtareasDbMap.keys());
+      const subIdsToDelete = allSubIds.filter((id) => !usedSubIds.has(id));
+
+      if (subIdsToDelete.length > 0) {
+        // borrar también evidencias de esas subtareas
+        await client.query(
+          `DELETE FROM evidencias_5s WHERE id_subtarea = ANY($1::int[])`,
+          [subIdsToDelete]
+        );
+
+        await client.query(
+          `DELETE FROM subtareas_5s WHERE id = ANY($1::int[])`,
+          [subIdsToDelete]
+        );
+      }
+
+      // === 4) Borrar TAREAS que ya no existen en el front ===
+      const allTaskIds = Array.from(tareasDbMap.keys());
+      const taskIdsToDelete = allTaskIds.filter((id) => !usedTaskIds.has(id));
+
+      if (taskIdsToDelete.length > 0) {
+        // sus subtareas ya se habrán borrado arriba, pero por si acaso:
+        await client.query(
+          `DELETE FROM subtareas_5s WHERE tarea_id = ANY($1::int[])`,
+          [taskIdsToDelete]
+        );
+        await client.query(
+          `DELETE FROM tareas_5s WHERE id = ANY($1::int[])`,
+          [taskIdsToDelete]
+        );
+      }
+
+      // 5) Actualizar avance global
       let avance = 0;
       if (secciones.length) {
         const suma = secciones.reduce(
@@ -298,3 +415,4 @@ export const guardarImplementacion5S = async (req, res) => {
       .json({ message: "Error general en implementación 5S" });
   }
 };
+
