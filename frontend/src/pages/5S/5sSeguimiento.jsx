@@ -1,5 +1,6 @@
+// frontend/src/pages/5S/5sSeguimiento.jsx
 import React, { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,17 +12,11 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { exportarSeguimientoPDF } from "../../reports/5sSeguimientoPDF";
-import { fusionarDatos5S } from "../../utils/fusion5S";
-import { useParams } from "react-router-dom";
+import { apiGet } from "../../utils/api";
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-export default function FiveSSeguimiento() {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const usuario = JSON.parse(localStorage.getItem("user"))?.email || "anonimo";
-
-  
-  // 🔹 Fusiona implementación + auditorías
+// 🔹 Estructura base por etapa 5S
 const BASE_5S = [
   { nombre: "1S · Seiri (Clasificar)", inicio: "", fin: "", avance: 0 },
   { nombre: "2S · Seiton (Ordenar)", inicio: "", fin: "", avance: 0 },
@@ -30,26 +25,16 @@ const BASE_5S = [
   { nombre: "5S · Shitsuke (Disciplina)", inicio: "", fin: "", avance: 0 },
 ];
 
-const [datos, setDatos] = useState(BASE_5S);
+export default function FiveSSeguimiento() {
+  const navigate = useNavigate();
+  const { id } = useParams(); // id = proyecto 5S
+  const usuario =
+    JSON.parse(localStorage.getItem("user"))?.email || "anonimo";
 
-useEffect(() => {
-  const fusionados = fusionarDatos5S(usuario, id);
-  if (fusionados && fusionados.length > 0) {
-    setDatos(fusionados);
-  } else {
-    setDatos(BASE_5S);
-  }
-}, [usuario, id]);
+  const [datos, setDatos] = useState(BASE_5S);
+  const [proyecto, setProyecto] = useState(null);
 
-
-  const promedio = useMemo(
-    () => datos.reduce((acc, d) => acc + Number(d.avance || 0), 0) / (datos.length || 1),
-    [datos]
-  );
-
-  const hoy = new Date();
-  const formatDate = (date) => (date ? new Date(date).toLocaleDateString("es-CL") : "—");
-
+  // ⚙️ Helper fechas
   const diasEntre = (inicio, fin) => {
     if (!inicio || !fin) return 0;
     const start = new Date(inicio);
@@ -57,9 +42,89 @@ useEffect(() => {
     return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
   };
 
+  const formatDate = (date) =>
+    date ? new Date(date).toLocaleDateString("es-CL") : "—";
 
+  // 1️⃣ Cargar datos del proyecto (nombre para PDF / encabezado)
+  useEffect(() => {
+    const cargarProyecto = async () => {
+      try {
+        const data = await apiGet(`/5s/proyectos/${id}`, true);
+        setProyecto(data);
+      } catch (err) {
+        console.error("❌ Error cargando proyecto 5S:", err);
+      }
+    };
+    cargarProyecto();
+  }, [id]);
 
-  // 🔹 Datos para el gráfico Gantt simulado
+  // 2️⃣ Cargar IMPLEMENTACIÓN 5S y armar resumen por etapa
+  useEffect(() => {
+    const cargarSeguimiento = async () => {
+      try {
+        const res = await apiGet(`/5s/implementacion/${id}`, true);
+
+        const secciones = Array.isArray(res?.secciones)
+          ? res.secciones
+          : [];
+
+        // Construimos un arreglo con inicio, fin y avance por cada S
+        const fusionados = BASE_5S.map((base) => {
+          const sec = secciones.find((s) => s.nombre === base.nombre);
+
+          if (!sec) {
+            // Si aún no tiene nada en esa S, devolvemos base
+            return { ...base };
+          }
+
+          const fechas = [];
+
+          (sec.tareas || []).forEach((t) => {
+            if (t.inicio) fechas.push(new Date(t.inicio));
+            if (t.fin) fechas.push(new Date(t.fin));
+            (t.subtareas || []).forEach((st) => {
+              if (st.inicio) fechas.push(new Date(st.inicio));
+              if (st.fin) fechas.push(new Date(st.fin));
+            });
+          });
+
+          const fechasValidas = fechas
+            .filter(Boolean)
+            .sort((a, b) => a - b);
+
+          const inicio = fechasValidas[0] || null;
+          const fin = fechasValidas[fechasValidas.length - 1] || null;
+
+          return {
+            nombre: base.nombre,
+            inicio: inicio ? inicio.toISOString().slice(0, 10) : "",
+            fin: fin ? fin.toISOString().slice(0, 10) : "",
+            avance: Number(sec.avance || 0),
+          };
+        });
+
+        console.log("🔍 Datos seguimiento 5S:", fusionados);
+        setDatos(fusionados);
+      } catch (err) {
+        console.error("❌ Error cargando seguimiento 5S:", err);
+        setDatos(BASE_5S); // fallback
+      }
+    };
+
+    cargarSeguimiento();
+  }, [id]);
+
+  // 3️⃣ Promedio global
+  const promedio = useMemo(
+    () =>
+      datos.reduce((acc, d) => acc + Number(d.avance || 0), 0) /
+      (datos.length || 1),
+    [datos]
+  );
+
+  const hoy = new Date();
+
+  // 4️⃣ Datos para el gráfico tipo Gantt
   const chartData = {
     labels: datos.map((d) => d.nombre),
     datasets: [
@@ -73,7 +138,9 @@ useEffect(() => {
       },
       {
         label: "Avance (%)",
-        data: datos.map((d) => (d.avance / 100) * diasEntre(d.inicio, d.fin)),
+        data: datos.map(
+          (d) => (Number(d.avance || 0) / 100) * diasEntre(d.inicio, d.fin)
+        ),
         backgroundColor: "#22c55e",
         barThickness: 30,
       },
@@ -114,13 +181,19 @@ useEffect(() => {
   };
 
   const guardar = () => alert("Seguimiento actualizado ✅");
-const generarPDF = () => {
-  exportarSeguimientoPDF(datos, "Proyecto 5S", "Carlo Guardo");
-};
 
-useEffect(() => {
-  console.log("🔍 Datos fusionados:", datos);
-}, [datos]);
+  const generarPDF = () => {
+    const nombreProyecto = proyecto?.nombre || `Proyecto 5S #${id}`;
+    exportarSeguimientoPDF(datos, nombreProyecto, usuario);
+  };
+
+  useEffect(() => {
+    console.log("🔍 Datos resumen seguimiento:", datos);
+  }, [datos]);
+
+  // =====================================================
+  // RENDER
+  // =====================================================
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       {/* 🔹 Encabezado */}
@@ -128,10 +201,10 @@ useEffect(() => {
         <h1 className="text-3xl font-bold text-indigo-400">Seguimiento 5S</h1>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate("/5s/intro")}
+            onClick={() => navigate("/5s/proyectos")}
             className="bg-indigo-700 px-3 py-2 rounded-lg font-semibold shadow-lg transition"
           >
-            Menú 5S
+            Volver a proyectos
           </button>
           <button
             onClick={guardar}
@@ -150,7 +223,9 @@ useEffect(() => {
 
       {/* 🔹 Progreso general */}
       <div className="bg-gray-800 p-5 rounded-lg mb-8">
-        <p className="text-sm text-gray-400 mb-1">Progreso global del programa:</p>
+        <p className="text-sm text-gray-400 mb-1">
+          Progreso global del programa:
+        </p>
         <div className="w-full bg-gray-700 rounded-full h-4">
           <div
             className="bg-green-500 h-4 rounded-full transition-all duration-500"
@@ -180,13 +255,20 @@ useEffect(() => {
           </thead>
           <tbody>
             {datos.map((d, i) => {
-              const fin = new Date(d.fin);
-              const retrasada = hoy > fin && d.avance < 100;
+              const fin = d.fin ? new Date(d.fin) : null;
+              const retrasada = fin && hoy > fin && d.avance < 100;
               return (
-                <tr key={i} className="text-gray-300 border-t border-gray-700">
+                <tr
+                  key={i}
+                  className="text-gray-300 border-t border-gray-700"
+                >
                   <td className="p-2 border border-gray-700">{d.nombre}</td>
-                  <td className="p-2 border border-gray-700">{formatDate(d.inicio)}</td>
-                  <td className="p-2 border border-gray-700">{formatDate(d.fin)}</td>
+                  <td className="p-2 border border-gray-700">
+                    {formatDate(d.inicio)}
+                  </td>
+                  <td className="p-2 border border-gray-700">
+                    {formatDate(d.fin)}
+                  </td>
                   <td className="p-2 border border-gray-700 text-center">
                     {diasEntre(d.inicio, d.fin)}
                   </td>

@@ -22,6 +22,7 @@ import fiveSRoutes from "./routes/fiveSRoutes.js";
 import fiveSTareasRoutes from "./routes/fiveSTareasRoutes.js";
 import fiveSSubtareasRoutes from "./routes/fiveSSubtareasRoutes.js";
 import fiveSEvidenciasRoutes from "./routes/fiveSEvidenciasRoutes.js";
+import fiveSAuditoriaRoutes from "./routes/fiveSAuditoriaRoutes.js";
 
 dotenv.config();
 
@@ -79,7 +80,7 @@ app.use("/api/5s/implementacion", fiveSImplementacionRoutes);
 app.use("/api/5s", fiveSTareasRoutes);
 app.use("/api/5s", fiveSSubtareasRoutes);
 app.use("/api/5s", fiveSRoutes);
-
+app.use("/api/5s/auditoria", fiveSAuditoriaRoutes);
 
 
 

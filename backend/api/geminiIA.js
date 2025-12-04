@@ -4,6 +4,9 @@ import fs from "fs";
 
 const router = express.Router();
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
 router.post("/", async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -18,21 +21,13 @@ router.post("/", async (req, res) => {
       return res.status(500).json({ error: "Falta la clave de Gemini." });
     }
 
-    // Inicializa el cliente de Gemini
-    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
     console.log("🚀 Enviando solicitud a Gemini 2.5 Flash...");
-    const result = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [{ role: "user", text: prompt }],
-    });
+    const result = await model.generateContent(prompt);
 
-    // ✅ Extrae solo el texto de salida
-    const texto = result?.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta generada.";
+    const texto = result.response.text() || "Sin respuesta generada.";
 
     console.log("✅ Respuesta Gemini:", texto);
     res.json({ sugerencia: texto });
-
   } catch (error) {
     const errorInfo = `
 ❌ ERROR GEMINI (${new Date().toLocaleString()}):
@@ -43,9 +38,10 @@ Stack: ${error.stack}
 `;
     fs.appendFileSync("./error.log", errorInfo);
     console.error("⚠️ Error guardado en backend/error.log");
-    res.status(500).json({ error: "Error al generar sugerencia con Gemini" });
+    res
+      .status(500)
+      .json({ error: "Error al generar sugerencia con Gemini" });
   }
 });
 
 export default router;
-
