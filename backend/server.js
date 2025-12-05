@@ -33,7 +33,8 @@ app.use(express.json());
 const allowedOrigins = [
   "http://localhost:3000",
   "https://mentorsuites.com",
-  "https://www.mentorsuites.com"
+  "https://www.mentorsuites.com",
+  "https://mentor-six-sigma.vercel.app/"
 ];
 
 // CORS universal
