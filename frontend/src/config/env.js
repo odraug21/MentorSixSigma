@@ -11,40 +11,35 @@ const isProd =
 // Permite varias claves comunes y normaliza
 function pickBaseUrl() {
   const candidates = [
-    viteEnv.VITE_API_BASE,
-    viteEnv.VITE_API_URL, // compatibilidad
+    viteEnv.VITE_API_BASE,        // 👈 PRODUCCIÓN EN VERCEL USARÁ ESTA
+    viteEnv.VITE_API_URL,
     craEnv.REACT_APP_API_BASE,
-    craEnv.REACT_APP_API_URL, // compatibilidad
+    craEnv.REACT_APP_API_URL,
   ].filter(Boolean);
 
   let base = candidates[0];
 
-  // Fallback razonable si no está definida
+  // Si no existe ninguna URL definida:
   if (!base) {
     if (typeof window !== "undefined") {
       if (isProd) {
-        // ✅ En producción (Vercel) usamos el mismo origen del frontend
-        // Ej: https://mentor-six-sigma.vercel.app
-        base = window.location.origin;
+        console.error("❌ ERROR: No se definió VITE_API_BASE en PRODUCCIÓN.");
+        // fallback: no usar origin, porque ahí NO existe backend
+        base = "";
       } else {
-        // ✅ En desarrollo seguimos usando el backend local en 5000
-        // Ej: http://localhost:5000
         base = `${window.location.protocol}//${window.location.hostname}:5000`;
       }
     } else {
-      // SSR / tests, fallback seguro
       base = "http://localhost:5000";
     }
   }
 
-  // Normaliza: sin /api final y sin / extra
+  // Normaliza URL
   try {
     const u = new URL(base);
-    // Si alguien puso /api al final, lo removemos (nuestro client ya concatena /api/...).
     if (u.pathname.endsWith("/api")) {
       u.pathname = u.pathname.replace(/\/api\/?$/, "");
     }
-    // Elimina slash final
     u.pathname = u.pathname.replace(/\/+$/, "");
     return u.toString();
   } catch {
@@ -54,3 +49,4 @@ function pickBaseUrl() {
 
 // Export final
 export const API_BASE = pickBaseUrl().replace(/\/+$/, "");
+console.log("🌐 API_BASE:", API_BASE);
