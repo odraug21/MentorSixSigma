@@ -35,7 +35,7 @@ export default function FiveSAuditoriaDetallada() {
   const [comentarioGlobal, setComentarioGlobal] = useState("");
   const [analisisIA, setAnalisisIA] = useState("");
   const [cargando, setCargando] = useState(true);
-  const [cargandoIA, setCargandoIA] = useState (false);
+  const [cargandoIA, setCargandoIA] = useState(false);
 
   // =====================================================
   // 1️⃣ Obtener auditor desde el token
@@ -54,14 +54,40 @@ export default function FiveSAuditoriaDetallada() {
 
   // =====================================================
   // 2️⃣ Cargar auditoría detallada desde backend
-  //     (ya viene con evidenciasAntes / evidenciasAhora)
+  //     y recalcular promedio de cada tarea según subtareas
   // =====================================================
   useEffect(() => {
     const cargar = async () => {
       try {
         const data = await apiGet(`/5s/auditoria/${id}`, true);
         setProyecto(data.proyecto);
-        setSecciones(data.secciones || []);
+
+        const seccionesConPromedios = (data.secciones || []).map((sec) => ({
+          ...sec,
+          tareas: (sec.tareas || []).map((t) => {
+            const subt = t.subtareas || [];
+            const puntajesValidos = subt
+              .map((st) => Number(st.puntuacionAuditoria || 0))
+              .filter((n) => n > 0);
+
+            const promedio =
+              puntajesValidos.length > 0
+                ? Number(
+                    (
+                      puntajesValidos.reduce((acc, n) => acc + n, 0) /
+                      puntajesValidos.length
+                    ).toFixed(2)
+                  )
+                : Number(t.puntuacionAuditoria || 0);
+
+            return {
+              ...t,
+              puntuacionAuditoria: promedio,
+            };
+          }),
+        }));
+
+        setSecciones(seccionesConPromedios);
 
         if (data.auditoria?.comentario_global) {
           setComentarioGlobal(data.auditoria.comentario_global);
@@ -86,159 +112,54 @@ export default function FiveSAuditoriaDetallada() {
       return copy;
     });
 
+  // Solo usamos este para observaciones de tarea (ya no para puntuación)
   const setTareaAudField = (sIdx, tareaId, field, value) =>
     setSeccion(sIdx, (sec) => ({
       ...sec,
-      tareas: sec.tareas.map((t) =>
+      tareas: (sec.tareas || []).map((t) =>
         t.id === tareaId ? { ...t, [field]: value } : t
       ),
     }));
 
-// Actualiza una subtarea y recalcula el promedio de la tarea
-const setSubtareaAudField = (sIdx, tareaId, subId, field, value) =>
-  setSeccion(sIdx, (sec) => {
-    const nuevasTareas = (sec.tareas || []).map((t) => {
-      if (t.id !== tareaId) return t;
+  // Actualiza una subtarea y recalcula el promedio de la tarea
+  const setSubtareaAudField = (sIdx, tareaId, subId, field, value) =>
+    setSeccion(sIdx, (sec) => {
+      const nuevasTareas = (sec.tareas || []).map((t) => {
+        if (t.id !== tareaId) return t;
 
-      // 1) Actualizar la subtarea específica
-      const nuevasSubtareas = (t.subtareas || []).map((st) =>
-        st.id === subId ? { ...st, [field]: value } : st
-      );
+        // 1) Actualizar la subtarea específica
+        const nuevasSubtareas = (t.subtareas || []).map((st) =>
+          st.id === subId ? { ...st, [field]: value } : st
+        );
 
-      // 2) Recalcular promedio de puntuación de todas las subtareas
-      const puntajesValidos = nuevasSubtareas
-        .map((st) => Number(st.puntuacionAuditoria || 0))
-        .filter((n) => n > 0);
+        // 2) Recalcular promedio de puntuación de todas las subtareas
+        const puntajesValidos = nuevasSubtareas
+          .map((st) => Number(st.puntuacionAuditoria || 0))
+          .filter((n) => n > 0);
 
-      const promedio =
-        puntajesValidos.length > 0
-          ? Number(
-              (
-                puntajesValidos.reduce((acc, n) => acc + n, 0) /
-                puntajesValidos.length
-              ).toFixed(2) // dejamos 2 decimales
-            )
-          : 0;
+        const promedio =
+          puntajesValidos.length > 0
+            ? Number(
+                (
+                  puntajesValidos.reduce((acc, n) => acc + n, 0) /
+                  puntajesValidos.length
+                ).toFixed(2)
+              )
+            : 0;
 
-      return {
-        ...t,
-        subtareas: nuevasSubtareas,
-        // 👇 aquí guardamos el promedio en la tarea
-        puntuacionAuditoria: promedio,
-      };
-    });
-
-    return { ...sec, tareas: nuevasTareas };
-  });
-
-
-// =====================================================
-// 🔹 Generar análisis con IA (Gemini) desde backend
-// =====================================================
-const generarAnalisisConIA = async () => {
-  try {
-    // Validación simple: si no hay puntajes, no tiene sentido llamar a IA
-    if (!secciones.length) {
-      alert("Primero completa la auditoría (puntajes / observaciones) antes de usar IA.");
-      return;
-    }
-
-    setCargandoIA(true);
-
-    const body = {
-      puntajeGlobal,
-      nivelGlobal,
-      comentarioGlobal,
-      secciones,
-    };
-
-    const data = await apiPost(
-      `/5s/auditoria/${id}/analisis-ia`,
-      body,
-      true // con token
-    );
-
-    setAnalisisIA(data.analisis || "");
-  } catch (err) {
-    console.error("❌ Error generando análisis IA:", err);
-    alert("No se pudo generar el análisis con IA. Revisa la consola del backend.");
-  } finally {
-    setCargandoIA(false);
-  }
-};
-
-
-  // =====================================================
-  // 4️⃣ Subir evidencia "AHORA" (auditoría) a backend
-  //      y actualizar secciones[*].tareas[*].subtareas[*].evidenciasAhora
-  // =====================================================
-const handleEvidenciaAhoraUpload = async (subtareaId, files) => {
-  const arr = Array.from(files || []);
-  if (!arr.length) return;
-
-  const file = arr[0];
-
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Sesión expirada. Inicia sesión nuevamente.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("subtarea_id", subtareaId);
-    formData.append("origen", "auditoria"); // 👈 CLAVE
-
-    const resp = await fetch("http://localhost:5000/api/5s/evidencias/upload", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!resp.ok) {
-      const data = await resp.json().catch(() => ({}));
-      console.error("❌ Error backend (auditoría):", data);
-      throw new Error(data.message || "Error subiendo evidencia de auditoría");
-    }
-
-      const evidencia = await resp.json(); // { id, id_subtarea, url, origen }
-
-      // ✅ Actualizar el estado 'secciones' para mostrar la imagen sin refrescar
-      setSecciones((prev) => {
-        const nuevo = structuredClone(prev);
-        const sec = nuevo[seccionIndex];
-        if (!sec) return prev;
-
-        sec.tareas = sec.tareas.map((t) => {
-          if (t.id !== tareaId) return t;
-          const nuevasSub = t.subtareas.map((st) => {
-            if (st.id !== subtareaId) return st;
-            const listaAhora = st.evidenciasAhora || [];
-            return {
-              ...st,
-              evidenciasAhora: [
-                { id: evidencia.id, url: evidencia.url },
-                ...listaAhora,
-              ],
-            };
-          });
-          return { ...t, subtareas: nuevasSub };
-        });
-
-        nuevo[seccionIndex] = sec;
-        return nuevo;
+        return {
+          ...t,
+          subtareas: nuevasSubtareas,
+          // 👇 promedio de la tarea (solo lectura en la UI)
+          puntuacionAuditoria: promedio,
+        };
       });
-    } catch (err) {
-      console.error("❌ Error en handleEvidenciaAhoraUpload:", err);
-      alert("Error subiendo archivo: " + err.message);
-    }
-  };
+
+      return { ...sec, tareas: nuevasTareas };
+    });
 
   // =====================================================
-  // 5️⃣ Puntaje global y nivel
+  // 4️⃣ Generar análisis con IA (Gemini) desde backend
   // =====================================================
   const puntajeGlobal = useMemo(() => {
     const puntajes = [];
@@ -267,6 +188,116 @@ const handleEvidenciaAhoraUpload = async (subtareaId, files) => {
       : puntajeGlobal < 4.5
       ? "Avanzado"
       : "Excelente";
+
+  const generarAnalisisConIA = async () => {
+    try {
+      if (!secciones.length) {
+        alert(
+          "Primero completa la auditoría (puntajes / observaciones) antes de usar IA."
+        );
+        return;
+      }
+
+      setCargandoIA(true);
+
+      const body = {
+        puntajeGlobal,
+        nivelGlobal,
+        comentarioGlobal,
+        secciones,
+      };
+
+      const data = await apiPost(
+        `/5s/auditoria/${id}/analisis-ia`,
+        body,
+        true // con token
+      );
+
+      setAnalisisIA(data.analisis || "");
+    } catch (err) {
+      console.error("❌ Error generando análisis IA:", err);
+      alert(
+        "No se pudo generar el análisis con IA. Revisa la consola del backend."
+      );
+    } finally {
+      setCargandoIA(false);
+    }
+  };
+
+  // =====================================================
+  // 5️⃣ Subir evidencia "AHORA" (auditoría)
+  // =====================================================
+  const handleEvidenciaAhoraUpload = async (
+    sIdx,
+    tareaId,
+    subtareaId,
+    files
+  ) => {
+    const arr = Array.from(files || []);
+    if (!arr.length) return;
+
+    const file = arr[0];
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Sesión expirada. Inicia sesión nuevamente.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("subtarea_id", subtareaId);
+      formData.append("origen", "auditoria"); // 👈 CLAVE
+
+      const resp = await fetch(
+        "http://localhost:5000/api/5s/evidencias/upload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        console.error("❌ Error backend (auditoría):", data);
+        throw new Error(data.message || "Error subiendo evidencia de auditoría");
+      }
+
+      const evidencia = await resp.json(); // { id, id_subtarea, url, origen }
+
+      // ✅ Actualizar el estado 'secciones' para mostrar la imagen sin refrescar
+      setSecciones((prev) => {
+        const nuevo = structuredClone(prev);
+        const sec = nuevo[sIdx];
+        if (!sec) return prev;
+
+        sec.tareas = (sec.tareas || []).map((t) => {
+          if (t.id !== tareaId) return t;
+          const nuevasSub = (t.subtareas || []).map((st) => {
+            if (st.id !== subtareaId) return st;
+            return {
+              ...st,
+              evidenciasAhora: [
+                { id: evidencia.id, url: evidencia.url },
+                ...(st.evidenciasAhora || []),
+              ],
+            };
+          });
+          return { ...t, subtareas: nuevasSub };
+        });
+
+        nuevo[sIdx] = sec;
+        return nuevo;
+      });
+    } catch (err) {
+      console.error("❌ Error en handleEvidenciaAhoraUpload:", err);
+      alert("Error subiendo archivo: " + err.message);
+    }
+  };
 
   // =====================================================
   // 6️⃣ Radar por etapa (promedio de puntajes por sección)
@@ -502,26 +533,19 @@ const handleEvidenciaAhoraUpload = async (subtareaId, files) => {
                             {t.descripcion || "—"}
                           </div>
                         </td>
-                        <td className="p-2 border border-gray-700 text-center">
-                          <select
-                            value={t.puntuacionAuditoria || 0}
-                            onChange={(e) =>
-                              setTareaAudField(
-                                sIdx,
-                                t.id,
-                                "puntuacionAuditoria",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="bg-gray-700 p-1 rounded w-full text-xs"
-                          >
-                            <option value={0}>--</option>
-                            <option value={1}>1 - Deficiente</option>
-                            <option value={2}>2 - Básico</option>
-                            <option value={3}>3 - Intermedio</option>
-                            <option value={4}>4 - Bueno</option>
-                            <option value={5}>5 - Excelente</option>
-                          </select>
+                        {/* Puntuación solo lectura (promedio de subtareas) */}
+                        <td className="p-2 border border-gray-700 text-center text-sm">
+                          {t.puntuacionAuditoria &&
+                          Number(t.puntuacionAuditoria) > 0 ? (
+                            <span className="inline-flex items-center justify-center px-2 py-1 rounded bg-gray-700 text-indigo-300">
+                              {Number(
+                                t.puntuacionAuditoria
+                              ).toFixed(2)}{" "}
+                              / 5
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">—</span>
+                          )}
                         </td>
                         <td className="p-2 border border-gray-700">
                           <textarea
@@ -697,9 +721,8 @@ const handleEvidenciaAhoraUpload = async (subtareaId, files) => {
               Análisis IA
             </h2>
             <p className="text-xs text-gray-400 mb-2">
-              Aquí puedes redactar manualmente (o más adelante rellenar con IA)
-              una conclusión de la auditoría basada en puntajes, comentarios e
-              imágenes.
+              Aquí puedes redactar manualmente (o usar IA) una conclusión de la
+              auditoría basada en puntajes, comentarios e imágenes.
             </p>
             <textarea
               value={analisisIA}
@@ -708,23 +731,22 @@ const handleEvidenciaAhoraUpload = async (subtareaId, files) => {
               rows={6}
               placeholder="Ejemplo: La zona de Taller Pallets presenta avances significativos en 1S y 2S, sin embargo aún se observan oportunidades en estandarización..."
             />
-<button
-  onClick={generarAnalisisConIA}
-  disabled={cargandoIA}
-  className={`mt-3 text-xs px-3 py-1.5 rounded transition ${
-    cargandoIA
-      ? "bg-gray-600 cursor-wait opacity-70"
-      : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
-  }`}
-  title={
-    cargandoIA
-      ? "Generando análisis con IA..."
-      : "Generar un análisis automático de la auditoría con IA"
-  }
->
-  {cargandoIA ? "Generando..." : "Generar con IA"}
-</button>
-
+            <button
+              onClick={generarAnalisisConIA}
+              disabled={cargandoIA}
+              className={`mt-3 text-xs px-3 py-1.5 rounded transition ${
+                cargandoIA
+                  ? "bg-gray-600 cursor-wait opacity-70"
+                  : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+              }`}
+              title={
+                cargandoIA
+                  ? "Generando análisis con IA..."
+                  : "Generar un análisis automático de la auditoría con IA"
+              }
+            >
+              {cargandoIA ? "Generando..." : "Generar con IA"}
+            </button>
           </div>
         </div>
       )}

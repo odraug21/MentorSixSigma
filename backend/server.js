@@ -46,6 +46,11 @@ app.use(cors({
       return callback(null, true);
     }
 
+    // ✅ Permite cualquier deploy de Vercel (*.vercel.app)
+    if (origin.endsWith(".vercel.app")) {
+       return callback(null, true);
+    }
+
     return callback(new Error("❌ CORS bloqueado para origen: " + origin));
   },
   credentials: true,
