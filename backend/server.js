@@ -34,7 +34,8 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://mentorsuites.com",
   "https://www.mentorsuites.com",
-  
+  "https://mentor-six-sigma.vercel.app",
+  "https://mentor-six-sigma-git-main-carlo-guardos-projects.vercel.app",
 ];
 
 // CORS universal
