@@ -50,8 +50,11 @@ import FiveSAuditoria from "./pages/5S/5sAuditoria.jsx";
 // 🚶 GEMBA WALK
 // ============================================
 import GembaIntro from "./pages/GembaWalk/GwIntro.jsx";
+import GwPlan from "./pages/GembaWalk/GwPlan.jsx";
 import GembaEjecucion from "./pages/GembaWalk/GwEjecucion.jsx";
 import GembaReporte from "./pages/GembaWalk/GwReporte.jsx";
+import GwListado from "./pages/GembaWalk/GwListado.jsx";
+
 
 // ============================================
 // 🗺️ VSM
@@ -143,10 +146,11 @@ export default function App() {
         <Route path="/5s/auditoria/:id" element={<FiveSAuditoria />} />
 
         {/* Gemba */}
-        <Route path="/gemba/intro" element={<GembaIntro />} />
-        <Route path="/gemba/ejecucion" element={<GembaEjecucion />} />
-        <Route path="/gemba/reporte" element={<GembaReporte />} />
-
+       <Route path="/gemba/intro" element={<GembaIntro />} />
+       <Route path="/gemba/plan" element={<GwPlan />} />
+       <Route path="/gemba/ejecucion" element={<GembaEjecucion />} />
+       <Route path="/gemba/reporte" element={<GembaReporte />} />
+       <Route path="/gemba/listado" element={<GwListado />} /> 
         {/* VSM */}
         <Route path="/vsm/intro" element={<VsmIntro />} />
         <Route path="/vsm/builder" element={<VsmBuilder />} />

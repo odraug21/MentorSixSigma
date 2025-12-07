@@ -10,7 +10,6 @@ import empresasRoutes from "./routes/empresasRoutes.js";
 import rolesModulosRoutes from "./routes/rolesModulosRoutes.js";
 import fiveSImplementacionRoutes from "./routes/fiveSImplementacionRoutes.js";
 
-
 import rolRoutes from "./routes/rolRoutes.js";
 import modulosRoutes from "./routes/modulosRoutes.js";
 import debugRoutes from "./routes/debugRoutes.js";
@@ -24,56 +23,74 @@ import fiveSSubtareasRoutes from "./routes/fiveSSubtareasRoutes.js";
 import fiveSEvidenciasRoutes from "./routes/fiveSEvidenciasRoutes.js";
 import fiveSAuditoriaRoutes from "./routes/fiveSAuditoriaRoutes.js";
 
+import gembaRoutes from "./routes/gembaRoutes.js";
+
 dotenv.config();
 
 const app = express();
+
+// ======================================================
+// 🔧 CORS — versión simple y permisiva (Render + Vercel)
+// ======================================================
+//
+// Para no pelear más con orígenes, dejamos CORS abierto.
+// Más adelante, si quieres, lo cerramos por dominio.
+//
+// Esta configuración SIEMPRE agrega Access-Control-Allow-Origin
+// y maneja los OPTIONS (preflight).
+//
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// Middleware extra para asegurarnos de que todas las respuestas
+// tengan los headers CORS adecuados (incluyendo errores).
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  );
+
+  if (req.method === "OPTIONS") {
+    // Preflight: respondemos sin llegar a las rutas
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+// ======================================================
+// Middlewares generales
+// ======================================================
 app.use(express.json());
 
-// CORS
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://mentorsuites.com",
-  "https://www.mentorsuites.com",
-  "https://mentor-six-sigma.vercel.app",
-  "https://mentor-six-sigma-git-main-carlo-guardos-projects.vercel.app",
-];
-
-// CORS universal
-app.use(cors({
-  origin: (origin, callback) => {
-    // Permite Postman, Thunder Client, SSR, etc.
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    // ✅ Permite cualquier deploy de Vercel (*.vercel.app)
-    if (origin.endsWith(".vercel.app")) {
-       return callback(null, true);
-    }
-
-    return callback(new Error("❌ CORS bloqueado para origen: " + origin));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-// Logging
+// Logging simple
 app.use((req, _res, next) => {
   console.log(`📡 ${req.method} ${req.url}`);
   next();
 });
 
+// ======================================================
 // Rutas
-app.get("/", (_req, res) => res.json({ message: "Servidor MentorSuites activo 🚀" }));
+// ======================================================
+
+app.get("/", (_req, res) =>
+  res.json({ message: "Servidor MentorSuites activo 🚀" })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/empresas", empresasRoutes);
 app.use("/api/roles-modulos", rolesModulosRoutes);
-
 
 app.use("/api/roles", rolRoutes);
 app.use("/api/modulos", modulosRoutes);
@@ -89,9 +106,7 @@ app.use("/api/5s", fiveSSubtareasRoutes);
 app.use("/api/5s", fiveSRoutes);
 app.use("/api/5s/auditoria", fiveSAuditoriaRoutes);
 
-
-
-
+app.use("/api/gemba", gembaRoutes);
 
 // ======================================================
 // HEALTH CHECK (debe ir antes del 404)
@@ -100,7 +115,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    message: "MentorSuites backend activo 🚀"
+    message: "MentorSuites backend activo 🚀",
   });
 });
 
@@ -115,12 +130,10 @@ app.use("*", (req, res) => {
 // Por eso lo exportamos:
 export default app;
 
-// ✔ PERMITIMOS app.listen SOLO EN LOCAL
+// ✔ PERMITIMOS app.listen SOLO EN LOCAL / RENDER
 if (process.env.VERCEL !== "1") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () =>
     console.log(`🚀 MentorSuites API corriendo en puerto ${PORT}`)
   );
 }
-
-

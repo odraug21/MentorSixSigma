@@ -1,22 +1,83 @@
+// src/pages/GembaWalk/GwEjecucion.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiGet, apiPost } from "../../utils/api";
 
 export default function GwEjecucion() {
   const navigate = useNavigate();
 
   const [plan, setPlan] = useState(null);
   const [observaciones, setObservaciones] = useState([]);
+  const [participantes, setParticipantes] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [gembaId, setGembaId] = useState(null);
 
-  // 📦 Cargar el plan guardado
+  // 📦 Cargar plan, participantes y observaciones
   useEffect(() => {
+    const idStr = localStorage.getItem("gembaIdActual");
+    const idNum = idStr ? Number(idStr) : null;
+
+    if (!idNum) {
+      console.warn("No se encontró gembaIdActual");
+      setCargando(false);
+      return;
+    }
+
+    setGembaId(idNum);
+
+    (async () => {
+      try {
+        const resp = await apiGet(`/gemba/${idNum}`);
+
+        if (!resp.ok) {
+          console.error("Error API obtener gemba:", resp);
+          cargarDesdeLocalStorage();
+          return;
+        }
+
+        const data = resp.gemba; // ✅ tu backend retorna gemba, no data
+
+        // PLAN
+        setPlan({
+          id: data.id,
+          area: data.area,
+          fecha: data.fecha,
+          responsable: data.responsable,
+          proposito: data.proposito,
+        });
+
+        // PARTICIPANTES
+        setParticipantes(data.participantes || []);
+
+        // OBSERVACIONES
+        setObservaciones(
+          (data.observaciones || []).map((o) => ({
+            id: o.id,
+            tipo: o.tipo || "hallazgo",
+            descripcion: o.descripcion || "",
+            responsable: o.responsable || "",
+            accionDerivada: o.accion_derivada, // backend usa snake_case
+            evidencias: o.evidencias || [],
+          }))
+        );
+      } catch (err) {
+        console.error("❌ Error cargando gemba:", err);
+        cargarDesdeLocalStorage();
+      } finally {
+        setCargando(false);
+      }
+    })();
+  }, []);
+
+  const cargarDesdeLocalStorage = () => {
     const savedPlan = localStorage.getItem("gembaPlan");
     if (savedPlan) setPlan(JSON.parse(savedPlan));
 
     const savedObs = localStorage.getItem("gembaEjecucion");
     if (savedObs) setObservaciones(JSON.parse(savedObs));
-  }, []);
+  };
 
-  // 💾 Guardar automáticamente
+  // 💾 Guardar local cada vez que cambian observaciones
   useEffect(() => {
     localStorage.setItem("gembaEjecucion", JSON.stringify(observaciones));
   }, [observaciones]);
@@ -47,29 +108,60 @@ export default function GwEjecucion() {
     );
   };
 
-  // 📸 Subir evidencias
+  // 📸 Subir evidencias (por ahora solo URL)
   const handleFileUpload = (id, files) => {
     const newFiles = Array.from(files).map((f) => ({
       name: f.name,
       url: URL.createObjectURL(f),
     }));
+
     setObservaciones((prev) =>
       prev.map((o) =>
-        o.id === id ? { ...o, evidencias: [...(o.evidencias || []), ...newFiles] } : o
+        o.id === id ? { ...o, evidencias: [...o.evidencias, ...newFiles] } : o
       )
     );
   };
 
-  // 💾 Guardar manualmente
-  const guardar = () => {
-    localStorage.setItem("gembaEjecucion", JSON.stringify(observaciones));
-    alert("✅ Ejecución guardada correctamente");
+  // 💾 Guardar ejecución en backend
+  const guardar = async () => {
+    try {
+      if (!gembaId) {
+        alert("⚠️ No hay Gemba asociado. Guarda primero la planificación.");
+        return;
+      }
+
+      const payload = {
+        observaciones: observaciones.map((o) => ({
+          tipo: o.tipo,
+          descripcion: o.descripcion,
+          responsable: o.responsable,
+          accion_derivada: o.accionDerivada, // backend espera snake_case
+          evidencias: o.evidencias,
+        })),
+      };
+
+      const resp = await apiPost(`/gemba/${gembaId}/ejecucion`, payload);
+
+      if (!resp.ok) {
+        console.error("Error API guardar ejecución:", resp);
+        alert("❌ Error guardando ejecución en el servidor");
+        return;
+      }
+
+      alert("✅ Ejecución guardada correctamente");
+    } catch (err) {
+      console.error("❌ Error guardando ejecución:", err);
+      alert("❌ Error guardando ejecución en el servidor");
+    }
   };
 
-  // 📄 Generar PDF (placeholder)
-  const generarPDF = () => {
-    alert("📄 Reporte PDF en desarrollo");
-  };
+  if (cargando) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8 text-center">
+        Cargando Gemba...
+      </div>
+    );
+  }
 
   if (!plan)
     return (
@@ -88,7 +180,7 @@ export default function GwEjecucion() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
-      {/* 🔹 Header */}
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-yellow-400">
           🚶 Ejecución Gemba Walk
@@ -106,31 +198,39 @@ export default function GwEjecucion() {
           >
             Guardar
           </button>
-          <button
-            onClick={generarPDF}
-            className="bg-pink-600 hover:bg-pink-700 px-3 py-2 rounded-lg"
-          >
-            PDF
-          </button>
         </div>
       </div>
 
-      {/* 🔹 Info general */}
+      {/* INFO GENERAL */}
       <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-8">
         <h2 className="text-lg text-yellow-300 mb-2">📋 Planificación</h2>
         <p>
-          <strong>Área:</strong> {plan.area || "—"} |{" "}
-          <strong>Fecha:</strong> {plan.fecha || "—"}
+          <strong>Área:</strong> {plan.area} |{" "}
+          <strong>Fecha:</strong> {plan.fecha}
         </p>
         <p>
-          <strong>Responsable:</strong> {plan.responsable || "—"}
+          <strong>Responsable:</strong> {plan.responsable}
         </p>
         <p>
-          <strong>Propósito:</strong> {plan.proposito || "—"}
+          <strong>Propósito:</strong> {plan.proposito}
         </p>
+
+        {/* Lista de participantes */}
+        {participantes.length > 0 && (
+          <div className="mt-3">
+            <h3 className="text-sm text-gray-300">👥 Participantes</h3>
+            <ul className="text-sm text-gray-400 list-disc ml-4">
+              {participantes.map((p) => (
+                <li key={p.id}>
+                  {p.nombre} – {p.cargo} ({p.area})
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      {/* 🔹 Tabla de observaciones */}
+      {/* TABLA */}
       <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
         <div className="flex justify-between mb-4">
           <h2 className="text-xl text-yellow-300">🗒️ Observaciones</h2>
@@ -149,7 +249,7 @@ export default function GwEjecucion() {
               <th className="p-2 border border-gray-600">Descripción</th>
               <th className="p-2 border border-gray-600">Responsable</th>
               <th className="p-2 border border-gray-600">Acción derivada</th>
-              <th className="p-2 border border-gray-600">Evidencias</th>
+              <th className="pafel2 border border-gray-600">Evidencias</th>
               <th className="p-2 border border-gray-600">Acción</th>
             </tr>
           </thead>
@@ -172,8 +272,8 @@ export default function GwEjecucion() {
                       onChange={(e) => setField(o.id, "tipo", e.target.value)}
                       className="bg-gray-700 p-1 rounded w-full"
                     >
-                      <option value="buena">✅ Buena práctica</option>
                       <option value="hallazgo">⚠️ Hallazgo</option>
+                      <option value="buena">✅ Buena práctica</option>
                       <option value="accion">🔧 Acción inmediata</option>
                     </select>
                   </td>

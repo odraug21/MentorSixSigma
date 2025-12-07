@@ -2,19 +2,56 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { apiGet } from "../../utils/api";
 
 export default function GwReporte() {
   const navigate = useNavigate();
   const [plan, setPlan] = useState(null);
   const [observaciones, setObservaciones] = useState([]);
 
-  useEffect(() => {
-    const savedPlan = localStorage.getItem("gembaPlan");
-    if (savedPlan) setPlan(JSON.parse(savedPlan));
+useEffect(() => {
+  const idStr = localStorage.getItem("gembaIdActual");
+  const idNum = idStr ? Number(idStr) : null;
 
-    const savedObs = localStorage.getItem("gembaEjecucion");
-    if (savedObs) setObservaciones(JSON.parse(savedObs));
-  }, []);
+  if (!idNum) return;
+
+  (async () => {
+    try {
+      const resp = await apiGet(`/gemba/${idNum}`);
+      if (!resp.ok) {
+        console.error("Error API obtener gemba:", resp);
+        // fallback localStorage
+        const savedPlan = localStorage.getItem("gembaPlan");
+        if (savedPlan) setPlan(JSON.parse(savedPlan));
+        const savedObs = localStorage.getItem("gembaEjecucion");
+        if (savedObs) setObservaciones(JSON.parse(savedObs));
+      } else {
+        const d = resp.data;
+        setPlan({
+          id: d.id,
+          area: d.area,
+          fecha: d.fecha,
+          responsable: d.responsable,
+          proposito: d.proposito,
+          participantes: d.participantes || [],
+        });
+        setObservaciones(
+          (d.observaciones || []).map((o) => ({
+            id: o.id,
+            tipo: o.tipo || "hallazgo",
+            descripcion: o.descripcion || "",
+            responsable: o.responsable || "",
+            accionDerivada: o.accion_derivada,
+            evidencias: o.evidencias || [],
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("❌ Error cargando gemba en reporte:", err);
+    }
+  })();
+}, []);
+
 
   // === Función para agregar imágenes al PDF ===
   const agregarEvidencias = async (doc, evidencias) => {

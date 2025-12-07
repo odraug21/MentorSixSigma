@@ -1,6 +1,7 @@
 // src/pages/GembaWalk/GwPlan.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiPost } from "../../utils/api";
 
 export default function GwPlan() {
   const navigate = useNavigate();
@@ -42,11 +43,34 @@ export default function GwPlan() {
     }));
   };
 
-  const guardarPlan = () => {
-    localStorage.setItem("gembaPlan", JSON.stringify(plan));
+  const guardarPlan = async () => {
+  try {
+    const body = {
+      ...plan,
+      participantes: plan.participantes,
+    };
+
+    const resp = await apiPost("/gemba/plan", body);
+    if (!resp.ok) {
+      console.error("Error API Gemba:", resp);
+      alert("❌ No se pudo guardar el plan en el servidor");
+      return;
+    }
+
+    const gembaId = resp.id;
+    // Guardamos plan + id y un pointer al último Gemba usado
+    const planConId = { ...plan, id: gembaId };
+
+    localStorage.setItem("gembaPlan", JSON.stringify(planConId));
+    localStorage.setItem("gembaIdActual", String(gembaId));
+
     alert("✅ Plan Gemba guardado correctamente");
     navigate("/gemba/ejecucion");
-  };
+  } catch (err) {
+    console.error("❌ Error guardando plan Gemba:", err);
+    alert("❌ Error guardando plan Gemba en el servidor");
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">

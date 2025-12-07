@@ -17,7 +17,7 @@ export default function GwIntro() {
       titulo: "Ejecución",
       descripcion: "Registra observaciones, hallazgos, buenas prácticas y evidencias.",
       color: "bg-green-600 hover:bg-green-700",
-      ruta: "/gemba/ejecucion",
+      ruta: "/gemba/listado",
     },
     {
       titulo: "Reporte",
