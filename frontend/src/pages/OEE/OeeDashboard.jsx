@@ -1,7 +1,9 @@
+// src/pages/OEE/OeeDashboard.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { jsPDF } from "jspdf";
+import { jsPDF } from "jspdf"; // si no lo usas, puedes borrar esta línea
 import { Bar, Line } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom";
+import { apiGet } from "../../utils/api";   // ⬅️ nuevo import
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -33,14 +35,42 @@ export default function OeeDashboard() {
     linea: "",
     turno: "",
   });
-  const [modoVista, setModoVista] = useState("filtrado"); // filtrado | comparativo
-  const [modoComparativo, setModoComparativo] = useState("linea"); // linea | turno
+  const [modoVista, setModoVista] = useState("filtrado");
+  const [modoComparativo, setModoComparativo] = useState("linea");
   const navigate = useNavigate();
-  // ✅ Cargar historial desde localStorage
+const formatearFechaHora = (iso) => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return d.toLocaleString("es-CL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+
+
+  // ✅ Cargar historial desde API (fallback a localStorage)
   useEffect(() => {
-    const data = localStorage.getItem("oee-historial");
-    if (data) setHistorial(JSON.parse(data));
+    (async () => {
+      try {
+        const resp = await apiGet("/oee/registros");
+        if (resp.ok && Array.isArray(resp.registros)) {
+          setHistorial(resp.registros);
+          localStorage.setItem("oee-historial", JSON.stringify(resp.registros));
+          return;
+        }
+      } catch (err) {
+        console.error("❌ Error cargando OEE Dashboard desde API:", err);
+      }
+
+      const data = localStorage.getItem("oee-historial");
+      if (data) setHistorial(JSON.parse(data));
+    })();
   }, []);
+
 
   // ✅ Hooks (todos antes de cualquier return)
   const lineasUnicas = useMemo(
@@ -173,31 +203,37 @@ export default function OeeDashboard() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-indigo-400">📊 Dashboard OEE</h1>
 
-        {/* Selector de vista */}
-        <div className="flex bg-gray-800 rounded overflow-hidden border border-gray-700">
-          <button
-            onClick={() => setModoVista("filtrado")}
-            className={`px-4 py-2 ${
-              modoVista === "filtrado" ? "bg-indigo-600" : "bg-gray-700"
-            }`}
-          >
-            Vista Filtrada
-          </button>
-          <button
-            onClick={() => setModoVista("comparativo")}
-            className={`px-4 py-2 ${
-              modoVista === "comparativo" ? "bg-indigo-600" : "bg-gray-700"
-            }`}
-          >
-            Comparativo
-          </button>
-                    <button
-            onClick={() => navigate("/oee/builder")}
-            className="bg-green-600 px-6 py-2 rounded hover:bg-green-700 transition"
-          >
-            Ir al Registro OEE
-          </button>
-        </div>
+{/* Selector de vista */}
+<div className="flex items-center gap-3">
+  {/* Grupo de pestañas */}
+  <div className="flex bg-gray-800 rounded overflow-hidden border border-gray-700">
+    <button
+      onClick={() => setModoVista("filtrado")}
+      className={`px-4 py-2 text-sm md:text-base ${
+        modoVista === "filtrado" ? "bg-indigo-600" : "bg-gray-700"
+      }`}
+    >
+      Vista Filtrada
+    </button>
+    <button
+      onClick={() => setModoVista("comparativo")}
+      className={`px-4 py-2 text-sm md:text-base ${
+        modoVista === "comparativo" ? "bg-indigo-600" : "bg-gray-700"
+      }`}
+    >
+      Comparativo
+    </button>
+  </div>
+
+  {/* Botón de acción separado */}
+  <button
+    onClick={() => navigate("/oee/builder")}
+    className="bg-green-600 px-5 py-2 rounded-lg hover:bg-green-700 transition text-sm md:text-base"
+  >
+    Ir al Registro OEE
+  </button>
+</div>
+
       </div>
 
       {/* =========================================================

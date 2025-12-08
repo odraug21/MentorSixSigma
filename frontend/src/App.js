@@ -74,7 +74,7 @@ import SipocResumen from "./pages/SIPOC/SipocResumen.jsx";
 // 📊 KPI
 // ============================================
 import KpiDashboard from "./pages/KPI/KpiDashboard.jsx";
-
+import KpiKaizen from "./pages/KPI/KpiKaizen.jsx";
 // ============================================
 // ⚙️ OEE / OOE / TEEP
 // ============================================
@@ -163,6 +163,8 @@ export default function App() {
 
         {/* KPI */}
         <Route path="/kpi/dashboard" element={<KpiDashboard />} />
+        <Route path="/kpi/kaizen" element={<KpiKaizen />} />
+
 
         {/* OEE / OOE / TEEP */}
         <Route path="/oee/intro" element={<OeeIntro />} />

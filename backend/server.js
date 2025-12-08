@@ -25,6 +25,16 @@ import fiveSAuditoriaRoutes from "./routes/fiveSAuditoriaRoutes.js";
 
 import gembaRoutes from "./routes/gembaRoutes.js";
 
+import oeeRoutes from "./routes/oeeRoutes.js";   //
+
+import ooeRoutes from "./routes/ooeRoutes.js";
+
+import teepRoutes from "./routes/teepRoutes.js";
+
+import kaizenRoutes from "./routes/kaizenRoutes.js";
+
+
+
 dotenv.config();
 
 const app = express();
@@ -32,13 +42,6 @@ const app = express();
 // ======================================================
 // 🔧 CORS — versión simple y permisiva (Render + Vercel)
 // ======================================================
-//
-// Para no pelear más con orígenes, dejamos CORS abierto.
-// Más adelante, si quieres, lo cerramos por dominio.
-//
-// Esta configuración SIEMPRE agrega Access-Control-Allow-Origin
-// y maneja los OPTIONS (preflight).
-//
 app.use(
   cors({
     origin: "*",
@@ -71,7 +74,10 @@ app.use((req, res, next) => {
 // ======================================================
 // Middlewares generales
 // ======================================================
-app.use(express.json());
+
+// 🔧 Body parsers con límite ampliado (para evidencias base64)
+app.use(express.json({ limit: "15mb" }));
+app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
 // Logging simple
 app.use((req, _res, next) => {
@@ -107,6 +113,15 @@ app.use("/api/5s", fiveSRoutes);
 app.use("/api/5s/auditoria", fiveSAuditoriaRoutes);
 
 app.use("/api/gemba", gembaRoutes);
+
+app.use("/api/oee", oeeRoutes);   
+
+app.use("/api/ooe", ooeRoutes);
+
+app.use("/api/teep", teepRoutes); 
+
+app.use("/api/kaizen", kaizenRoutes);
+
 
 // ======================================================
 // HEALTH CHECK (debe ir antes del 404)

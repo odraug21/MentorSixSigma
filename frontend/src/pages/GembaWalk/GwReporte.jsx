@@ -1,7 +1,8 @@
+// src/pages/GembaWalk/GwReporte.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import { apiGet } from "../../utils/api";
 
 export default function GwReporte() {
@@ -9,24 +10,34 @@ export default function GwReporte() {
   const [plan, setPlan] = useState(null);
   const [observaciones, setObservaciones] = useState([]);
 
-useEffect(() => {
-  const idStr = localStorage.getItem("gembaIdActual");
-  const idNum = idStr ? Number(idStr) : null;
+  useEffect(() => {
+    const idStr = localStorage.getItem("gembaIdActual");
+    const idNum = idStr ? Number(idStr) : null;
 
-  if (!idNum) return;
+    if (!idNum) {
+      console.warn("No se encontró gembaIdActual para el reporte");
+      const savedPlan = localStorage.getItem("gembaPlan");
+      if (savedPlan) setPlan(JSON.parse(savedPlan));
+      const savedObs = localStorage.getItem("gembaEjecucion");
+      if (savedObs) setObservaciones(JSON.parse(savedObs));
+      return;
+    }
 
-  (async () => {
-    try {
-      const resp = await apiGet(`/gemba/${idNum}`);
-      if (!resp.ok) {
-        console.error("Error API obtener gemba:", resp);
-        // fallback localStorage
-        const savedPlan = localStorage.getItem("gembaPlan");
-        if (savedPlan) setPlan(JSON.parse(savedPlan));
-        const savedObs = localStorage.getItem("gembaEjecucion");
-        if (savedObs) setObservaciones(JSON.parse(savedObs));
-      } else {
-        const d = resp.data;
+    (async () => {
+      try {
+        const resp = await apiGet(`/gemba/${idNum}`);
+
+        if (!resp.ok || !resp.gemba) {
+          console.error("Error API obtener gemba:", resp);
+          const savedPlan = localStorage.getItem("gembaPlan");
+          if (savedPlan) setPlan(JSON.parse(savedPlan));
+          const savedObs = localStorage.getItem("gembaEjecucion");
+          if (savedObs) setObservaciones(JSON.parse(savedObs));
+          return;
+        }
+
+        const d = resp.gemba;
+
         setPlan({
           id: d.id,
           area: d.area,
@@ -35,6 +46,7 @@ useEffect(() => {
           proposito: d.proposito,
           participantes: d.participantes || [],
         });
+
         setObservaciones(
           (d.observaciones || []).map((o) => ({
             id: o.id,
@@ -45,58 +57,111 @@ useEffect(() => {
             evidencias: o.evidencias || [],
           }))
         );
+      } catch (err) {
+        console.error("❌ Error cargando gemba en reporte:", err);
+        const savedPlan = localStorage.getItem("gembaPlan");
+        if (savedPlan) setPlan(JSON.parse(savedPlan));
+        const savedObs = localStorage.getItem("gembaEjecucion");
+        if (savedObs) setObservaciones(JSON.parse(savedObs));
       }
-    } catch (err) {
-      console.error("❌ Error cargando gemba en reporte:", err);
+    })();
+  }, []);
+
+  // === Evidencias en PDF agrupadas por observación ===
+  const agregarEvidenciasPorObservacion = async (doc, obsLista) => {
+    if (!obsLista || !obsLista.length) return;
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const marginLeft = 14;
+    const marginRight = 14;
+    const maxTextWidth = pageWidth - marginLeft - marginRight;
+
+    let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 80;
+
+    doc.setFontSize(14);
+    doc.text("Evidencias por observación", marginLeft, y);
+    y += 8;
+
+    const imgSize = 30;
+
+    for (let idx = 0; idx < obsLista.length; idx++) {
+      const obs = obsLista[idx];
+      if (!obs.evidencias || !obs.evidencias.length) continue;
+
+      if (y + imgSize + 20 > pageHeight) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.setFontSize(11);
+      const tituloTipo =
+        obs.tipo === "buena"
+          ? "Buena práctica"
+          : obs.tipo === "hallazgo"
+          ? "Hallazgo"
+          : "Acción inmediata";
+
+      const textoDesc = obs.descripcion || "";
+      const linea = `Obs ${idx + 1}: ${tituloTipo} – ${textoDesc}`;
+      const lineas = doc.splitTextToSize(linea, maxTextWidth);
+
+      doc.text(lineas, marginLeft, y);
+      y += 6 * lineas.length;
+
+      let x = marginLeft;
+
+      const cargarImagen = (img) =>
+        new Promise((resolve) => {
+          const image = new Image();
+          image.crossOrigin = "anonymous";
+          image.src = img.url;
+
+          image.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
+            const data = canvas.toDataURL("image/jpeg");
+
+            doc.addImage(data, "JPEG", x, y, imgSize, imgSize);
+            x += imgSize + 6;
+            if (x + imgSize > pageWidth - marginRight) {
+              x = marginLeft;
+              y += imgSize + 6;
+            }
+            resolve();
+          };
+
+          image.onerror = () => {
+            console.warn("No se pudo cargar evidencia", img);
+            resolve();
+          };
+        });
+
+      for (const img of obs.evidencias) {
+        if (y + imgSize + 20 > pageHeight) {
+          doc.addPage();
+          y = 20;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await cargarImagen(img);
+      }
+
+      y += imgSize + 6;
     }
-  })();
-}, []);
-
-
-  // === Función para agregar imágenes al PDF ===
-  const agregarEvidencias = async (doc, evidencias) => {
-    if (!evidencias.length) return;
-
-    let y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 100;
-    doc.setFontSize(13);
-    doc.text("📸 Evidencias fotográficas", 14, y);
-
-    y += 6;
-    const imgSize = 35;
-    let x = 14;
-    let count = 0;
-
-    const cargarImagen = (img) =>
-      new Promise((resolve) => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const image = new Image();
-        image.crossOrigin = "anonymous";
-        image.src = img.url;
-        image.onload = () => {
-          canvas.width = image.width;
-          canvas.height = image.height;
-          ctx.drawImage(image, 0, 0);
-          const data = canvas.toDataURL("image/jpeg");
-          doc.addImage(data, "JPEG", x, y, imgSize, imgSize);
-          x += imgSize + 8;
-          count++;
-          if (count % 5 === 0) {
-            x = 14;
-            y += imgSize + 8;
-          }
-          resolve();
-        };
-        image.onerror = resolve;
-      });
-
-    await Promise.all(evidencias.map(cargarImagen));
   };
 
   // === Generar PDF ===
   const generarPDF = async () => {
+    if (!plan) return;
+
     const doc = new jsPDF();
     const fechaHoy = new Date().toLocaleDateString("es-CL");
+
+    // Usamos fuente estándar que soporta tildes razonablemente bien
+    doc.setFont("helvetica", "normal");
 
     // --- Encabezado ---
     doc.setFontSize(18);
@@ -106,15 +171,15 @@ useEffect(() => {
     doc.setFontSize(11);
     doc.setTextColor(100);
     doc.text(`Fecha del reporte: ${fechaHoy}`, 14, 28);
-    doc.text(`Área / Planta: ${plan?.area || "-"}`, 14, 34);
-    doc.text(`Responsable: ${plan?.responsable || "-"}`, 14, 40);
-    doc.text(`Propósito: ${plan?.proposito || "-"}`, 14, 46);
+    doc.text(`Área / Planta: ${plan.area || "-"}`, 14, 34);
+    doc.text(`Responsable: ${plan.responsable || "-"}`, 14, 40);
+    doc.text(`Propósito: ${plan.proposito || "-"}`, 14, 46);
 
     // --- Participantes ---
-    if (plan?.participantes?.length) {
+    if (plan.participantes?.length) {
       doc.setTextColor(33);
       doc.setFontSize(13);
-      doc.text("👥 Participantes", 14, 56);
+      doc.text("Participantes", 14, 56);
 
       const partRows = plan.participantes.map((p) => [
         p.area,
@@ -122,56 +187,62 @@ useEffect(() => {
         p.cargo,
       ]);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: 60,
         head: [["Área / Gerencia", "Nombre y Apellido", "Cargo"]],
         body: partRows,
         theme: "grid",
+        margin: { left: 14, right: 14 },
         headStyles: { fillColor: [255, 221, 87] },
       });
     }
 
-    // --- Observaciones ---
+    // --- Observaciones (tabla resumen) ---
     if (observaciones?.length) {
       const yOffset = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 80;
       doc.setTextColor(33);
       doc.setFontSize(13);
-      doc.text("🗒️ Observaciones registradas", 14, yOffset);
+      doc.text("Observaciones registradas", 14, yOffset);
 
       const obsRows = observaciones.map((o) => [
         o.tipo === "buena"
-          ? "✅ Buena práctica"
+          ? "Buena práctica"
           : o.tipo === "hallazgo"
-          ? "⚠️ Hallazgo"
-          : "🔧 Acción inmediata",
+          ? "Hallazgo"
+          : "Acción inmediata",
         o.descripcion || "-",
         o.responsable || "-",
         o.accionDerivada ? "Sí" : "No",
       ]);
 
-      doc.autoTable({
+      autoTable(doc, {
         startY: yOffset + 4,
         head: [["Tipo", "Descripción", "Responsable", "Acción derivada"]],
         body: obsRows,
         theme: "grid",
+        margin: { left: 14, right: 14 },
         styles: { fontSize: 9, cellPadding: 2 },
         headStyles: { fillColor: [255, 221, 87] },
+        columnStyles: {
+          1: { cellWidth: "wrap" }, // descripción
+        },
       });
     }
 
-    // --- Evidencias ---
-    const evidencias = observaciones.flatMap((o) => o.evidencias || []);
-    await agregarEvidencias(doc, evidencias);
+    // --- Evidencias agrupadas por observación ---
+    await agregarEvidenciasPorObservacion(doc, observaciones);
 
     // --- Guardar ---
-    doc.save(`GembaWalk_${plan?.area || "reporte"}.pdf`);
+    doc.save(`GembaWalk_${plan.area || "reporte"}.pdf`);
   };
 
-  // === Render ===
+  // === Render (pantalla) ===
   if (!plan)
     return (
       <div className="min-h-screen bg-gray-900 text-white p-8 text-center">
-        <p className="text-gray-400">No hay datos de planificación cargados.</p>
+        <p className="text-gray-400">
+          No hay datos de planificación cargados.
+        </p>
         <button
           onClick={() => navigate("/gemba/plan")}
           className="mt-4 bg-indigo-700 px-4 py-2 rounded-lg"
@@ -204,7 +275,9 @@ useEffect(() => {
       </div>
 
       <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-        <h2 className="text-xl text-yellow-300 mb-4">📋 Resumen del recorrido</h2>
+        <h2 className="text-xl text-yellow-300 mb-4">
+          📋 Resumen del recorrido
+        </h2>
         <p>
           <strong>Área / Planta:</strong> {plan.area}
         </p>
@@ -228,19 +301,36 @@ useEffect(() => {
         </ul>
 
         <h2 className="text-xl text-yellow-300 mt-6 mb-2">🗒️ Observaciones</h2>
-        <ul className="list-disc ml-6 text-gray-300">
+        <ul className="list-disc ml-6 text-gray-300 space-y-3">
           {observaciones?.map((o) => (
             <li key={o.id}>
-              <strong>
-                {o.tipo === "buena"
-                  ? "✅ Buena práctica"
-                  : o.tipo === "hallazgo"
-                  ? "⚠️ Hallazgo"
-                  : "🔧 Acción inmediata"}
-              </strong>
-              : {o.descripcion} ({o.responsable})
-              {o.accionDerivada && (
-                <span className="text-yellow-400 ml-1">⚡ Acción derivada</span>
+              <div>
+                <strong>
+                  {o.tipo === "buena"
+                    ? "✅ Buena práctica"
+                    : o.tipo === "hallazgo"
+                    ? "⚠️ Hallazgo"
+                    : "🔧 Acción inmediata"}
+                </strong>
+                : {o.descripcion} ({o.responsable})
+                {o.accionDerivada && (
+                  <span className="text-yellow-400 ml-1">
+                    ⚡ Acción derivada
+                  </span>
+                )}
+              </div>
+
+              {o.evidencias && o.evidencias.length > 0 && (
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {o.evidencias.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img.url}
+                      alt={img.name}
+                      className="w-16 h-16 object-cover rounded border border-gray-600"
+                    />
+                  ))}
+                </div>
               )}
             </li>
           ))}

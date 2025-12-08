@@ -1,5 +1,7 @@
+// src/pages/OEE/OeeBuilder.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiGet, apiPost } from "../../utils/api";
 
 export default function OeeBuilder() {
   const [registro, setRegistro] = useState({
@@ -12,15 +14,47 @@ export default function OeeBuilder() {
     unidadesBuenas: "",
     velocidadIdeal: "",
     observaciones: "",
+    // 💰 NUEVOS CAMPOS
+    costoHora: "",
+    costoUnitario: "",
   });
+
   const navigate = useNavigate();
   const [historial, setHistorial] = useState([]);
   const [resultado, setResultado] = useState(null);
 
-  // 🔹 Cargar historial al iniciar
+  const formatearFechaHora = (iso) => {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    return d.toLocaleString("es-CL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // 🔹 Cargar historial desde API (fallback a localStorage)
   useEffect(() => {
-    const data = localStorage.getItem("oee-historial");
-    if (data) setHistorial(JSON.parse(data));
+    (async () => {
+      try {
+        const resp = await apiGet("/oee/registros?limit=50");
+        if (resp.ok && Array.isArray(resp.registros)) {
+          setHistorial(resp.registros);
+          localStorage.setItem("oee-historial", JSON.stringify(resp.registros));
+          return;
+        }
+      } catch (err) {
+        console.error(
+          "❌ Error cargando OEE desde API, usando localStorage:",
+          err
+        );
+      }
+
+      const data = localStorage.getItem("oee-historial");
+      if (data) setHistorial(JSON.parse(data));
+    })();
   }, []);
 
   // 🔹 Manejo de cambios
@@ -28,7 +62,7 @@ export default function OeeBuilder() {
     setRegistro({ ...registro, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Calcular OEE
+  // 🔹 Calcular OEE + Impacto económico (en el front)
   const calcularOEE = () => {
     const {
       tiempoPlanificado,
@@ -36,6 +70,8 @@ export default function OeeBuilder() {
       unidadesProducidas,
       unidadesBuenas,
       velocidadIdeal,
+      costoHora,
+      costoUnitario,
     } = registro;
 
     if (
@@ -59,29 +95,128 @@ export default function OeeBuilder() {
     const calidad = (buenas / producidas) * 100;
     const oee = (disponibilidad * rendimiento * calidad) / 10000;
 
+    // ==========================================
+    // 💰 Cálculo económico (mismo criterio backend)
+    // ==========================================
+    const costoHoraNum =
+      costoHora !== undefined && costoHora !== null && costoHora !== ""
+        ? Number(costoHora)
+        : null;
+    const costoUnitNum =
+      costoUnitario !== undefined &&
+      costoUnitario !== null &&
+      costoUnitario !== ""
+        ? Number(costoUnitario)
+        : null;
+
+    const tieneCostos =
+      costoHoraNum !== null &&
+      !Number.isNaN(costoHoraNum) &&
+      costoHoraNum > 0 &&
+      costoUnitNum !== null &&
+      !Number.isNaN(costoUnitNum) &&
+      costoUnitNum > 0;
+
+    let costoParadas = 0;
+    let costoScrap = 0;
+    let costoBajoRendimiento = 0;
+    let costoTotalPerdidas = 0;
+
+    if (tieneCostos) {
+      const tiempoOperativoMin = plan - paradas;
+      const horasParada = paradas / 60;
+
+      const unidadesMalas = Math.max(producidas - buenas, 0);
+      const unidadesTeoricas = Math.max(tiempoOperativoMin * ideal, 0);
+      const unidadesPerdidasRend = Math.max(
+        unidadesTeoricas - producidas,
+        0
+      );
+
+      costoParadas = Number((horasParada * costoHoraNum).toFixed(2));
+      costoScrap = Number((unidadesMalas * costoUnitNum).toFixed(2));
+      costoBajoRendimiento = Number(
+        (unidadesPerdidasRend * costoUnitNum).toFixed(2)
+      );
+      costoTotalPerdidas = Number(
+        (costoParadas + costoScrap + costoBajoRendimiento).toFixed(2)
+      );
+    }
+
     const nuevoRegistro = {
       ...registro,
       disponibilidad: disponibilidad.toFixed(2),
       rendimiento: rendimiento.toFixed(2),
       calidad: calidad.toFixed(2),
       oee: oee.toFixed(2),
+      // 💰 guardamos también impacto económico en el estado
+      costoParadas,
+      costoScrap,
+      costoBajoRendimiento,
+      costoTotalPerdidas,
     };
 
     setResultado(nuevoRegistro);
   };
 
-  // 🔹 Guardar registro
-  const guardarRegistro = () => {
+  // 🔹 Guardar registro (BD + localStorage)
+  const guardarRegistro = async () => {
     if (!resultado) {
       alert("Primero calcula el OEE antes de guardar.");
       return;
     }
 
-    const actualizado = [...historial, resultado];
-    setHistorial(actualizado);
-    localStorage.setItem("oee-historial", JSON.stringify(actualizado));
-    alert("Registro OEE guardado correctamente ✅");
-    setResultado(null);
+    try {
+      // 1) Guardar en backend
+      const payload = {
+        fecha: resultado.fecha,
+        linea: resultado.linea,
+        turno: resultado.turno,
+        tiempoPlanificado: resultado.tiempoPlanificado,
+        tiempoParadas: resultado.tiempoParadas,
+        unidadesProducidas: resultado.unidadesProducidas,
+        unidadesBuenas: resultado.unidadesBuenas,
+        velocidadIdeal: resultado.velocidadIdeal,
+        observaciones: resultado.observaciones,
+        // 💰 NUEVOS CAMPOS (opcionales, convertidos a número o null)
+        costoHora: registro.costoHora ? Number(registro.costoHora) : null,
+        costoUnitario: registro.costoUnitario
+          ? Number(registro.costoUnitario)
+          : null,
+      };
+
+      const resp = await apiPost("/oee/registros", payload);
+
+      if (!resp.ok) {
+        console.error("Error API OEE:", resp);
+        alert("❌ Error guardando registro en el servidor");
+      } else {
+        const nuevo = resp.registro || resultado;
+
+        // 2) Actualizar historial en memoria con lo que devuelve el backend
+        const actualizado = [...historial, nuevo];
+        setHistorial(actualizado);
+        localStorage.setItem("oee-historial", JSON.stringify(actualizado));
+
+        // 3) Refrescar bloque de resultado con lo del backend (por consistencia)
+        setResultado((prev) => ({
+          ...(prev || {}),
+          costoParadas: nuevo.costoParadas ?? prev?.costoParadas ?? 0,
+          costoScrap: nuevo.costoScrap ?? prev?.costoScrap ?? 0,
+          costoBajoRendimiento:
+            nuevo.costoBajoRendimiento ??
+            prev?.costoBajoRendimiento ??
+            0,
+          costoTotalPerdidas:
+            nuevo.costoTotalPerdidas ?? prev?.costoTotalPerdidas ?? 0,
+        }));
+
+        alert("Registro OEE guardado correctamente ✅");
+      }
+    } catch (err) {
+      console.error("❌ Error guardando registro OEE:", err);
+      alert("❌ Error guardando registro en el servidor");
+    }
   };
 
   // 🔹 Limpiar formulario
@@ -96,6 +231,8 @@ export default function OeeBuilder() {
       unidadesBuenas: "",
       velocidadIdeal: "",
       observaciones: "",
+      costoHora: "",
+      costoUnitario: "",
     });
     setResultado(null);
   };
@@ -120,7 +257,9 @@ export default function OeeBuilder() {
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1">🏭 Línea / Equipo</label>
+            <label className="block text-sm text-gray-400 mb-1">
+              🏭 Línea / Equipo
+            </label>
             <input
               type="text"
               name="linea"
@@ -212,7 +351,40 @@ export default function OeeBuilder() {
           </div>
         </div>
 
-        <label className="block text-sm text-gray-400 mb-1">📝 Observaciones</label>
+        {/* 💰 Bloque de costos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              💸 Costo por hora de parada (CLP/h)
+            </label>
+            <input
+              type="number"
+              name="costoHora"
+              value={registro.costoHora}
+              onChange={handleChange}
+              className="w-full p-2 bg-gray-700 rounded"
+              placeholder="Ej: 60000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-400 mb-1">
+              🧮 Costo unitario del producto (CLP/unidad)
+            </label>
+            <input
+              type="number"
+              name="costoUnitario"
+              value={registro.costoUnitario}
+              onChange={handleChange}
+              className="w-full p-2 bg-gray-700 rounded"
+              placeholder="Ej: 500"
+            />
+          </div>
+        </div>
+
+        <label className="block text-sm text-gray-400 mb-1">
+          📝 Observaciones
+        </label>
         <textarea
           name="observaciones"
           value={registro.observaciones}
@@ -222,7 +394,7 @@ export default function OeeBuilder() {
           placeholder="Notas o incidencias del día..."
         />
 
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-3 justify-center flex-wrap">
           <button
             onClick={calcularOEE}
             className="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700"
@@ -249,35 +421,83 @@ export default function OeeBuilder() {
             DashBoard
           </button>
 
-            <button
+          <button
             onClick={() => navigate("/oee/intro")}
-            className="bg-indigo-600 px-6 py-2 rounded hover:bg-indigo-700 transition"
+            className="bg-gray-600 px-6 py-2 rounded hover:bg-gray-700 transition"
           >
             Volver al Menú OEE
           </button>
-
-
-
         </div>
       </div>
 
       {/* 🔹 Resultado actual */}
       {resultado && (
         <div className="bg-gray-800 p-4 rounded-lg max-w-3xl mx-auto text-center mb-10">
-          <h2 className="text-xl font-bold mb-2 text-indigo-400">Resultado del Día</h2>
+          <h2 className="text-xl font-bold mb-2 text-indigo-400">
+            Resultado del Día
+          </h2>
           <p>Disponibilidad: {resultado.disponibilidad}%</p>
           <p>Rendimiento: {resultado.rendimiento}%</p>
           <p>Calidad: {resultado.calidad}%</p>
           <p className="text-yellow-400 font-bold mt-2 text-lg">
             OEE: {resultado.oee}%
           </p>
+
+          <hr className="my-4 border-gray-700" />
+
+          <h3 className="text-lg font-semibold text-green-400 mb-2">
+            💸 Impacto Económico del Día
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+            <p>
+              <span className="text-gray-300">Costo por paradas: </span>
+              <span className="font-semibold text-red-300">
+                ${" "}
+                {Number(resultado.costoParadas || 0).toLocaleString("es-CL")}
+              </span>
+            </p>
+            <p>
+              <span className="text-gray-300">
+                Costo por scrap / defectos:{" "}
+              </span>
+              <span className="font-semibold text-red-300">
+                ${" "}
+                {Number(resultado.costoScrap || 0).toLocaleString("es-CL")}
+              </span>
+            </p>
+            <p>
+              <span className="text-gray-300">
+                Costo por bajo rendimiento:{" "}
+              </span>
+              <span className="font-semibold text-red-300">
+                $
+                {Number(
+                  resultado.costoBajoRendimiento || 0
+                ).toLocaleString("es-CL")}
+              </span>
+            </p>
+            <p>
+              <span className="text-gray-300">
+                💰 Costo total de pérdidas:{" "}
+              </span>
+              <span className="font-bold text-yellow-300">
+                $
+                {Number(
+                  resultado.costoTotalPerdidas || 0
+                ).toLocaleString("es-CL")}
+              </span>
+            </p>
+          </div>
         </div>
       )}
 
       {/* 🔹 Historial rápido */}
       {historial.length > 0 && (
         <div className="max-w-5xl mx-auto bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-xl font-bold text-indigo-400 mb-3">📋 Últimos registros</h2>
+          <h2 className="text-xl font-bold text-indigo-400 mb-3">
+            📋 Últimos registros
+          </h2>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm text-left border border-gray-700">
               <thead className="bg-gray-700 text-gray-300">
@@ -285,9 +505,9 @@ export default function OeeBuilder() {
                   <th className="px-3 py-2">Fecha</th>
                   <th className="px-3 py-2">Línea</th>
                   <th className="px-3 py-2">Turno</th>
-                  <th className="px-3 py-2">Disp (%)</th>
-                  <th className="px-3 py-2">Rend (%)</th>
-                  <th className="px-3 py-2">Calid (%)</th>
+                  <th className="px-3 py-2">Disponibilidad (%)</th>
+                  <th className="px-3 py-2">Rendimiento (%)</th>
+                  <th className="px-3 py-2">Calidad (%)</th>
                   <th className="px-3 py-2">OEE (%)</th>
                 </tr>
               </thead>
@@ -297,13 +517,17 @@ export default function OeeBuilder() {
                   .reverse()
                   .map((h, i) => (
                     <tr key={i} className="border-t border-gray-700">
-                      <td className="px-3 py-1">{h.fecha}</td>
+                      <td className="px-3 py-1">
+                        {formatearFechaHora(h.fecha)}
+                      </td>
                       <td className="px-3 py-1">{h.linea}</td>
                       <td className="px-3 py-1">{h.turno}</td>
                       <td className="px-3 py-1">{h.disponibilidad}</td>
                       <td className="px-3 py-1">{h.rendimiento}</td>
                       <td className="px-3 py-1">{h.calidad}</td>
-                      <td className="px-3 py-1 font-bold text-yellow-400">{h.oee}</td>
+                      <td className="px-3 py-1 font-bold text-yellow-400">
+                        {h.oee}
+                      </td>
                     </tr>
                   ))}
               </tbody>

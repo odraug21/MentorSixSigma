@@ -12,6 +12,18 @@ export default function GwEjecucion() {
   const [cargando, setCargando] = useState(true);
   const [gembaId, setGembaId] = useState(null);
 
+  // 🔧 helper para limpiar evidencias con blob:
+  const limpiarEvidencias = (obsArray = []) =>
+    obsArray.map((o) => ({
+      ...o,
+      evidencias: (o.evidencias || []).filter(
+        (ev) =>
+          ev &&
+          typeof ev.url === "string" &&
+          !ev.url.startsWith("blob:")
+      ),
+    }));
+
   // 📦 Cargar plan, participantes y observaciones
   useEffect(() => {
     const idStr = localStorage.getItem("gembaIdActual");
@@ -35,7 +47,7 @@ export default function GwEjecucion() {
           return;
         }
 
-        const data = resp.gemba; // ✅ tu backend retorna gemba, no data
+        const data = resp.gemba; // backend retorna { ok, gemba }
 
         // PLAN
         setPlan({
@@ -49,17 +61,17 @@ export default function GwEjecucion() {
         // PARTICIPANTES
         setParticipantes(data.participantes || []);
 
-        // OBSERVACIONES
-        setObservaciones(
-          (data.observaciones || []).map((o) => ({
-            id: o.id,
-            tipo: o.tipo || "hallazgo",
-            descripcion: o.descripcion || "",
-            responsable: o.responsable || "",
-            accionDerivada: o.accion_derivada, // backend usa snake_case
-            evidencias: o.evidencias || [],
-          }))
-        );
+        // OBSERVACIONES (limpiando blobs viejos, si existieran)
+        const obsBack = (data.observaciones || []).map((o) => ({
+          id: o.id,
+          tipo: o.tipo || "hallazgo",
+          descripcion: o.descripcion || "",
+          responsable: o.responsable || "",
+          accionDerivada: o.accion_derivada,
+          evidencias: o.evidencias || [],
+        }));
+
+        setObservaciones(limpiarEvidencias(obsBack));
       } catch (err) {
         console.error("❌ Error cargando gemba:", err);
         cargarDesdeLocalStorage();
@@ -67,6 +79,7 @@ export default function GwEjecucion() {
         setCargando(false);
       }
     })();
+  
   }, []);
 
   const cargarDesdeLocalStorage = () => {
@@ -74,7 +87,10 @@ export default function GwEjecucion() {
     if (savedPlan) setPlan(JSON.parse(savedPlan));
 
     const savedObs = localStorage.getItem("gembaEjecucion");
-    if (savedObs) setObservaciones(JSON.parse(savedObs));
+    if (savedObs) {
+      const parsed = JSON.parse(savedObs);
+      setObservaciones(limpiarEvidencias(parsed));
+    }
   };
 
   // 💾 Guardar local cada vez que cambian observaciones
@@ -108,18 +124,38 @@ export default function GwEjecucion() {
     );
   };
 
-  // 📸 Subir evidencias (por ahora solo URL)
+  // 📸 Subir evidencias como dataURL (base64) para que sobrevivan al F5
   const handleFileUpload = (id, files) => {
-    const newFiles = Array.from(files).map((f) => ({
-      name: f.name,
-      url: URL.createObjectURL(f),
-    }));
+    const archivos = Array.from(files || []);
+    if (archivos.length === 0) return;
 
-    setObservaciones((prev) =>
-      prev.map((o) =>
-        o.id === id ? { ...o, evidencias: [...o.evidencias, ...newFiles] } : o
-      )
-    );
+    archivos.forEach((file) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const dataUrl = e.target.result; // "data:image/png;base64,..."
+
+        setObservaciones((prev) =>
+          prev.map((o) =>
+            o.id === id
+              ? {
+                  ...o,
+                  evidencias: [
+                    ...(o.evidencias || []),
+                    {
+                      name: file.name,
+                      type: file.type,
+                      url: dataUrl,
+                    },
+                  ],
+                }
+              : o
+          )
+        );
+      };
+
+      reader.readAsDataURL(file);
+    });
   };
 
   // 💾 Guardar ejecución en backend
@@ -135,7 +171,7 @@ export default function GwEjecucion() {
           tipo: o.tipo,
           descripcion: o.descripcion,
           responsable: o.responsable,
-          accion_derivada: o.accionDerivada, // backend espera snake_case
+          accion_derivada: o.accionDerivada,
           evidencias: o.evidencias,
         })),
       };
@@ -249,7 +285,7 @@ export default function GwEjecucion() {
               <th className="p-2 border border-gray-600">Descripción</th>
               <th className="p-2 border border-gray-600">Responsable</th>
               <th className="p-2 border border-gray-600">Acción derivada</th>
-              <th className="pafel2 border border-gray-600">Evidencias</th>
+              <th className="p-2 border border-gray-600">Evidencias</th>
               <th className="p-2 border border-gray-600">Acción</th>
             </tr>
           </thead>
