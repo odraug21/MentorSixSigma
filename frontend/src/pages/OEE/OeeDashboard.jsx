@@ -1,9 +1,8 @@
 // src/pages/OEE/OeeDashboard.jsx
 import React, { useEffect, useState, useMemo } from "react";
-import { jsPDF } from "jspdf"; // si no lo usas, puedes borrar esta línea
-import { Bar, Line } from "react-chartjs-2";
+import { Bar, Line, Doughnut } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom";
-import { apiGet } from "../../utils/api";   // ⬅️ nuevo import
+import { apiGet } from "../../utils/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +10,7 @@ import {
   BarElement,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -22,6 +22,7 @@ ChartJS.register(
   BarElement,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -38,21 +39,8 @@ export default function OeeDashboard() {
   const [modoVista, setModoVista] = useState("filtrado");
   const [modoComparativo, setModoComparativo] = useState("linea");
   const navigate = useNavigate();
-const formatearFechaHora = (iso) => {
-  if (!iso) return "-";
-  const d = new Date(iso);
-  return d.toLocaleString("es-CL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
 
-
-
-  // ✅ Cargar historial desde API (fallback a localStorage)
+  // ================== CARGA DE DATOS ==================
   useEffect(() => {
     (async () => {
       try {
@@ -71,13 +59,12 @@ const formatearFechaHora = (iso) => {
     })();
   }, []);
 
-
-  // ✅ Hooks (todos antes de cualquier return)
   const lineasUnicas = useMemo(
     () => [...new Set(historial.map((h) => h.linea).filter(Boolean))],
     [historial]
   );
 
+  // ================== FILTROS ==================
   const filtrado = useMemo(() => {
     return historial.filter((h) => {
       const fechaOk =
@@ -90,14 +77,101 @@ const formatearFechaHora = (iso) => {
   }, [historial, filtros]);
 
   const promedio = (data, campo) =>
-    (data.reduce((acc, r) => acc + parseFloat(r[campo] || 0), 0) /
-      (data.length || 1)).toFixed(2);
+    (
+      data.reduce((acc, r) => acc + parseFloat(r[campo] || 0), 0) /
+      (data.length || 1)
+    ).toFixed(2);
 
   const avgDisp = promedio(filtrado, "disponibilidad");
   const avgRend = promedio(filtrado, "rendimiento");
   const avgCal = promedio(filtrado, "calidad");
   const avgOee = promedio(filtrado, "oee");
+  const overallOee = Number(avgOee) || 0;
 
+  // ================== RESUMEN POR LÍNEA (para Pareto / gauges) ==================
+  const resumenPorLinea = useMemo(() => {
+    const mapa = {};
+    filtrado.forEach((r) => {
+      const key = r.linea || "Sin línea";
+      if (!mapa[key]) mapa[key] = [];
+      mapa[key].push(r);
+    });
+
+    return Object.entries(mapa).map(([nombre, registros]) => ({
+      nombre,
+      oee: Number(promedio(registros, "oee")),
+      disp: Number(promedio(registros, "disponibilidad")),
+      rend: Number(promedio(registros, "rendimiento")),
+      cal: Number(promedio(registros, "calidad")),
+    }));
+  }, [filtrado]);
+
+  // Orden tipo Pareto (de peor a mejor OEE)
+  const resumenOrdenado = [...resumenPorLinea].sort((a, b) => a.oee - b.oee);
+
+  // ================== DATOS GRÁFICOS VISTA POWERBI ==================
+  const labelsFiltrado = filtrado.map((h) => h.fecha);
+
+  const dataBar = {
+    labels: labelsFiltrado,
+    datasets: [
+      {
+        label: "Disponibilidad (%)",
+        data: filtrado.map((h) => h.disponibilidad),
+        backgroundColor: "#3b82f6",
+      },
+      {
+        label: "Rendimiento (%)",
+        data: filtrado.map((h) => h.rendimiento),
+        backgroundColor: "#22c55e",
+      },
+      {
+        label: "Calidad (%)",
+        data: filtrado.map((h) => h.calidad),
+        backgroundColor: "#eab308",
+      },
+    ],
+  };
+
+  const dataLine = {
+    labels: labelsFiltrado,
+    datasets: [
+      {
+        label: "OEE (%)",
+        data: filtrado.map((h) => h.oee),
+        borderColor: "#facc15",
+        backgroundColor: "rgba(250,204,21,0.3)",
+        tension: 0.3,
+      },
+    ],
+  };
+
+  // Donut OEE general
+  const dataOeeGauge = {
+    labels: ["OEE", "Libre"],
+    datasets: [
+      {
+        data: [overallOee, Math.max(0, 100 - overallOee)],
+        backgroundColor: ["#22c55e", "#1f2937"],
+        borderWidth: 0,
+        cutout: "70%",
+      },
+    ],
+  };
+
+  // Pareto por línea (OEE promedio)
+  const dataParetoLineas = {
+    labels: resumenOrdenado.map((r) => r.nombre),
+    datasets: [
+      {
+        label: "OEE promedio (%)",
+        data: resumenOrdenado.map((r) => r.oee),
+        backgroundColor: "#facc15",
+      },
+    ],
+  };
+
+  // ================== VISTA COMPARATIVA (se mantiene igual) ==================
   const agrupados = useMemo(() => {
     const grupos = {};
     historial.forEach((h) => {
@@ -120,42 +194,6 @@ const formatearFechaHora = (iso) => {
       oee: promedio(registros, "oee"),
     })
   );
-
-  // ✅ Data para gráficos
-  const labels = filtrado.map((h) => h.fecha);
-  const dataBar = {
-    labels,
-    datasets: [
-      {
-        label: "Disponibilidad (%)",
-        data: filtrado.map((h) => h.disponibilidad),
-        backgroundColor: "#3b82f6",
-      },
-      {
-        label: "Rendimiento (%)",
-        data: filtrado.map((h) => h.rendimiento),
-        backgroundColor: "#22c55e",
-      },
-      {
-        label: "Calidad (%)",
-        data: filtrado.map((h) => h.calidad),
-        backgroundColor: "#eab308",
-      },
-    ],
-  };
-
-  const dataLine = {
-    labels,
-    datasets: [
-      {
-        label: "OEE (%)",
-        data: filtrado.map((h) => h.oee),
-        borderColor: "#facc15",
-        backgroundColor: "rgba(250,204,21,0.3)",
-        tension: 0.3,
-      },
-    ],
-  };
 
   const dataComparativo = {
     labels: promediosComparativos.map((p) => p.nombre),
@@ -183,7 +221,7 @@ const formatearFechaHora = (iso) => {
     ],
   };
 
-  // ✅ Render condicional (después de los hooks)
+  // ================== SIN DATOS ==================
   if (historial.length === 0) {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex flex-col justify-center items-center">
@@ -195,142 +233,278 @@ const formatearFechaHora = (iso) => {
     );
   }
 
-  // ==============================================================
-  // 🔹 RENDER PRINCIPAL
-  // ==============================================================
+  // ================== RENDER ==================
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-gray-900 text-white p-6 md:p-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold text-indigo-400">📊 Dashboard OEE</h1>
 
-{/* Selector de vista */}
-<div className="flex items-center gap-3">
-  {/* Grupo de pestañas */}
-  <div className="flex bg-gray-800 rounded overflow-hidden border border-gray-700">
-    <button
-      onClick={() => setModoVista("filtrado")}
-      className={`px-4 py-2 text-sm md:text-base ${
-        modoVista === "filtrado" ? "bg-indigo-600" : "bg-gray-700"
-      }`}
-    >
-      Vista Filtrada
-    </button>
-    <button
-      onClick={() => setModoVista("comparativo")}
-      className={`px-4 py-2 text-sm md:text-base ${
-        modoVista === "comparativo" ? "bg-indigo-600" : "bg-gray-700"
-      }`}
-    >
-      Comparativo
-    </button>
-  </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Tabs vista */}
+          <div className="flex bg-gray-800 rounded overflow-hidden border border-gray-700">
+            <button
+              onClick={() => setModoVista("filtrado")}
+              className={`px-4 py-2 text-sm md:text-base ${
+                modoVista === "filtrado" ? "bg-indigo-600" : "bg-gray-700"
+              }`}
+            >
+              Vista OEE (PowerBI)
+            </button>
+            <button
+              onClick={() => setModoVista("comparativo")}
+              className={`px-4 py-2 text-sm md:text-base ${
+                modoVista === "comparativo" ? "bg-indigo-600" : "bg-gray-700"
+              }`}
+            >
+              Comparativo
+            </button>
+          </div>
 
-  {/* Botón de acción separado */}
-  <button
-    onClick={() => navigate("/oee/builder")}
-    className="bg-green-600 px-5 py-2 rounded-lg hover:bg-green-700 transition text-sm md:text-base"
-  >
-    Ir al Registro OEE
-  </button>
-</div>
-
+          {/* Botón acción */}
+          <button
+            onClick={() => navigate("/oee/builder")}
+            className="bg-green-600 px-5 py-2 rounded-lg hover:bg-green-700 transition text-sm md:text-base"
+          >
+            Ir al Registro OEE
+          </button>
+        </div>
       </div>
 
-      {/* =========================================================
-          🔸 VISTA FILTRADA
-      ==========================================================*/}
+      {/* ================== VISTA POWERBI ================== */}
       {modoVista === "filtrado" && (
-        <>
-          {/* Filtros */}
-          <div className="bg-gray-800 p-4 rounded-lg mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-12 gap-4">
+          {/* Sidebar de filtros (similar panel izquierdo PowerBI) */}
+          <aside className="col-span-12 md:col-span-2 bg-gray-900/80 border border-gray-800 rounded-xl p-3 space-y-4">
+            {/* Turno */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Desde</label>
-              <input
-                type="date"
-                value={filtros.desde}
-                onChange={(e) => setFiltros({ ...filtros, desde: e.target.value })}
-                className="w-full p-2 bg-gray-700 rounded"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Hasta</label>
-              <input
-                type="date"
-                value={filtros.hasta}
-                onChange={(e) => setFiltros({ ...filtros, hasta: e.target.value })}
-                className="w-full p-2 bg-gray-700 rounded"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Línea / Equipo</label>
-              <select
-                value={filtros.linea}
-                onChange={(e) => setFiltros({ ...filtros, linea: e.target.value })}
-                className="w-full p-2 bg-gray-700 rounded"
-              >
-                <option value="">Todas</option>
-                {lineasUnicas.map((l, i) => (
-                  <option key={i}>{l}</option>
+              <h3 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
+                Turno
+              </h3>
+              <div className="flex flex-col gap-2">
+                {["", "Mañana", "Tarde", "Noche"].map((t) => (
+                  <button
+                    key={t || "todos"}
+                    onClick={() =>
+                      setFiltros((prev) => ({ ...prev, turno: t || "" }))
+                    }
+                    className={`w-full py-2 px-2 text-sm rounded border ${
+                      filtros.turno === t || (!t && !filtros.turno)
+                        ? "bg-indigo-600 border-indigo-400 text-white"
+                        : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                    }`}
+                  >
+                    {t || "Todos"}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
+
+            {/* Línea / estación */}
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Turno</label>
-              <select
-                value={filtros.turno}
-                onChange={(e) => setFiltros({ ...filtros, turno: e.target.value })}
-                className="w-full p-2 bg-gray-700 rounded"
-              >
-                <option value="">Todos</option>
-                <option>Mañana</option>
-                <option>Tarde</option>
-                <option>Noche</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Promedios */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">Disponibilidad</h3>
-              <p className="text-2xl font-bold text-blue-400">{avgDisp}%</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">Rendimiento</h3>
-              <p className="text-2xl font-bold text-green-400">{avgRend}%</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">Calidad</h3>
-              <p className="text-2xl font-bold text-yellow-400">{avgCal}%</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg border border-yellow-400">
-              <h3 className="text-gray-300 text-sm font-semibold">OEE Promedio</h3>
-              <p className="text-2xl font-bold text-yellow-300">{avgOee}%</p>
-            </div>
-          </div>
-
-          {/* Gráficos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            <div className="bg-gray-800 p-4 rounded-xl shadow-md">
-              <h2 className="text-lg mb-2 text-center text-gray-300">
-                Factores D/R/C
-              </h2>
-              <Bar data={dataBar} />
+              <h3 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
+                Línea / Equipo
+              </h3>
+              <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
+                <button
+                  onClick={() =>
+                    setFiltros((prev) => ({ ...prev, linea: "" }))
+                  }
+                  className={`w-full py-2 px-2 text-sm rounded border ${
+                    !filtros.linea
+                      ? "bg-indigo-600 border-indigo-400 text-white"
+                      : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                  }`}
+                >
+                  Todas
+                </button>
+                {lineasUnicas.map((l) => (
+                  <button
+                    key={l}
+                    onClick={() =>
+                      setFiltros((prev) => ({ ...prev, linea: l }))
+                    }
+                    className={`w-full py-2 px-2 text-sm rounded border ${
+                      filtros.linea === l
+                        ? "bg-indigo-600 border-indigo-400 text-white"
+                        : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                    }`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded-xl shadow-md">
-              <h2 className="text-lg mb-2 text-center text-gray-300">
-                Tendencia OEE
-              </h2>
-              <Line data={dataLine} />
+            {/* Rango fecha rápido */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
+                Rango de Fecha
+              </h3>
+              <div className="space-y-2 text-xs">
+                <div>
+                  <span className="block text-gray-400 mb-1">Desde</span>
+                  <input
+                    type="date"
+                    value={filtros.desde}
+                    onChange={(e) =>
+                      setFiltros((prev) => ({ ...prev, desde: e.target.value }))
+                    }
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1"
+                  />
+                </div>
+                <div>
+                  <span className="block text-gray-400 mb-1">Hasta</span>
+                  <input
+                    type="date"
+                    value={filtros.hasta}
+                    onChange={(e) =>
+                      setFiltros((prev) => ({ ...prev, hasta: e.target.value }))
+                    }
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-2 py-1"
+                  />
+                </div>
+                <button
+                  onClick={() =>
+                    setFiltros({ desde: "", hasta: "", linea: "", turno: "" })
+                  }
+                  className="mt-2 w-full bg-gray-700 hover:bg-gray-600 text-xs py-1 rounded"
+                >
+                  Limpiar filtros
+                </button>
+              </div>
             </div>
-          </div>
-        </>
+          </aside>
+
+          {/* Área principal (similar a la parte derecha del PowerBI) */}
+          <main className="col-span-12 md:col-span-10 space-y-4">
+            {/* Faja superior con tarjetas resumen */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="bg-gray-800 rounded-xl p-3">
+                <p className="text-xs text-gray-400">Disponibilidad</p>
+                <p className="text-2xl font-bold text-blue-400 mt-1">
+                  {avgDisp}%
+                </p>
+              </div>
+              <div className="bg-gray-800 rounded-xl p-3">
+                <p className="text-xs text-gray-400">Rendimiento</p>
+                <p className="text-2xl font-bold text-emerald-400 mt-1">
+                  {avgRend}%
+                </p>
+              </div>
+              <div className="bg-gray-800 rounded-xl p-3">
+                <p className="text-xs text-gray-400">Calidad</p>
+                <p className="text-2xl font-bold text-yellow-400 mt-1">
+                  {avgCal}%
+                </p>
+              </div>
+              <div className="bg-gray-800 rounded-xl p-3 border border-yellow-500">
+                <p className="text-xs text-gray-300 font-semibold">
+                  OEE Promedio
+                </p>
+                <p className="text-2xl font-bold text-yellow-300 mt-1">
+                  {avgOee}%
+                </p>
+              </div>
+            </div>
+
+            {/* Fila: OEE (gauge) + Tendencia OEE */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* OEE gauge */}
+              <div className="bg-gray-800 rounded-xl p-4 flex flex-col items-center justify-center">
+                <h2 className="text-sm font-semibold mb-2">OEE</h2>
+                <div className="w-40 h-40 relative">
+                  <Doughnut data={dataOeeGauge} />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-xl font-bold text-yellow-300">
+                      {overallOee.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tendencia OEE */}
+              <div className="bg-gray-800 rounded-xl p-4 lg:col-span-2">
+                <h2 className="text-sm font-semibold mb-2">Tendencia OEE</h2>
+                <Line data={dataLine} />
+              </div>
+            </div>
+
+            {/* Fila: Pareto + D/R/C */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Pareto por línea */}
+              <div className="bg-gray-800 rounded-xl p-4">
+                <h2 className="text-sm font-semibold mb-2">
+                  Pareto por Línea (OEE promedio)
+                </h2>
+                <Bar data={dataParetoLineas} />
+              </div>
+
+              {/* Factores D/R/C por fecha (ya lo tenías) */}
+              <div className="bg-gray-800 rounded-xl p-4">
+                <h2 className="text-sm font-semibold mb-2">
+                  Factores D/R/C por registro
+                </h2>
+                <Bar data={dataBar} />
+              </div>
+            </div>
+
+            {/* Grid de “máquinas” (líneas) con mini gauges */}
+            {resumenOrdenado.length > 0 && (
+              <div className="bg-gray-800 rounded-xl p-4">
+                <h2 className="text-sm font-semibold mb-3">
+                  OEE por Línea / Equipo
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {resumenOrdenado.map((linea) => (
+                    <div
+                      key={linea.nombre}
+                      className="bg-gray-900 rounded-lg p-2 flex flex-col items-center"
+                    >
+                      <span className="text-xs mb-1 truncate">
+                        {linea.nombre}
+                      </span>
+                      <div className="w-16 h-16 relative mb-1">
+                        <Doughnut
+                          data={{
+                            labels: [],
+                            datasets: [
+                              {
+                                data: [
+                                  linea.oee,
+                                  Math.max(0, 100 - linea.oee),
+                                ],
+                                backgroundColor: ["#22c55e", "#111827"],
+                                borderWidth: 0,
+                                cutout: "70%",
+                              },
+                            ],
+                          }}
+                          options={{
+                            plugins: { legend: { display: false } },
+                          }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <span className="text-xs font-semibold text-yellow-300">
+                            {linea.oee.toFixed(0)}%
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-gray-400">
+                        Disp {linea.disp.toFixed(0)}% · Rend{" "}
+                        {linea.rend.toFixed(0)}% · Cal{" "}
+                        {linea.cal.toFixed(0)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
       )}
 
-      {/* =========================================================
-          🔸 VISTA COMPARATIVA
-      ==========================================================*/}
+      {/* ================== VISTA COMPARATIVA ORIGINAL ================== */}
       {modoVista === "comparativo" && (
         <div className="mt-8">
           <div className="flex justify-center mb-4">
@@ -390,7 +564,3 @@ const formatearFechaHora = (iso) => {
     </div>
   );
 }
-
-
-
-
