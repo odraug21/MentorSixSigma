@@ -38,6 +38,8 @@ export default function OeeDashboard() {
   });
   const [modoVista, setModoVista] = useState("filtrado");
   const [modoComparativo, setModoComparativo] = useState("linea");
+  const [modoTiempo, setModoTiempo] = useState("fecha"); // "fecha" | "hora"
+
   const navigate = useNavigate();
 
   // ================== CARGA DE DATOS ==================
@@ -67,9 +69,11 @@ export default function OeeDashboard() {
   // ================== FILTROS ==================
   const filtrado = useMemo(() => {
     return historial.filter((h) => {
+      const fechaBase = h.fecha || h.created_at;
+      const fechaStr = typeof fechaBase === "string" ? fechaBase : "";
       const fechaOk =
-        (!filtros.desde || h.fecha >= filtros.desde) &&
-        (!filtros.hasta || h.fecha <= filtros.hasta);
+        (!filtros.desde || fechaStr >= filtros.desde) &&
+        (!filtros.hasta || fechaStr <= filtros.hasta);
       const lineaOk = !filtros.linea || h.linea === filtros.linea;
       const turnoOk = !filtros.turno || h.turno === filtros.turno;
       return fechaOk && lineaOk && turnoOk;
@@ -88,7 +92,7 @@ export default function OeeDashboard() {
   const avgOee = promedio(filtrado, "oee");
   const overallOee = Number(avgOee) || 0;
 
-  // ================== RESUMEN POR LÍNEA (para Pareto / gauges) ==================
+  // ================== RESUMEN POR LÍNEA ==================
   const resumenPorLinea = useMemo(() => {
     const mapa = {};
     filtrado.forEach((r) => {
@@ -106,12 +110,33 @@ export default function OeeDashboard() {
     }));
   }, [filtrado]);
 
-  // Orden tipo Pareto (de peor a mejor OEE)
   const resumenOrdenado = [...resumenPorLinea].sort((a, b) => a.oee - b.oee);
 
-  // ================== DATOS GRÁFICOS VISTA POWERBI ==================
-  const labelsFiltrado = filtrado.map((h) => h.fecha);
+  // ================== LABELS FECHA / HORA ==================
+  const labelsFiltrado = useMemo(() => {
+    return filtrado.map((h) => {
+      const base =
+        modoTiempo === "hora" ? h.created_at || h.fecha : h.fecha || h.created_at;
 
+      if (!base) return "";
+
+      const d = new Date(base);
+
+      if (modoTiempo === "hora") {
+        return d.toLocaleTimeString("es-CL", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      return d.toLocaleDateString("es-CL", {
+        day: "2-digit",
+        month: "2-digit",
+      });
+    });
+  }, [filtrado, modoTiempo]);
+
+  // ================== DATA GRÁFICOS ==================
   const dataBar = {
     labels: labelsFiltrado,
     datasets: [
@@ -146,7 +171,33 @@ export default function OeeDashboard() {
     ],
   };
 
-  // Donut OEE general
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: "#e5e7eb" },
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: "#9ca3af" },
+        grid: { color: "#374151" },
+      },
+      y: {
+        ticks: { color: "#9ca3af" },
+        grid: { color: "#374151" },
+      },
+    },
+  };
+
+  const gaugeOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    cutout: "70%",
+  };
+
   const dataOeeGauge = {
     labels: ["OEE", "Libre"],
     datasets: [
@@ -154,12 +205,10 @@ export default function OeeDashboard() {
         data: [overallOee, Math.max(0, 100 - overallOee)],
         backgroundColor: ["#22c55e", "#1f2937"],
         borderWidth: 0,
-        cutout: "70%",
       },
     ],
   };
 
-  // Pareto por línea (OEE promedio)
   const dataParetoLineas = {
     labels: resumenOrdenado.map((r) => r.nombre),
     datasets: [
@@ -171,7 +220,7 @@ export default function OeeDashboard() {
     ],
   };
 
-  // ================== VISTA COMPARATIVA (se mantiene igual) ==================
+  // ================== VISTA COMPARATIVA ==================
   const agrupados = useMemo(() => {
     const grupos = {};
     historial.forEach((h) => {
@@ -249,7 +298,7 @@ export default function OeeDashboard() {
                 modoVista === "filtrado" ? "bg-indigo-600" : "bg-gray-700"
               }`}
             >
-              Vista OEE (PowerBI)
+              Vista OEE
             </button>
             <button
               onClick={() => setModoVista("comparativo")}
@@ -274,7 +323,7 @@ export default function OeeDashboard() {
       {/* ================== VISTA POWERBI ================== */}
       {modoVista === "filtrado" && (
         <div className="grid grid-cols-12 gap-4">
-          {/* Sidebar de filtros (similar panel izquierdo PowerBI) */}
+          {/* Sidebar filtros */}
           <aside className="col-span-12 md:col-span-2 bg-gray-900/80 border border-gray-800 rounded-xl p-3 space-y-4">
             {/* Turno */}
             <div>
@@ -336,7 +385,7 @@ export default function OeeDashboard() {
               </div>
             </div>
 
-            {/* Rango fecha rápido */}
+            {/* Rango fecha */}
             <div>
               <h3 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
                 Rango de Fecha
@@ -374,11 +423,40 @@ export default function OeeDashboard() {
                 </button>
               </div>
             </div>
+
+            {/* Selector de eje X fecha/hora */}
+            <div>
+              <h3 className="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">
+                Eje X (gráficos)
+              </h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setModoTiempo("fecha")}
+                  className={`flex-1 py-1 text-xs rounded border ${
+                    modoTiempo === "fecha"
+                      ? "bg-indigo-600 border-indigo-400 text-white"
+                      : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                  }`}
+                >
+                  Fecha
+                </button>
+                <button
+                  onClick={() => setModoTiempo("hora")}
+                  className={`flex-1 py-1 text-xs rounded border ${
+                    modoTiempo === "hora"
+                      ? "bg-indigo-600 border-indigo-400 text-white"
+                      : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"
+                  }`}
+                >
+                  Hora
+                </button>
+              </div>
+            </div>
           </aside>
 
-          {/* Área principal (similar a la parte derecha del PowerBI) */}
+          {/* Área principal */}
           <main className="col-span-12 md:col-span-10 space-y-4">
-            {/* Faja superior con tarjetas resumen */}
+            {/* Tarjetas resumen */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="bg-gray-800 rounded-xl p-3">
                 <p className="text-xs text-gray-400">Disponibilidad</p>
@@ -408,15 +486,15 @@ export default function OeeDashboard() {
               </div>
             </div>
 
-            {/* Fila: OEE (gauge) + Tendencia OEE */}
+            {/* Fila: OEE gauge + Tendencia OEE (más compactos) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* OEE gauge */}
-              <div className="bg-gray-800 rounded-xl p-4 flex flex-col items-center justify-center">
+              <div className="bg-gray-800 rounded-xl p-4 flex flex-col items-center justify-center h-52">
                 <h2 className="text-sm font-semibold mb-2">OEE</h2>
-                <div className="w-40 h-40 relative">
-                  <Doughnut data={dataOeeGauge} />
+                <div className="w-28 h-28 relative">
+                  <Doughnut data={dataOeeGauge} options={gaugeOptions} />
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-xl font-bold text-yellow-300">
+                    <span className="text-lg font-bold text-yellow-300">
                       {overallOee.toFixed(1)}%
                     </span>
                   </div>
@@ -424,9 +502,11 @@ export default function OeeDashboard() {
               </div>
 
               {/* Tendencia OEE */}
-              <div className="bg-gray-800 rounded-xl p-4 lg:col-span-2">
+              <div className="bg-gray-800 rounded-xl p-4 lg:col-span-2 h-52">
                 <h2 className="text-sm font-semibold mb-2">Tendencia OEE</h2>
-                <Line data={dataLine} />
+                <div className="h-40">
+                  <Line data={dataLine} options={lineOptions} />
+                </div>
               </div>
             </div>
 
@@ -440,7 +520,7 @@ export default function OeeDashboard() {
                 <Bar data={dataParetoLineas} />
               </div>
 
-              {/* Factores D/R/C por fecha (ya lo tenías) */}
+              {/* Factores D/R/C por registro */}
               <div className="bg-gray-800 rounded-xl p-4">
                 <h2 className="text-sm font-semibold mb-2">
                   Factores D/R/C por registro
@@ -449,7 +529,7 @@ export default function OeeDashboard() {
               </div>
             </div>
 
-            {/* Grid de “máquinas” (líneas) con mini gauges */}
+            {/* Grid mini-gauges por línea */}
             {resumenOrdenado.length > 0 && (
               <div className="bg-gray-800 rounded-xl p-4">
                 <h2 className="text-sm font-semibold mb-3">
@@ -482,6 +562,7 @@ export default function OeeDashboard() {
                           }}
                           options={{
                             plugins: { legend: { display: false } },
+                            maintainAspectRatio: false,
                           }}
                         />
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -490,7 +571,7 @@ export default function OeeDashboard() {
                           </span>
                         </div>
                       </div>
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-gray-400 text-center">
                         Disp {linea.disp.toFixed(0)}% · Rend{" "}
                         {linea.rend.toFixed(0)}% · Cal{" "}
                         {linea.cal.toFixed(0)}%
@@ -504,7 +585,7 @@ export default function OeeDashboard() {
         </div>
       )}
 
-      {/* ================== VISTA COMPARATIVA ORIGINAL ================== */}
+      {/* ================== VISTA COMPARATIVA ================== */}
       {modoVista === "comparativo" && (
         <div className="mt-8">
           <div className="flex justify-center mb-4">

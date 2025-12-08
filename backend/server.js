@@ -25,13 +25,16 @@ import fiveSAuditoriaRoutes from "./routes/fiveSAuditoriaRoutes.js";
 
 import gembaRoutes from "./routes/gembaRoutes.js";
 
-import oeeRoutes from "./routes/oeeRoutes.js";   //
+import oeeRoutes from "./routes/oeeRoutes.js"; 
 
 import ooeRoutes from "./routes/ooeRoutes.js";
 
 import teepRoutes from "./routes/teepRoutes.js";
 
 import kaizenRoutes from "./routes/kaizenRoutes.js";
+
+import oeeParadasRoutes from "./routes/oeeParadasRoutes.js";
+
 
 
 
@@ -121,6 +124,10 @@ app.use("/api/ooe", ooeRoutes);
 app.use("/api/teep", teepRoutes); 
 
 app.use("/api/kaizen", kaizenRoutes);
+
+app.use("/oee/paradas", oeeParadasRoutes);
+
+
 
 
 // ======================================================

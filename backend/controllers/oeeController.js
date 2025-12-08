@@ -28,9 +28,11 @@ export const crearRegistroOee = async (req, res) => {
       unidadesBuenas,
       velocidadIdeal,
       observaciones = "",
-      // 💰 desde el front
       costoHora,
       costoUnitario,
+      // 🔸 nuevos campos desde el front
+      tipoFalla,
+      causaParada,
     } = req.body;
 
     // ==============================
@@ -108,7 +110,7 @@ export const crearRegistroOee = async (req, res) => {
     let costo_total_perdidas = 0;
 
     if (tieneCostos) {
-      // convertimos costo/hora → costo/minuto
+      // costo/hora → costo/minuto
       costo_minuto_parada = Number((costoHoraNum / 60).toFixed(4));
       costo_unitario = Number(costoUnitNum.toFixed(2));
 
@@ -155,21 +157,22 @@ export const crearRegistroOee = async (req, res) => {
         calidad,
         oee,
         observaciones,
-        -- 💰 campos de costos
         costo_minuto_parada,
         costo_unitario,
         costo_paradas,
         costo_scrap,
         costo_bajo_rend,
-        costo_total_perdidas
+        costo_total_perdidas,
+        tipo_falla,
+        causa_parada
       )
       VALUES (
         $1,$2,$3,$4,$5,
-        $6,$7,$8,
-        $9,$10,
+        $6,$7,$8,$9,$10,
         $11,$12,$13,$14,
         $15,
-        $16,$17,$18,$19,$20,$21
+        $16,$17,$18,$19,$20,$21,
+        $22,$23
       )
       RETURNING
         id,
@@ -192,7 +195,9 @@ export const crearRegistroOee = async (req, res) => {
         costo_scrap,
         costo_bajo_rend,
         costo_total_perdidas,
-        created_at
+        created_at,
+        tipo_falla                  AS "tipoFalla",
+        causa_parada                AS "causaParada"
       `,
       [
         empresaId,
@@ -216,6 +221,8 @@ export const crearRegistroOee = async (req, res) => {
         costo_scrap,
         costo_bajo_rend,
         costo_total_perdidas,
+        tipoFalla || null,
+        causaParada || null,
       ]
     );
 
@@ -293,10 +300,12 @@ export const listarRegistrosOee = async (req, res) => {
         costo_scrap,
         costo_bajo_rend,
         costo_total_perdidas,
-        created_at
+        created_at,
+        tipo_falla                  AS "tipoFalla",
+        causa_parada                AS "causaParada"
       FROM public.oee_registros
       ${where}
-      ORDER BY fecha ASC, linea ASC, turno ASC
+      ORDER BY fecha DESC, created_at DESC, id DESC
     `;
 
     if (limit) {
