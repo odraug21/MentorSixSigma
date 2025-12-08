@@ -13,9 +13,11 @@ export default function KpiDashboard() {
   const [data, setData] = useState({ oee: [], ooe: [], teep: [] });
   const [cargando, setCargando] = useState(true);
 
-  // 🔹 Estado para análisis Kaizen
-  const [kaizen, setKaizen] = useState([]);
-  const [kaizenCargando, setKaizenCargando] = useState(true);
+// 🔹 Estado para análisis Kaizen
+const [kaizen, setKaizen] = useState([]);
+const [kaizenCargando, setKaizenCargando] = useState(true);
+const [kaizenMetas, setKaizenMetas] = useState(null);
+const [kaizenResumenIA, setKaizenResumenIA] = useState("");
 
   // 🔹 Cargar datos de KPIs desde el backend
   useEffect(() => {
@@ -40,29 +42,41 @@ export default function KpiDashboard() {
     })();
   }, []);
 
-  // 🔹 Cargar análisis Kaizen (resumen por línea)
-  useEffect(() => {
-    const cargarKaizen = async () => {
-      try {
-        const resp = await apiGet("/kaizen/analisis");
+// 🔹 Cargar análisis Kaizen (resumen por línea)
+useEffect(() => {
+  const cargarKaizen = async () => {
+    try {
+      const resp = await apiGet("/kaizen/analisis?conIA=1");
 
-        if (resp?.ok && Array.isArray(resp.lineas)) {
-          setKaizen(resp.lineas);
-        } else if (Array.isArray(resp)) {
-          setKaizen(resp);
-        } else {
-          setKaizen([]);
-        }
-      } catch (err) {
-        console.error("❌ Error cargando análisis Kaizen:", err);
-        setKaizen([]);
-      } finally {
-        setKaizenCargando(false);
+      // Caso "completo" (lo mismo que usa KpiKaizen)
+      if (resp?.ok) {
+        setKaizen(resp.lineas || []);
+        setKaizenMetas(resp.metas || null);
+        setKaizenResumenIA(resp.resumen_ia || "");
       }
-    };
+      // Caso legacy: el backend devuelve directamente un array
+      else if (Array.isArray(resp)) {
+        setKaizen(resp);
+        setKaizenMetas(null);
+        setKaizenResumenIA("");
+      } else {
+        setKaizen([]);
+        setKaizenMetas(null);
+        setKaizenResumenIA("");
+      }
+    } catch (err) {
+      console.error("❌ Error cargando análisis Kaizen:", err);
+      setKaizen([]);
+      setKaizenMetas(null);
+      setKaizenResumenIA("");
+    } finally {
+      setKaizenCargando(false);
+    }
+  };
 
-    cargarKaizen();
-  }, []);
+  cargarKaizen();
+}, []);
+
 
   // 🔹 Filtro por mes / año (para los KPIs de arriba)
   const filtrarDatos = (arr) => {
@@ -341,11 +355,34 @@ export default function KpiDashboard() {
           {/* Gráfico comparativo (mensual o diario según filtro) */}
           <KpiCharts data={chartData} />
 
-          {/* 🟩 --- SECCIÓN: Análisis Kaizen --- */}
+          {/* 🟩 --- SECCIÓN: Análisis Kaizen (embebido) --- */}
           <div className="bg-gray-800 p-6 rounded-xl shadow-lg mt-10 max-w-6xl mx-auto">
             <h2 className="text-2xl font-bold text-green-400 mb-4 text-center">
               ♻️ Análisis Kaizen por Línea
             </h2>
+
+            {/* Metas de referencia */}
+            {kaizenMetas && (
+              <div className="mb-4 text-sm text-gray-300">
+                <p className="mb-1 text-center">
+                  🎯 <span className="font-semibold">Metas de referencia:</span>{" "}
+                  OEE ≥ {kaizenMetas.oee}% | Disp ≥ {kaizenMetas.disp}% | Rend ≥{" "}
+                  {kaizenMetas.rend}% | Cal ≥ {kaizenMetas.cal}%
+                </p>
+              </div>
+            )}
+
+            {/* Resumen IA global */}
+            {kaizenResumenIA && (
+              <div className="mb-6 bg-gray-900 border border-green-500/50 rounded-xl p-4 text-sm">
+                <h3 className="text-green-400 font-semibold mb-2 text-center">
+                  🤖 Resumen estratégico IA
+                </h3>
+                <p className="text-gray-200 whitespace-pre-line text-center">
+                  {kaizenResumenIA}
+                </p>
+              </div>
+            )}
 
             {kaizenCargando && (
               <p className="text-center text-gray-400">
@@ -368,12 +405,17 @@ export default function KpiDashboard() {
                   <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
                     <h3 className="text-xl font-semibold text-indigo-300">
                       🏭 Línea {l.linea}
+                      {l.turno && (
+                        <span className="ml-2 text-sm text-gray-300">
+                          | Turno {l.turno}
+                        </span>
+                      )}
                     </h3>
 
                     <div className="text-sm flex gap-4 flex-wrap">
                       <span>
                         OEE:{" "}
-                          <span className="font-bold text-yellow-300">
+                        <span className="font-bold text-yellow-300">
                           {Number(l.oee || 0).toFixed(2)}%
                         </span>
                       </span>
@@ -395,7 +437,9 @@ export default function KpiDashboard() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  {/* Igual que en KpiKaizen: 3 columnas -> Problemas, Sugerencias reglas, Sugerencias IA */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    {/* Problemas */}
                     <div>
                       <h4 className="font-semibold text-red-300 mb-1">
                         🚨 Problemas detectados
@@ -415,9 +459,10 @@ export default function KpiDashboard() {
                       )}
                     </div>
 
+                    {/* Sugerencias por reglas */}
                     <div>
                       <h4 className="font-semibold text-green-300 mb-1">
-                        💡 Sugerencias Kaizen
+                        💡 Sugerencias Kaizen (reglas)
                       </h4>
                       {Array.isArray(l.sugerencias) &&
                       l.sugerencias.length > 0 ? (
@@ -430,7 +475,33 @@ export default function KpiDashboard() {
                         </ul>
                       ) : (
                         <p className="text-gray-400">
-                          Aún no hay sugerencias generadas.
+                          Aún no hay sugerencias generadas por reglas.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Sugerencias IA */}
+                    <div>
+                      <h4 className="font-semibold text-emerald-300 mb-1">
+                        🤖 Sugerencias Kaizen IA
+                      </h4>
+                      {Array.isArray(l.sugerencias_ia) &&
+                      l.sugerencias_ia.length > 0 ? (
+                        <ul className="list-disc pl-5 space-y-1">
+                          {l.sugerencias_ia.map((s, i) => (
+                            <li key={i} className="text-gray-300">
+                              {s}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : l.resumen_ia ? (
+                        <p className="text-gray-200 whitespace-pre-line">
+                          {l.resumen_ia}
+                        </p>
+                      ) : (
+                        <p className="text-gray-400">
+                          Aún no hay sugerencias generadas por IA para esta
+                          línea/turno.
                         </p>
                       )}
                     </div>
@@ -439,6 +510,7 @@ export default function KpiDashboard() {
               ))}
             </div>
           </div>
+
         </>
       )}
     </div>

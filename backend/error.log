@@ -31,3 +31,651 @@ Stack: Error: 429 You exceeded your current quota, please check your plan and bi
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/ia.js:40:26
 ------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:26 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:26 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:27 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:27 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:28 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:28 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:29 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:29 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:30 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarResumenGlobalIA (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:88:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:268:21)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:30 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:31 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:31 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:32 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:32 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:33 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:33 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:34 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 7:51:34 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+Stack: Error: [403 Forbidden] Your API key was reported as leaked. Please use another API key.
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:28:20)
+    at async generarResumenGlobalIA (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:88:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:268:21)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:52 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:52 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:53 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:54 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:54 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:55 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:56 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:56 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:56 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarResumenGlobalIA (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:88:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:268:21)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:57 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:57 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:58 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:58 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:58 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:58 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:59 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:03:59 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:04:00 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarResumenGlobalIA (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:88:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:268:21)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:16 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:16 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:17 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:17 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:18 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:18 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:19 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:19 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:19 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarResumenGlobalIA (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:88:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:268:21)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:20 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:20 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:21 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:21 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:22 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:22 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:22 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:23 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarSugerenciasIAParaLinea (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:54:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:252:33)
+------------------------
+
+❌ ERROR GEMINI (08-12-2025, 8:07:23 p. m.):
+Nombre: Error
+Mensaje: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+Stack: Error: [400 Bad Request] API key expired. Please renew the API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key expired. Please renew the API key."}]
+    at _makeRequestInternal (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:301:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async generateContent (file:///C:/1OdraugSmartLogistics/a3mentor/backend/node_modules/@google/generative-ai/dist/index.mjs:690:22)
+    at async generarConGemini (file:///C:/1OdraugSmartLogistics/a3mentor/backend/api/geminiIA.js:33:20)
+    at async generarResumenGlobalIA (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:88:17)
+    at async obtenerAnalisisKaizen (file:///C:/1OdraugSmartLogistics/a3mentor/backend/controllers/kaizenController.js:268:21)
+------------------------
