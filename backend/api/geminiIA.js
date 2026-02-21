@@ -1,78 +1,95 @@
 // backend/api/geminiIA.js
-import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
 
-const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+// 🧩 Cargar .env DEL BACKEND siempre, sin depender del server.js
+dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-// Flag para no insistir si la key está mala
-let geminiDisponible = true;
+// 👇 Asegúrate de tener GEMINI_API_KEY en backend/.env
+const apiKey = process.env.GEMINI_API_KEY;
 
-export async function generarConGemini(prompt) {
-  try {
-    if (!geminiDisponible) {
-      console.warn("⚠️ Gemini deshabilitado (API key inválida/expirada).");
-      return "";
-    }
+// DEBUG SEGURO (solo primeras letras, sin exponerla completa)
+console.log("🔐 GEMINI_API_KEY (parcial):", apiKey ? apiKey.slice(0, 8) + "..." : "NO DEFINIDA");
 
-    console.log("📩 Prompt Gemini:", prompt);
-
-    if (!prompt) throw new Error("Falta el prompt para Gemini");
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("❌ No se encontró GEMINI_API_KEY");
-      throw new Error("Falta la clave de Gemini");
-    }
-
-    console.log("🚀 Enviando solicitud a Gemini 2.5 Flash...");
-    const result = await model.generateContent(prompt);
-    const texto = result.response.text() || "Sin respuesta generada.";
-
-    console.log("✅ Respuesta Gemini:", texto);
-    return texto;
-  } catch (error) {
-    const msg = `${error.message || error}`;
-
-    // 👇 Aquí detectamos la key mala/expirada y apagamos Gemini
-    if (
-      msg.includes("API key expired") ||
-      msg.includes("API_KEY_INVALID")
-    ) {
-      geminiDisponible = false;
-      console.error("⛔ Gemini deshabilitado: API key expirada o inválida.");
-    }
-
-    const errorInfo = `
-❌ ERROR GEMINI (${new Date().toLocaleString()}):
-Nombre: ${error.name}
-Mensaje: ${error.message}
-Stack: ${error.stack}
-------------------------
-`;
-    fs.appendFileSync("./error.log", errorInfo);
-    console.error("⚠️ Error guardado en backend/error.log");
-
-    // Devolvemos vacío para que el controlador haga fallback
-    return "";
-  }
+if (!apiKey) {
+  console.warn(
+    "⚠️ GEMINI_API_KEY no está definida en backend/.env. La IA no podrá responder."
+  );
 }
 
-router.post("/", async (req, res) => {
+let model = null;
+if (apiKey) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+}
+
+/**
+ * Helper genérico para llamar a Gemini
+ * @param {Object} opts
+ * @param {string} opts.prompt  Texto a enviar
+ * @param {string} [opts.engine="gemini"]
+ * @param {string} [opts.contexto=""]  Etiqueta para logs
+ */
+export async function generarConGemini({
+  prompt,
+  engine = "gemini",
+  contexto = "",
+} = {}) {
+  console.log("📩 Prompt Gemini:", { prompt, engine, contexto });
+
+  if (!apiKey || !model) {
+    const msg =
+      "⚠️ GEMINI_API_KEY no está configurada. Define la variable en backend/.env.";
+    console.error(msg);
+    return msg;
+  }
+
   try {
-    const { prompt } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: "Falta el campo 'prompt'." });
+    const textPrompt =
+      typeof prompt === "string" ? prompt : JSON.stringify(prompt, null, 2);
+
+    console.log("🚀 Enviando solicitud a Gemini 2.5 Flash...");
+
+    const result = await model.generateContent(textPrompt);
+    const response = result?.response;
+
+    let text = "";
+    if (response?.text) {
+      text = response.text();
+    } else if (response?.candidates?.length) {
+      text = response.candidates
+        .flatMap((c) => c.content?.parts || [])
+        .map((p) => p.text || "")
+        .join("");
     }
 
-    const texto = await generarConGemini(prompt);
-    res.json({ sugerencia: texto });
+    return text || "La IA no devolvió contenido.";
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error al generar sugerencia con Gemini" });
-  }
-});
+    const logEntry =
+      `❌ ERROR GEMINI (${new Date().toLocaleString()}):\n` +
+      `Nombre: ${error.name || "Error"}\n` +
+      `Mensaje: ${error.message || error}\n` +
+      `Stack: ${error.stack || "sin stack"}\n` +
+      "------------------------\n";
 
-export default router;
+    const logPath = path.join(__dirname, "..", "error.log");
+    try {
+      fs.appendFileSync(logPath, logEntry, "utf8");
+      console.log("⚠️ Error guardado en backend/error.log");
+    } catch (fsErr) {
+      console.error("⚠️ No se pudo escribir en error.log:", fsErr);
+    }
+
+    return (
+      "⚠️ No se pudo generar el análisis automático con IA.\n" +
+      "Detalle técnico: " +
+      (error.message || "Error desconocido en Gemini. Revisa backend/error.log.")
+    );
+  }
+}

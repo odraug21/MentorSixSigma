@@ -6,20 +6,53 @@ import { requireRole } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Obtener todos los módulos (cualquier autenticado)
-router.get("/", verifyToken, async (_req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT id, nombre, tipo, categoria, descripcion, ruta, activo, fecha_creacion
-      FROM modulos
-      ORDER BY id ASC
-    `);
-    res.json(result.rows);
-  } catch (err) {
-    console.error("❌ Error al obtener módulos:", err);
-    res.status(500).json({ message: "Error al obtener módulos" });
+// ✅ Obtener módulos permitidos por usuario logueado (vía roles_modulos)
+router.get(
+  "/roles-modulos/permitidos/usuario",
+  verifyToken,
+  async (req, res) => {
+    try {
+      const { rol } = req.user; // viene del token
+
+      if (!rol) {
+        return res
+          .status(400)
+          .json({ message: "Rol no identificado en el token." });
+      }
+
+      console.log("🔍 Solicitando módulos permitidos para rol:", rol);
+
+      const result = await pool.query(
+        `
+        SELECT 
+          m.id,
+          m.nombre,
+          m.tipo,
+          m.categoria,
+          m.ruta
+        FROM roles_modulos rm
+        JOIN roles   r ON r.id = rm.rol_id
+        JOIN modulos m ON m.id = rm.modulo_id
+        WHERE r.nombre = $1
+          AND m.activo = TRUE
+          AND rm.activo = TRUE
+        ORDER BY m.id;
+        `,
+        [rol]
+      );
+
+      console.log("✅ Módulos permitidos:", result.rows);
+      res.json(result.rows);
+    } catch (err) {
+      console.error("❌ Error al obtener módulos permitidos:", err);
+      res
+        .status(500)
+        .json({ message: "Error al obtener módulos permitidos" });
+    }
   }
-});
+);
+
+
 
 // Crear módulo (Solo SuperAdmin)
 router.post("/", verifyToken, requireRole(["SuperAdmin"]), async (req, res) => {

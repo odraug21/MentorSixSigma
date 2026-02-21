@@ -16,7 +16,9 @@ import debugRoutes from "./routes/debugRoutes.js";
 import contactoRoutes from "./routes/contactoRoutes.js";
 import consultasRoutes from "./routes/consultasRoutes.js";
 import a3Routes from "./routes/a3Routes.js";
-import geminiIA from "./api/geminiIA.js";
+// ❌ ESTA LÍNEA YA NO VA
+// import geminiIA from "./api/geminiIA.js";
+
 import fiveSRoutes from "./routes/fiveSRoutes.js";
 import fiveSTareasRoutes from "./routes/fiveSTareasRoutes.js";
 import fiveSSubtareasRoutes from "./routes/fiveSSubtareasRoutes.js";
@@ -24,29 +26,28 @@ import fiveSEvidenciasRoutes from "./routes/fiveSEvidenciasRoutes.js";
 import fiveSAuditoriaRoutes from "./routes/fiveSAuditoriaRoutes.js";
 
 import gembaRoutes from "./routes/gembaRoutes.js";
-
-import oeeRoutes from "./routes/oeeRoutes.js"; 
-
+import oeeRoutes from "./routes/oeeRoutes.js";
 import ooeRoutes from "./routes/ooeRoutes.js";
-
 import teepRoutes from "./routes/teepRoutes.js";
-
 import kaizenRoutes from "./routes/kaizenRoutes.js";
-
 import oeeParadasRoutes from "./routes/oeeParadasRoutes.js";
+import vsmRoutes from "./routes/vsmRoutes.js";
+import sipocRoutes from "./routes/sipocRoutes.js";
+
+import drpRoutes from "./routes/drpRoutes.js";
 
 
 
+// ⭐ IMPORTS NECESARIOS PARA __dirname Y .env
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
-// 👇 Agrega esta línea solo para diagnóstico
-console.log(
-  "🔐 GEMINI_API_KEY cargada (primeros 6 chars):",
-  process.env.GEMINI_API_KEY
-    ? process.env.GEMINI_API_KEY.slice(0, 6) + "... (oculta)"
-    : "NO DEFINIDA"
-);
+// ESM: reconstruimos __filename y __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// 👉 Carga SIEMPRE backend/.env
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
@@ -75,7 +76,6 @@ app.use((req, res, next) => {
   );
 
   if (req.method === "OPTIONS") {
-    // Preflight: respondemos sin llegar a las rutas
     return res.sendStatus(204);
   }
 
@@ -85,12 +85,9 @@ app.use((req, res, next) => {
 // ======================================================
 // Middlewares generales
 // ======================================================
-
-// 🔧 Body parsers con límite ampliado (para evidencias base64)
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 
-// Logging simple
 app.use((req, _res, next) => {
   console.log(`📡 ${req.method} ${req.url}`);
   next();
@@ -99,7 +96,6 @@ app.use((req, _res, next) => {
 // ======================================================
 // Rutas
 // ======================================================
-
 app.get("/", (_req, res) =>
   res.json({ message: "Servidor MentorSuites activo 🚀" })
 );
@@ -124,22 +120,18 @@ app.use("/api/5s", fiveSRoutes);
 app.use("/api/5s/auditoria", fiveSAuditoriaRoutes);
 
 app.use("/api/gemba", gembaRoutes);
-
-app.use("/api/oee", oeeRoutes);   
-
+app.use("/api/oee", oeeRoutes);
 app.use("/api/ooe", ooeRoutes);
-
-app.use("/api/teep", teepRoutes); 
-
+app.use("/api/teep", teepRoutes);
 app.use("/api/kaizen", kaizenRoutes);
-
 app.use("/oee/paradas", oeeParadasRoutes);
+app.use("/api/vsm", vsmRoutes);
+app.use("/api/sipoc", sipocRoutes);
 
-
-
+app.use("/api/drp", drpRoutes);
 
 // ======================================================
-// HEALTH CHECK (debe ir antes del 404)
+// HEALTH CHECK
 // ======================================================
 app.get("/api/health", (req, res) => {
   res.json({
@@ -150,17 +142,14 @@ app.get("/api/health", (req, res) => {
 });
 
 // ======================================================
-// 404 - NO ENCONTRADA (siempre la última)
+// 404
 // ======================================================
 app.use("*", (req, res) => {
   res.status(404).json({ message: "Ruta no encontrada" });
 });
 
-// ⛔ ATENCIÓN: Vercel NO permite app.listen()
-// Por eso lo exportamos:
 export default app;
 
-// ✔ PERMITIMOS app.listen SOLO EN LOCAL / RENDER
 if (process.env.VERCEL !== "1") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () =>
