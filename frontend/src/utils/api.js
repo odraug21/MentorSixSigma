@@ -28,7 +28,7 @@ function getAuthHeaders() {
 }
 
 // --------------------------------------------
-// 🚀 Métodos JSON (GET / POST / PATCH / DELETE)
+// 🚀 Métodos JSON (GET / POST / PATCH / PUT / DELETE)
 // --------------------------------------------
 export async function apiGet(path, auth = true) {
   const res = await axios.get(`${BASE_URL}${path}`, {
@@ -49,6 +49,17 @@ export async function apiPost(path, body = {}, auth = true) {
 
 export async function apiPatch(path, body = {}, auth = true) {
   const res = await axios.patch(`${BASE_URL}${path}`, body, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(auth ? getAuthHeaders() : {}),
+    },
+  });
+  return res.data;
+}
+
+// 🔹 NUEVO: PUT genérico
+export async function apiPut(path, body = {}, auth = true) {
+  const res = await axios.put(`${BASE_URL}${path}`, body, {
     headers: {
       "Content-Type": "application/json",
       ...(auth ? getAuthHeaders() : {}),

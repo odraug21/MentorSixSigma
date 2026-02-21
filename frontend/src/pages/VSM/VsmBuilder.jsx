@@ -5,26 +5,69 @@ import jsPDF from "jspdf";
 import { VSM_SYMBOLS } from "../../constants/vsmSymbols";
 import { useNavigate } from "react-router-dom";
 import { Rnd } from "react-rnd";
+import { apiGet, apiPut } from "../../utils/api";
 
 export default function VsmBuilder() {
   const navigate = useNavigate();
+
   const [elements, setElements] = useState([]);
   const [connecting, setConnecting] = useState(null);
   const [connections, setConnections] = useState([]);
   const [flowType, setFlowType] = useState("push");
+  const [mapaId, setMapaId] = useState(null);
+
   const canvasRef = useRef();
 
-  // === Cargar desde localStorage ===
+  // ==============================
+  // 🟢 Cargar mapa VSM desde backend
+  // ==============================
   useEffect(() => {
-    const saved = localStorage.getItem("vsmLayout");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setElements(parsed.elements || []);
-      setConnections(parsed.connections || []);
-    }
+    const cargar = async () => {
+      try {
+        const resp = await apiGet("/vsm/mapa"); // GET /api/vsm/mapa
+
+        if (resp?.ok && resp.mapa) {
+          setMapaId(resp.mapa.id);
+
+          if (resp.mapa.layout) {
+            const layout = resp.mapa.layout;
+            setElements(layout.elements || []);
+            setConnections(layout.connections || []);
+          } else {
+            // fallback a borrador local anterior
+            const saved = localStorage.getItem("vsmLayout");
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              setElements(parsed.elements || []);
+              setConnections(parsed.connections || []);
+            }
+          }
+        } else {
+          // si no viene mapa desde backend → usar localStorage si existe
+          const saved = localStorage.getItem("vsmLayout");
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            setElements(parsed.elements || []);
+            setConnections(parsed.connections || []);
+          }
+        }
+      } catch (err) {
+        console.error("❌ Error cargando layout VSM:", err);
+        const saved = localStorage.getItem("vsmLayout");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setElements(parsed.elements || []);
+          setConnections(parsed.connections || []);
+        }
+      }
+    };
+
+    cargar();
   }, []);
 
-  // === Guardar automáticamente ===
+  // =================================
+  // 💾 Guardar borrador en localStorage
+  // =================================
   useEffect(() => {
     localStorage.setItem(
       "vsmLayout",
@@ -32,38 +75,57 @@ export default function VsmBuilder() {
     );
   }, [elements, connections]);
 
-  // === Agregar símbolo ===
-  const addElement = (symbol) => {
-    setElements([
-      ...elements,
-      { ...symbol, id: Date.now(), x: 100, y: 100, type: "symbol" },
-    ]);
+  // =================================
+  // 💾 Guardar layout en backend
+  // PUT /api/vsm/mapa/:id/layout
+  // =================================
+  const guardarLayout = async () => {
+    try {
+      if (!mapaId) {
+        alert(
+          "⚠️ No se encontró ID de mapa VSM. Abre primero el módulo VSM (tabla) para crear uno."
+        );
+        return;
+      }
+
+      const payload = { elements, connections };
+      const resp = await apiPut(`/vsm/mapa/${mapaId}/layout`, payload);
+
+      if (resp?.ok) {
+        alert("✅ Layout VSM guardado correctamente en la base de datos.");
+      } else {
+        console.error("⚠️ Respuesta al guardar layout:", resp);
+        alert("⚠️ No se pudo guardar el layout VSM (revisa consola).");
+      }
+    } catch (err) {
+      console.error("❌ Error guardando layout VSM:", err);
+      alert("❌ Error al guardar layout VSM.");
+    }
   };
 
-  // === Agregar texto libre ===
-  const addTextBlock = () => {
-    setElements([
-      ...elements,
+  // ==============================
+  // ➕ Agregar elementos
+  // ==============================
+  const addElement = (symbol) => {
+    setElements((prev) => [
+      ...prev,
       {
+        ...symbol,
         id: Date.now(),
-        type: "process-box",
-        title: "Proceso",
-        content: "",
-        x: 200,
-        y: 200,
-        width: 150,
-        height: 120,
+        x: 100,
+        y: 100,
+        type: "symbol",
       },
     ]);
   };
 
-  // === Agregar bloque de proceso (editable en canvas) ===
   const addProcessBox = () => {
-    setElements([
-      ...elements,
+    setElements((prev) => [
+      ...prev,
       {
         id: Date.now(),
         type: "process-box",
+        title: "Proceso",
         content: "C/T=\nC/O=\nTiempo=\nTurnos=\nDisponible=",
         x: 200,
         y: 200,
@@ -73,33 +135,44 @@ export default function VsmBuilder() {
     ]);
   };
 
-  // === Conexión entre símbolos ===
+  const addTextBlock = () => {
+    setElements((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        type: "text",
+        text: "Texto",
+        x: 200,
+        y: 200,
+        width: 120,
+        height: 60,
+      },
+    ]);
+  };
+
+  // ==============================
+  // 🔗 Conexiones entre símbolos
+  // ==============================
   const startConnection = (fromId) => {
     if (connecting === fromId) {
+      // si clickeas de nuevo el mismo, cancelas
       setConnecting(null);
     } else if (connecting) {
+      // ya había uno seleccionado → crear conexión
       setConnections((prev) => [
         ...prev,
         { from: connecting, to: fromId, type: flowType },
       ]);
       setConnecting(null);
     } else {
+      // comenzamos una nueva conexión
       setConnecting(fromId);
     }
   };
 
-  // === Exportar PDF ===
-  const exportPDF = async () => {
-    const canvas = await html2canvas(canvasRef.current);
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("l", "mm", "a4");
-    const width = pdf.internal.pageSize.getWidth();
-    const height = (canvas.height * width) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, width, height);
-    pdf.save("VSM_Mapa.pdf");
-  };
-
-  // === Limpiar ===
+  // ==============================
+  // 🧽 Limpiar mapa
+  // ==============================
   const clearAll = () => {
     if (window.confirm("¿Borrar el mapa completo?")) {
       setElements([]);
@@ -108,7 +181,9 @@ export default function VsmBuilder() {
     }
   };
 
-  // === Editar texto directamente en canvas ===
+  // ==============================
+  // 📝 Editar texto de bloques
+  // ==============================
   const handleTextChange = (id, field, value) => {
     setElements((prev) =>
       prev.map((item) =>
@@ -117,6 +192,25 @@ export default function VsmBuilder() {
     );
   };
 
+  // ==============================
+  // 📄 Exportar a PDF
+  // ==============================
+  const exportPDF = async () => {
+    if (!canvasRef.current) return;
+
+    const canvas = await html2canvas(canvasRef.current);
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("l", "mm", "a4");
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, width, height);
+    pdf.save("VSM_Mapa.pdf");
+  };
+
+  // ==============================
+  // 🎨 Render
+  // ==============================
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col p-4">
       {/* 🔹 Barra superior */}
@@ -155,17 +249,26 @@ export default function VsmBuilder() {
         </select>
 
         <button
+          onClick={guardarLayout}
+          className="ml-auto bg-indigo-600 hover:bg-indigo-700 px-3 py-2 rounded"
+        >
+          Guardar mapa
+        </button>
+
+        <button
           onClick={exportPDF}
-          className="ml-auto bg-green-600 hover:bg-green-700 px-3 py-2 rounded"
+          className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded"
         >
           Exportar PDF
         </button>
+
         <button
           onClick={clearAll}
           className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded"
         >
           Limpiar
         </button>
+
         <button
           onClick={() => navigate("/vsm/vsm")}
           className="bg-indigo-700 hover:bg-indigo-800 px-3 py-2 rounded"
@@ -180,13 +283,13 @@ export default function VsmBuilder() {
         className="relative flex-1 bg-gray-800 border border-gray-700 rounded-lg overflow-hidden"
       >
         {/* Zonas de referencia */}
-        <div className="absolute top-0 h-[20%] w-full bg-green-200/100 border-b border-gray-700 flex items-center justify-center text-xs text-gray-400">
+        <div className="absolute top-0 h-[20%] w-full bg-green-200/100 border-b border-gray-700 flex items-center justify-center text-xs text-gray-800 font-semibold">
           Flujo de información
         </div>
-        <div className="absolute top-[20%] h-[60%] w-full bg-blue-200/100 border-b border-gray-700 flex items-center justify-center text-xs text-gray-400">
+        <div className="absolute top-[20%] h-[60%] w-full bg-blue-200/100 border-b border-gray-700 flex items-center justify-center text-xs text-gray-800 font-semibold">
           Flujo de materiales
         </div>
-        <div className="absolute bottom-0 h-[20%] w-full bg-yellow-200/100 flex items-center justify-center text-xs text-gray-400">
+        <div className="absolute bottom-0 h-[20%] w-full bg-yellow-200/100 flex items-center justify-center text-xs text-gray-800 font-semibold">
           Plazos de entrega
         </div>
 
@@ -196,11 +299,13 @@ export default function VsmBuilder() {
             const from = elements.find((e) => e.id === c.from);
             const to = elements.find((e) => e.id === c.to);
             if (!from || !to) return null;
+
             const color = c.type === "push" ? "#ef4444" : "#22c55e";
             const x1 = from.x + 60;
             const y1 = from.y + 40;
             const x2 = to.x + 60;
             const y2 = to.y + 40;
+
             return (
               <line
                 key={i}

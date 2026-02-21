@@ -39,15 +39,16 @@ export default function Modulos() {
   const guardarModulo = async (e) => {
     e.preventDefault();
     try {
-      if (editando) {
-        await axios.put(`${API_BASE}/api/modulos/${editando.id}`, form, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      } else {
-        await axios.post(`${API_BASE}/modulos`, form, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
+    if (editando) {
+      await axios.put(`${API_BASE}/api/modulos/${editando.id}`, form, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } else {
+      await axios.post(`${API_BASE}/api/modulos`, form, {  // ✅ corregido
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    }
+
 
       alert("✅ Módulo guardado correctamente");
       setForm({

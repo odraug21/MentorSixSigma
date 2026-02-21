@@ -66,9 +66,12 @@ import Vsm from "./pages/VSM/Vsm.jsx";
 // ============================================
 // 🔗 SIPOC
 // ============================================
-import SipocIntro from "./pages/SIPOC/SipocIntro.jsx";
-import SipocBuilder from "./pages/SIPOC/SipocBuilder.jsx";
-import SipocResumen from "./pages/SIPOC/SipocResumen.jsx";
+import SipocIntro from "./pages/SIPOC/SipocIntro";
+import SipocList from "./pages/SIPOC/SipocList";
+import SipocBuilder from "./pages/SIPOC/SipocBuilder";
+import SipocResumen from "./pages/SIPOC/SipocResumen"
+
+
 
 // ============================================
 // 📊 KPI
@@ -95,6 +98,21 @@ import TeepDashboard from "./pages/TEEP/TeepDashboard.jsx";
 // 👥 LEADS / CONTACTOS
 // ============================================
 import Leads from "./pages/Leads.jsx";
+
+
+// ============================================
+// DRP
+// ============================================
+import DrpIntro from "./pages/DRP/DrpIntro.jsx";
+import DrpProyectos from "./pages/DRP/DrpProyectos.jsx";
+import DrpEscenarios from "./pages/DRP/DrpEscenarios.jsx";
+import DrpDemanda from "./pages/DRP/DrpDemanda.jsx";
+import DrpCapacidad from "./pages/DRP/DrpCapacidad.jsx";
+import DrpDashboard from "./pages/DRP/DrpDashboard.jsx";
+import DrpPlan from "./pages/DRP/DrpPlan.jsx";
+import DrpControlTower from "./pages/DRP/DrpControlTower.jsx";
+
+
 
 // ============================================
 // 🚀 APP ROUTES
@@ -154,16 +172,19 @@ export default function App() {
         {/* VSM */}
         <Route path="/vsm/intro" element={<VsmIntro />} />
         <Route path="/vsm/builder" element={<VsmBuilder />} />
-        <Route path="/vsm/visual" element={<Vsm />} />
+        <Route path="/vsm/vsm" element={<Vsm />} />
 
         {/* SIPOC */}
-        <Route path="/sipoc/intro" element={<SipocIntro />} />
-        <Route path="/sipoc/builder" element={<SipocBuilder />} />
-        <Route path="/sipoc/resumen" element={<SipocResumen />} />
+        <Route path="/sipoc/intro" element={<SipocIntro /> } />
+        <Route path="/sipoc/lista" element={<SipocList /> } />
+        <Route path="/sipoc/builder" element={<SipocBuilder />}/>
+        <Route path="/sipoc/builder/:id" element={<SipocBuilder />}/>
+        <Route path="/sipoc/resumen/:id" element={<SipocResumen /> }/>
+
 
         {/* KPI */}
         <Route path="/kpi/dashboard" element={<KpiDashboard />} />
-        <Route path="/kpi/kaizen" element={<KpiKaizen />} />
+        <Route path="/kpi/aizen" element={<KpiKaizen />} />
 
 
         {/* OEE / OOE / TEEP */}
@@ -179,6 +200,18 @@ export default function App() {
         <Route path="/teep/intro" element={<TeepIntro />} />
         <Route path="/teep/builder" element={<TeepBuilder />} />
         <Route path="/teep/dashboard" element={<TeepDashboard />} />
+
+
+        {/* DRP */}
+        <Route path="/drp/intro" element={<DrpIntro />} />
+        <Route path="/drp/proyectos" element={<DrpProyectos />} />
+        <Route path="/drp/escenarios" element={<DrpEscenarios />} />
+        <Route path="/drp/demanda" element={<DrpDemanda />} />
+        <Route path="/drp/capacidad" element={<DrpCapacidad />}/>
+        <Route path="/drp/dashboard" element={<DrpDashboard />} />
+        <Route path="/drp/plan" element={<DrpPlan />} />
+        <Route path="/drp/control-tower" element={<DrpControlTower />} />
+
 
         {/* Leads */}
         <Route path="/leads" element={<Leads />} />

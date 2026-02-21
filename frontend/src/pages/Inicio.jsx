@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from '../config/env';
+import { API_BASE } from "../config/env";
 
 // tus imágenes
 import logosixsigma from "../img/logosixsigma.png";
@@ -17,6 +17,15 @@ export default function Inicio() {
   const [modulosPermitidos, setModulosPermitidos] = useState([]);
   const token = localStorage.getItem("token");
 
+  // 🔹 helper para comparar nombres de forma robusta
+  const normalizar = (str) =>
+    (str || "")
+      .toString()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // quita tildes
+      .trim()
+      .toLowerCase();
+
   // 🔹 Cargar módulos permitidos según el rol
   useEffect(() => {
     const cargarModulos = async () => {
@@ -27,12 +36,15 @@ export default function Inicio() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setModulosPermitidos(res.data);
+
+        console.log("📦 Módulos permitidos desde backend:", res.data);
+        setModulosPermitidos(res.data || []);
       } catch (err) {
         console.error("❌ Error cargando módulos permitidos:", err);
+        setModulosPermitidos([]);
       }
     };
-    cargarModulos();
+    if (token) cargarModulos();
   }, [token]);
 
   // 🔹 Lista completa de opciones (solo frontend)
@@ -46,12 +58,26 @@ export default function Inicio() {
     { nombre: "KPI", title: "💡 Panel LEAN", path: "/kpi/dashboard", color: "bg-pink-600", img: logolean },
     { nombre: "VSM", title: "📊 VSM", path: "/vsm/intro", color: "bg-orange-600", img: logovsm },
     { nombre: "SIPOC", title: "🔗 SIPOC", path: "/sipoc/intro", color: "bg-red-600", img: logosipoc },
+    { nombre: "DRP", title: "📦 DRP – Plan Logístico", path: "/drp/intro", color: "bg-cyan-600", img: logolean },
   ];
 
-  // 🔹 Filtrar según modulosPermitidos
-  const accesos = opciones.filter(op =>
-    modulosPermitidos.some(m => m.nombre.toLowerCase() === op.nombre.toLowerCase())
+  // 🔍 Para debug: ver qué llega desde el backend
+  console.log("🔍 modulosPermitidos:", modulosPermitidos);
+
+  const accesos = opciones.filter((op) =>
+    modulosPermitidos.some((m) => {
+      const nombreOK =
+        m.nombre && m.nombre.toLowerCase() === op.nombre.toLowerCase();
+      const rutaOK =
+        m.ruta &&
+        m.ruta.toLowerCase().trim() === op.path.toLowerCase().trim();
+
+      return nombreOK || rutaOK;
+    })
   );
+
+
+  console.log("✅ Accesos que se van a pintar:", accesos.map(a => a.nombre));
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-10">

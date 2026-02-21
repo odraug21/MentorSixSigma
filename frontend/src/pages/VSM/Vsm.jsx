@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+// src/pages/VSM/Vsm.jsx
+import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-
+import { apiGet, apiPut } from "../../utils/api";
 
 export default function Vsm() {
   const [modo, setModo] = useState("vsm");
@@ -13,6 +14,39 @@ export default function Vsm() {
   ]);
   const [unidad, setUnidad] = useState("segundos");
   const [mostrarDiagrama, setMostrarDiagrama] = useState(false);
+  const [mapaId, setMapaId] = useState(null);
+  const navigate = useNavigate();
+
+  // === Cargar desde backend al entrar ===
+  useEffect(() => {
+    const cargar = async () => {
+      try {
+        const resp = await apiGet("/vsm/mapa");
+        if (resp?.ok && resp.mapa) {
+          setMapaId(resp.mapa.id);
+          setUnidad(resp.mapa.unidad || "segundos");
+
+          if (Array.isArray(resp.mapa.procesos) && resp.mapa.procesos.length > 0) {
+            setProcesos(resp.mapa.procesos);
+          } else {
+            // fallback: borrador local
+            const draft = localStorage.getItem("vsm-draft");
+            if (draft) {
+              setProcesos(JSON.parse(draft));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("❌ Error cargando mapa VSM:", err);
+        const draft = localStorage.getItem("vsm-draft");
+        if (draft) {
+          setProcesos(JSON.parse(draft));
+        }
+      }
+    };
+
+    cargar();
+  }, []);
 
   // === Helpers ===
   const handleChange = (i, field, value) => {
@@ -44,7 +78,11 @@ export default function Vsm() {
     procesos.forEach((p, idx) => {
       doc.text(`${idx + 1}. ${p.etapa}`, 10, y);
       y += 6;
-      doc.text(`CT: ${p.ct} | C/O: ${p.co} | INV: ${p.inventario} | VA%: ${p.va}`, 15, y);
+      doc.text(
+        `CT: ${p.ct} | C/O: ${p.co} | INV: ${p.inventario} | VA%: ${p.va}`,
+        15,
+        y
+      );
       y += 6;
       doc.text(`Obs: ${p.observaciones}`, 15, y);
       y += 8;
@@ -57,16 +95,40 @@ export default function Vsm() {
     (acc, p) => acc + ((parseFloat(p.ct) || 0) * (parseFloat(p.va) || 0)) / 100,
     0
   );
-
   const totalInventario = procesos.reduce(
     (acc, p) => acc + (parseFloat(p.inventario) || 0),
     0
   );
 
+  // 🔹 Guardar en backend
+  const guardarEnBackend = async () => {
+    try {
+      if (!mapaId) {
+        alert("⚠️ No se encontró ID de mapa VSM. Refresca la página para que se cree uno.");
+        return;
+      }
 
-  const navigate = useNavigate();
+      const payload = {
+        unidad,
+        procesos,
+        // si quieres luego: nombre / descripcion
+      };
 
-  // === Vistas ===
+      const resp = await apiPut(`/vsm/mapa/${mapaId}`, payload);
+
+      if (resp?.ok) {
+        localStorage.setItem("vsm-draft", JSON.stringify(procesos));
+        alert("✅ Mapa VSM guardado correctamente en la base de datos.");
+      } else {
+        alert("⚠️ No se pudo guardar el mapa VSM (revisa consola).");
+      }
+    } catch (err) {
+      console.error("❌ Error guardando mapa VSM:", err);
+      alert("❌ Error al guardar mapa VSM.");
+    }
+  };
+
+  // === Render ===
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       {/* --- Selector de modo --- */}
@@ -85,7 +147,6 @@ export default function Vsm() {
         ))}
       </div>
 
-      {/* --- Contenido --- */}
       <AnimatePresence mode="wait">
         {/* VSM */}
         {modo === "vsm" && (
@@ -118,10 +179,7 @@ export default function Vsm() {
                   Limpiar
                 </button>
                 <button
-                  onClick={() => {
-                    localStorage.setItem("vsm-draft", JSON.stringify(procesos));
-                    alert("✅ Borrador guardado correctamente");
-                  }}
+                  onClick={guardarEnBackend}
                   className="bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-700"
                 >
                   Guardar
@@ -133,20 +191,20 @@ export default function Vsm() {
                   Exportar PDF
                 </button>
                 <button
-  onClick={() => navigate("/vsm/builder")}
-  className="bg-yellow-500 px-4 py-2 rounded hover:bg-yellow-600 text-black"
->
-  🧩 Diseñar Mapa VSM
-</button>
-          <button
-            onClick={() => navigate("/vsm/intro")}
-            className="bg-indigo-600 px-6 py-2 rounded hover:bg-indigo-700 transition"
-          >
-            Menú VSM
-          </button>
-
+                  onClick={() => navigate("/vsm/builder")}
+                  className="bg-yellow-500 px-4 py-2 rounded hover:bg-yellow-600 text-black"
+                >
+                  🧩 Diseñar Mapa VSM
+                </button>
+                <button
+                  onClick={() => navigate("/vsm/intro")}
+                  className="bg-indigo-600 px-6 py-2 rounded hover:bg-indigo-700 transition"
+                >
+                  Menú VSM
+                </button>
               </div>
             </div>
+
 
             <AnimatePresence mode="wait">
               {!mostrarDiagrama ? (

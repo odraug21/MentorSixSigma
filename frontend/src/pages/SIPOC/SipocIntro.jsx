@@ -24,20 +24,21 @@ export default function SipocIntro() {
       </ul>
       
       <div className="flex gap-6">
-      <button
-        onClick={() => navigate("/sipoc/builder")}
-        className="bg-indigo-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-700 transition"
-      >
-        🚀 Iniciar SIPOC
-      </button>
-      
-      <button
+        <button
+          onClick={() => navigate("/sipoc/lista")}
+          className="bg-indigo-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-700 transition"
+        >
+          🚀 Iniciar / Ver SIPOC
+        </button>
+
+        <button
           onClick={() => navigate("/inicio")}
           className="bg-gray-600 px-6 py-3 rounded-lg text-lg hover:bg-indigo-700 transition"
         >
           Volver al menú principal
-      </button>
+        </button>
       </div>
     </div>
   );
+
 }
