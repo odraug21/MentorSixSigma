@@ -36,7 +36,10 @@ import sipocRoutes from "./routes/sipocRoutes.js";
 
 import drpRoutes from "./routes/drpRoutes.js";
 
-
+import purchasingRoutes from "./routes/purchasingRoutes.js";
+import salesRoutes from "./routes/salesRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
+import mtcpRoutes from "./routes/mtcpRoutes.js";
 
 // ⭐ IMPORTS NECESARIOS PARA __dirname Y .env
 import path from "path";
@@ -61,6 +64,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+
 
 // Middleware extra para asegurarnos de que todas las respuestas
 // tengan los headers CORS adecuados (incluyendo errores).
@@ -129,6 +134,12 @@ app.use("/api/vsm", vsmRoutes);
 app.use("/api/sipoc", sipocRoutes);
 
 app.use("/api/drp", drpRoutes);
+
+app.use("/api", purchasingRoutes);
+app.use("/api", salesRoutes);
+app.use("/api", dashboardRoutes);
+app.use("/api", mtcpRoutes);
+
 
 // ======================================================
 // HEALTH CHECK

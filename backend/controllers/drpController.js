@@ -119,7 +119,7 @@ export const crearEscenario = async (req, res) => {
 export const ejecutarDrp = async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT fn_run_drp_cycle_v2(CURRENT_DATE, CURRENT_DATE + 7) AS run_id
+      SELECT fn_run_drp_cycle_v3(CURRENT_DATE, CURRENT_DATE + 7) AS run_id
     `);
 
     const run_id = rows[0].run_id;
@@ -437,5 +437,102 @@ export const obtenerPlanPorRun = async (req, res) => {
   } catch (error) {
     console.error("❌ Error obteniendo plan por run:", error);
     res.status(500).json({ ok: false });
+  }
+};
+
+/* ======================================================
+   COMMIT VENTAS
+====================================================== */export const commitVentasUpload = async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { upload_id } = req.params;
+    const empresaId = req.user?.empresa_id;
+
+    await client.query("BEGIN");
+
+    // 1️⃣ verificar estado VALIDATED
+    const uploadCheck = await client.query(
+      `
+      SELECT status
+      FROM drp_file_uploads
+      WHERE upload_id = $1
+      AND empresa_id = $2
+      `,
+      [upload_id, empresaId]
+    );
+
+    if (
+      uploadCheck.rows.length === 0 ||
+      uploadCheck.rows[0].status !== "VALIDATED"
+    ) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        ok: false,
+        message: "El dataset debe estar VALIDATED antes de confirmar"
+      });
+    }
+
+    // 2️⃣ calcular siguiente version_number
+    const versionResult = await client.query(
+      `
+      SELECT COALESCE(MAX(version_number), 0) + 1 AS next_version
+      FROM drp_ventas_hist
+      WHERE empresa_id = $1
+      `,
+      [empresaId]
+    );
+
+    const versionNumber = versionResult.rows[0].next_version;
+
+    // 3️⃣ insertar datos históricos
+    const stagingRows = await client.query(
+      `
+      SELECT raw_json
+      FROM drp_data_staging
+      WHERE upload_id = $1
+      AND empresa_id = $2
+      AND status = 'OK'
+      `,
+      [upload_id, empresaId]
+    );
+
+    for (const row of stagingRows.rows) {
+      await client.query(
+        `
+        INSERT INTO drp_ventas_hist
+          (empresa_id, upload_id, version_number, data)
+        VALUES ($1, $2, $3, $4)
+        `,
+        [empresaId, upload_id, versionNumber, row.raw_json]
+      );
+    }
+
+    // 4️⃣ actualizar upload
+    await client.query(
+      `
+      UPDATE drp_file_uploads
+      SET status = 'COMMITTED',
+          version_number = $1,
+          committed_at = NOW()
+      WHERE upload_id = $2
+      `,
+      [versionNumber, upload_id]
+    );
+
+    await client.query("COMMIT");
+
+    res.json({
+      ok: true,
+      version_number: versionNumber,
+      records_committed: stagingRows.rows.length
+    });
+
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error("Error commit dataset:", error);
+    res.status(500).json({ ok: false });
+  } finally {
+    client.release();
   }
 };
