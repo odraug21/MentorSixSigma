@@ -111,8 +111,16 @@ import DrpCapacidad from "./pages/DRP/DrpCapacidad.jsx";
 import DrpDashboard from "./pages/DRP/DrpDashboard.jsx";
 import DrpPlan from "./pages/DRP/DrpPlan.jsx";
 import DrpControlTower from "./pages/DRP/DrpControlTower.jsx";
+import DrpSkuLogistics from "./pages/DRP/DrpSkuLogistics.jsx";
+import DrpUpload from "./pages/DRP/DrpUpload.jsx";
+import DrpInventory from "./pages/DRP/DrpInventory.jsx";
+
+import MTCPDashboard from "./pages/MTCPDashboard.jsx";
+import KpiMtcp from "./pages/KPI/KpiMtcp.jsx";
 
 
+import PurchaseOrdersList from "./modules/core/purchasing/PurchaseOrdersList.jsx";
+import ReceivePurchaseOrder from "./modules/core/purchasing/ReceivePurchaseOrder.jsx";
 
 // ============================================
 // 🚀 APP ROUTES
@@ -211,6 +219,18 @@ export default function App() {
         <Route path="/drp/dashboard" element={<DrpDashboard />} />
         <Route path="/drp/plan" element={<DrpPlan />} />
         <Route path="/drp/control-tower" element={<DrpControlTower />} />
+        <Route path="/drp/demanda" element={<DrpDemanda />} />
+        <Route path="/drp/sku-logistics" element={<DrpSkuLogistics />} />
+        <Route path="/drp/upload" element={<DrpUpload />} />
+        <Route path="/drp/inventory" element={<DrpInventory />} />
+
+
+        <Route path="/mtcp/dashboard" element={<MTCPDashboard />} />
+        <Route path="/kpi-mtcp" element={<KpiMtcp />} />
+
+        <Route path="/core/purchasing" element={<PurchaseOrdersList />} />
+        <Route path="/core/purchasing/receive/:id" element={<ReceivePurchaseOrder />} />
+
 
 
         {/* Leads */}

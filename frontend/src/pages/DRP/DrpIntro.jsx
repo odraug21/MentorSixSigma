@@ -5,6 +5,22 @@ export default function DrpIntro() {
   const navigate = useNavigate();
 
   const opcionesDrp = [
+
+    {
+      id: "dataHub",
+      title: "🗂 Data Hub",
+      desc: "Carga demanda, logística SKU e inventario base del DRP.",
+      path: "/drp/upload",
+      color: "bg-cyan-700",
+    },
+    {
+      id: "skuLogistics",
+      title: "📦 Maestro Logístico SKU",
+      desc: "Configura parámetros logísticos, lotes, lead time, pallets y segmentación ABC.",
+      path: "/drp/sku-logistics",
+      color: "bg-purple-600",
+    },
+
     {
       id: "plan",
       title: "📦 Plan DRP",
@@ -12,6 +28,7 @@ export default function DrpIntro() {
       path: "/drp/plan",
       color: "bg-blue-600",
     },
+
     {
       id: "dashboard",
       title: "📊 Dashboard DRP",
@@ -20,7 +37,6 @@ export default function DrpIntro() {
       color: "bg-cyan-600",
     },
 
-    /* NUEVO MÓDULO */
     {
       id: "controlTower",
       title: "🧠 Control Tower",
@@ -36,6 +52,7 @@ export default function DrpIntro() {
       path: "/drp/demanda",
       color: "bg-indigo-600",
     },
+
     {
       id: "capacidad",
       title: "🏭 Capacidad",
@@ -43,6 +60,7 @@ export default function DrpIntro() {
       path: "/drp/capacidad",
       color: "bg-emerald-600",
     },
+
     {
       id: "escenarios",
       title: "🧩 Escenarios",
@@ -50,6 +68,7 @@ export default function DrpIntro() {
       path: "/drp/escenarios",
       color: "bg-amber-600",
     },
+    
     {
       id: "proyectos",
       title: "🗂 Proyectos DRP",

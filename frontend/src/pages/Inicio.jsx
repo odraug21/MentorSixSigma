@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config/env";
 
-// tus imágenes
+// imágenes
 import logosixsigma from "../img/logosixsigma.png";
 import logo5s from "../img/logo5s.png";
 import logogemba from "../img/logogemba.png";
@@ -17,16 +17,6 @@ export default function Inicio() {
   const [modulosPermitidos, setModulosPermitidos] = useState([]);
   const token = localStorage.getItem("token");
 
-  // 🔹 helper para comparar nombres de forma robusta
-  const normalizar = (str) =>
-    (str || "")
-      .toString()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // quita tildes
-      .trim()
-      .toLowerCase();
-
-  // 🔹 Cargar módulos permitidos según el rol
   useEffect(() => {
     const cargarModulos = async () => {
       try {
@@ -36,76 +26,90 @@ export default function Inicio() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-
-        console.log("📦 Módulos permitidos desde backend:", res.data);
         setModulosPermitidos(res.data || []);
       } catch (err) {
-        console.error("❌ Error cargando módulos permitidos:", err);
-        setModulosPermitidos([]);
+        console.error(err);
       }
     };
     if (token) cargarModulos();
   }, [token]);
 
-  // 🔹 Lista completa de opciones (solo frontend)
   const opciones = [
-    { nombre: "A3", title: "📘 A3 Solución de Problema", path: "/a3/intro", color: "bg-blue-600", img: logosixsigma },
-    { nombre: "5S", title: "🧭 5S - Organización", path: "/5s/intro", color: "bg-green-600", img: logo5s },
-    { nombre: "Gemba Walk", title: "🚶 Gemba Walk", path: "/gemba/intro", color: "bg-yellow-500", img: logogemba },
-    { nombre: "OEE", title: "⚙️ OEE", path: "/oee/intro", color: "bg-indigo-600", img: logolean },
-    { nombre: "OOE", title: "🚀 OOE", path: "/ooe/intro", color: "bg-purple-600", img: logolean },
-    { nombre: "TEEP", title: "🏭 TEEP", path: "/teep/intro", color: "bg-teal-600", img: logolean },
-    { nombre: "KPI", title: "💡 Panel LEAN", path: "/kpi/dashboard", color: "bg-pink-600", img: logolean },
-    { nombre: "VSM", title: "📊 VSM", path: "/vsm/intro", color: "bg-orange-600", img: logovsm },
-    { nombre: "SIPOC", title: "🔗 SIPOC", path: "/sipoc/intro", color: "bg-red-600", img: logosipoc },
-    { nombre: "DRP", title: "📦 DRP – Plan Logístico", path: "/drp/intro", color: "bg-cyan-600", img: logolean },
-  ];
+    // ================= LEAN =================
+    { grupo: "LEAN", nombre: "A3", title: "📘 A3", path: "/a3/intro", color: "bg-blue-600", img: logosixsigma },
+    { grupo: "LEAN", nombre: "5S", title: "🧭 5S", path: "/5s/intro", color: "bg-green-600", img: logo5s },
+    { grupo: "LEAN", nombre: "Gemba Walk", title: "🚶 Gemba", path: "/gemba/intro", color: "bg-yellow-500", img: logogemba },
+    { grupo: "LEAN", nombre: "OEE", title: "⚙️ OEE", path: "/oee/intro", color: "bg-indigo-600", img: logolean },
+    { grupo: "LEAN", nombre: "OOE", title: "🚀 OOE", path: "/ooe/intro", color: "bg-purple-600", img: logolean },
+    { grupo: "LEAN", nombre: "TEEP", title: "🏭 TEEP", path: "/teep/intro", color: "bg-teal-600", img: logolean },
+    { grupo: "LEAN", nombre: "KPI", title: "💡 KPI LEAN", path: "/kpi/dashboard", color: "bg-pink-600", img: logolean },
+    { grupo: "LEAN", nombre: "VSM", title: "📊 VSM", path: "/vsm/intro", color: "bg-orange-600", img: logovsm },
+    { grupo: "LEAN", nombre: "SIPOC", title: "🔗 SIPOC", path: "/sipoc/intro", color: "bg-red-600", img: logosipoc },
 
-  // 🔍 Para debug: ver qué llega desde el backend
-  console.log("🔍 modulosPermitidos:", modulosPermitidos);
+    // ================= PLANNING =================
+    { grupo: "PLANNING", nombre: "DRP", title: "📦 DRP", path: "/drp/intro", color: "bg-cyan-600", img: logolean },
+    { grupo: "PLANNING", nombre: "MTCP", title: "🧠 MTCP", path: "/mtcp/dashboard", color: "bg-red-700", img: logolean },
+
+    // ================= WMS =================
+    { grupo: "WMS", nombre: "Compras", title: "📦 Compras", path: "/core/purchasing", color: "bg-gray-700", img: logolean },
+  ];
 
   const accesos = opciones.filter((op) =>
     modulosPermitidos.some((m) => {
-      const nombreOK =
-        m.nombre && m.nombre.toLowerCase() === op.nombre.toLowerCase();
-      const rutaOK =
-        m.ruta &&
-        m.ruta.toLowerCase().trim() === op.path.toLowerCase().trim();
-
-      return nombreOK || rutaOK;
+      return (
+        m.nombre?.toLowerCase() === op.nombre.toLowerCase() ||
+        m.ruta?.toLowerCase().trim() === op.path.toLowerCase().trim()
+      );
     })
   );
 
+  const renderGrupo = (titulo) => {
+    const grupoItems = accesos.filter((op) => op.grupo === titulo);
 
-  console.log("✅ Accesos que se van a pintar:", accesos.map(a => a.nombre));
+    if (grupoItems.length === 0) return null;
+
+    return (
+      <div className="mb-16">
+        <h2 className="text-2xl font-bold text-indigo-400 mb-6">
+          {titulo}
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {grupoItems.map((op, idx) => (
+            <div
+              key={idx}
+              onClick={() => navigate(op.path)}
+              className={`${op.color} cursor-pointer p-6 rounded-2xl shadow-lg hover:scale-105 transition`}
+            >
+              <div className="flex flex-col items-center text-center">
+                <img src={op.img} alt={op.nombre} className="h-20 mb-4 rounded-lg" />
+                <h3 className="text-lg font-semibold">{op.title}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-10">
+
       <h1 className="text-3xl font-bold text-indigo-400 mb-4 text-center">
-        Panel de Excelencia Operacional
+        Plataforma Operacional Integrada
       </h1>
-      <p className="text-center text-gray-300 mb-10">
-        Selecciona la herramienta con la que deseas trabajar
+
+      <p className="text-center text-gray-400 mb-12">
+        LEAN • Planning • WMS • Inteligencia Operacional
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {accesos.map((op, idx) => (
-          <div
-            key={idx}
-            onClick={() => navigate(op.path)}
-            className={`${op.color} cursor-pointer p-6 rounded-2xl shadow-lg transform hover:scale-105 transition duration-300`}
-          >
-            <div className="flex flex-col items-center justify-center text-center">
-              <img src={op.img} alt={op.nombre} className="h-24 mb-4 rounded-lg" />
-              <h2 className="text-xl font-semibold">{op.title}</h2>
-            </div>
-          </div>
-        ))}
-      </div>
+      {renderGrupo("LEAN")}
+      {renderGrupo("PLANNING")}
+      {renderGrupo("WMS")}
 
       {accesos.length === 0 && (
         <p className="text-center text-gray-400 mt-10">
-          No tienes módulos asignados para este perfil.
+          No tienes módulos asignados.
         </p>
       )}
     </div>
